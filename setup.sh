@@ -3,7 +3,7 @@
 script_dir="$( cd "$( dirname "$0" )" && pwd )"
 venv=${VENV:-"venv"}
  
-default_requirements="$script_dir/codalab/requirements/dev_azure_nix.txt"
+default_requirements="$script_dir/codalab/requirements/common.txt"
  
 python=$(which ${PYTHON:-python2.7})
 if [ ! -f $python ]; then

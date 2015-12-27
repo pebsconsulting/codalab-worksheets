@@ -209,13 +209,8 @@ class Base(Settings):
 
         # CodaLab apps
         'apps.authenz',
-        'apps.jobs',
         'apps.api',
         'apps.web',
-        'apps.health',
-        'apps.analytics',
-        'apps.forums',
-        'apps.coopetitions',
         'apps.common',
 
         # Authentication app, enables social authentication

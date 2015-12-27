@@ -189,14 +189,6 @@ class DeploymentConfig(BaseConfig):
         """
         return self._svc['django']['preview'] if 'preview' in self._svc['django'] else 0
 
-    def getEnableWorksheets(self):
-        """Return whether worksheets are enabled"""
-        return self._svc['django'].get('enable-worksheets', False)
-
-    def getEnableCompetitions(self):
-        """Return whether competitions are enabled"""
-        return self._svc['django'].get('enable-competitions', False)
-
     def getDatabaseEngine(self):
         """Gets the database engine type."""
         return self._svc['database']['engine']
@@ -912,12 +904,6 @@ class Deployment(object):
             self.config.getSslRewriteHosts() + \
             ['{0}.cloudapp.net'.format(self.config.getServiceName())]
 
-        storage_key = None
-        namespace = None
-        if self.config.getEnableCompetitions():
-            storage_key = self._getStorageAccountKey(self.config.getServiceStorageAccountName())
-            namespace = self.sbms.get_namespace(self.config.getServiceBusNamespace())
-
         if len(self.config.getSslCertificateInstalledPath()) > 0:
             bundle_auth_scheme = "https"
         else:
@@ -946,20 +932,6 @@ class Deployment(object):
             "    SSL_CERTIFICATE = '{0}'".format(self.config.getSslCertificateInstalledPath()),
             "    SSL_CERTIFICATE_KEY = '{0}'".format(self.config.getSslCertificateKeyInstalledPath()),
             "    SSL_ALLOWED_HOSTS = {0}".format(ssl_allowed_hosts),
-            "",
-            "    DEFAULT_FILE_STORAGE = 'codalab.azure_storage.AzureStorage'",
-            "    AZURE_ACCOUNT_NAME = '{0}'".format(self.config.getServiceStorageAccountName()),
-            "    AZURE_ACCOUNT_KEY = '{0}'".format(storage_key),
-            "    AZURE_CONTAINER = '{0}'".format(self.config.getServicePublicStorageContainer()),
-            "    BUNDLE_AZURE_ACCOUNT_NAME = AZURE_ACCOUNT_NAME",
-            "    BUNDLE_AZURE_ACCOUNT_KEY = AZURE_ACCOUNT_KEY",
-            "    BUNDLE_AZURE_CONTAINER = '{0}'".format(self.config.getServiceBundleStorageContainer()),
-            "",
-            "    SBS_NAMESPACE = '{0}'".format(self.config.getServiceBusNamespace()),
-            "    SBS_ISSUER = 'owner'",
-            "    SBS_ACCOUNT_KEY = '{0}'".format(namespace.default_key if namespace else 'n/a'),
-            "    SBS_RESPONSE_QUEUE = 'jobresponsequeue'",
-            "    SBS_COMPUTE_QUEUE = 'windowscomputequeue'",
             "",
             "    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'",
             "    EMAIL_HOST = '{0}'".format(self.config.getEmailHost()),
@@ -1005,8 +977,5 @@ class Deployment(object):
             "    sys.path.append(BUNDLE_SERVICE_CODE_PATH)",
             "    codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)",
             "    NEW_RELIC_KEY = '{0}'".format(self.config.getNewRelicKey()),
-            "",
-            "    ENABLE_WORKSHEETS = %s" % self.config.getEnableWorksheets(),
-            "    ENABLE_COMPETITIONS = %s" % self.config.getEnableCompetitions(),
         ]
         return '\n'.join(lines) + '\n'

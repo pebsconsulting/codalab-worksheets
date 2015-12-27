@@ -10,6 +10,8 @@ import subprocess
 import random
 import time
 
+# TODO: don't call 'cl' to create temporary worksheets.  Go through the web interface.
+
 class CodalabTestCase(unittest.TestCase):
 
     def run_command(self, args, expected_exit_code=0):
