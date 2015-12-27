@@ -10,23 +10,7 @@ import time
 # Add codalabtools to the module search path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from azure import WindowsAzureMissingResourceError
-from azure.servicemanagement import (ConfigurationSet,
-                                     ConfigurationSetInputEndpoint,
-                                     KeyPair,
-                                     LinuxConfigurationSet,
-                                     OSVirtualHardDisk,
-                                     PublicKey,
-                                     ServiceManagementService,
-                                     ServiceBusManagementService)
-from azure.storage import BlobService
-from azure.servicebus import ServiceBusService
-
 from codalabtools import BaseConfig
-from codalabtools.azure_extensions import (
-    Cors,
-    CorsRule,
-    set_storage_service_cors_properties)
 
 logger = logging.getLogger('codalabtools')
 
@@ -343,8 +327,6 @@ class Deployment(object):
     """
     def __init__(self, config):
         self.config = config
-        self.sms = ServiceManagementService(config.getAzureSubscriptionId(), config.getAzureCertificatePath())
-        self.sbms = ServiceBusManagementService(config.getAzureSubscriptionId(), config.getAzureCertificatePath())
 
     @staticmethod
     def _resource_exists(get_resource):

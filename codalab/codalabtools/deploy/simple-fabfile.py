@@ -52,7 +52,6 @@ def config(label):
     """
     env.cfg_label = label
     print "Deployment label is:", env.cfg_label
-    filename = ".codalabconfig"
     print "Loading configuration from:", env.cfg_path
     configuration = DeploymentConfig(label, env.cfg_path)
     print "Configuring logger..."
@@ -68,7 +67,7 @@ def config(label):
     # Repository
     env.git_codalab_tag = configuration.getGitTag()
     env.git_codalab_cli_tag = configuration.getBundleServiceGitTag()
-    env.deploy_codalab_dir = 'codalab'
+    env.deploy_codalab_worksheets_dir = 'codalab-worksheets'
     env.deploy_codalab_cli_dir = 'codalab-cli'
 
     env.django_settings_module = 'codalab.settings'
@@ -86,7 +85,7 @@ def setup_env():
         CONFIG_HTTP_PORT=env.config_http_port,
         CONFIG_SERVER_NAME=env.config_server_name,
     ))
-    return prefix('source ~/%s/venv/bin/activate' % env.deploy_codalab_dir), shell_env(**env.SHELL_ENV)
+    return prefix('source ~/%s/venv/bin/activate' % env.deploy_codalab_worksheets_dir), shell_env(**env.SHELL_ENV)
 
 ############################################################
 # Installation (one-time)
@@ -105,13 +104,13 @@ def install():
     # Setup repositories
     def ensure_repo_exists(repo, dest):
         run('[ -e %s ] || git clone %s %s' % (dest, repo, dest))
-    ensure_repo_exists('https://github.com/codalab/codalab', env.deploy_codalab_dir)
+    ensure_repo_exists('https://github.com/codalab/codalab-worksheets', env.deploy_codalab_worksheets_dir)
     ensure_repo_exists('https://github.com/codalab/codalab-cli', env.deploy_codalab_cli_dir)
 
     # Initial setup
-    with cd(env.deploy_codalab_dir):
+    with cd(env.deploy_codalab_worksheets_dir):
         run('git checkout %s' % env.git_codalab_tag)
-        run('./dev_setup.sh')
+        run('./setup.sh')
     with cd(env.deploy_codalab_cli_dir):
         run('git checkout %s' % env.git_codalab_cli_tag)
         run('./setup.sh')
@@ -184,16 +183,13 @@ def supervisor(command):
     Starts the supervisor on the web instances.
     """
     env_prefix, env_shell = setup_env()
-    with env_prefix, env_shell, cd(env.deploy_codalab_dir):
+    with env_prefix, env_shell, cd(env.deploy_codalab_worksheets_dir):
         if command == 'start':
             run('mkdir -p ~/logs')
             run('supervisord -c codalab/config/generated/supervisor.conf')
         elif command == 'stop':
             run('supervisorctl -c codalab/config/generated/supervisor.conf stop all')
             run('supervisorctl -c codalab/config/generated/supervisor.conf shutdown')
-            # HACK: since competition worker is multithreaded, we need to kill all running processes
-            with settings(warn_only=True):
-                run('pkill -9 -f worker.py')
         elif command == 'restart':
             run('supervisorctl -c codalab/config/generated/supervisor.conf restart all')
         else:
@@ -224,7 +220,7 @@ def maintenance(mode):
 
     # Update nginx.conf
     env_prefix, env_shell = setup_env()
-    with env_prefix, env_shell, cd(env.deploy_codalab_dir), cd('codalab'):
+    with env_prefix, env_shell, cd(env.deploy_codalab_worksheets_dir), cd('codalab'):
         run('python manage.py config_gen')
 
     nginx_restart()
@@ -244,10 +240,10 @@ def deploy():
 def _deploy():
     # Update website
     env_prefix, env_shell = setup_env()
-    with env_prefix, env_shell, cd(env.deploy_codalab_dir):
+    with env_prefix, env_shell, cd(env.deploy_codalab_worksheets_dir):
         run('git pull')
         run('git checkout %s' % env.git_codalab_tag)
-        run('./dev_setup.sh')
+        run('./setup.sh')
 
     # Update bundle service
     with cd(env.deploy_codalab_cli_dir):
@@ -262,12 +258,12 @@ def _deploy():
     dep = Deployment(cfg)
     buf = StringIO()
     buf.write(dep.getSettingsFileContent())
-    settings_file = os.path.join(env.deploy_codalab_dir, 'codalab', 'codalab', 'settings', 'local.py')
+    settings_file = os.path.join(env.deploy_codalab_worksheets_dir, 'codalab', 'codalab', 'settings', 'local.py')
     put(buf, settings_file)
 
     # Update the website configuration
     env_prefix, env_shell = setup_env()
-    with env_prefix, env_shell, cd(env.deploy_codalab_dir), cd('codalab'):
+    with env_prefix, env_shell, cd(env.deploy_codalab_worksheets_dir), cd('codalab'):
         # Generate configuration files (bundle_server_config, nginx, etc.)
         run('python manage.py config_gen')
         # Migrate database
