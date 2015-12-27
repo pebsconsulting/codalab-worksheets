@@ -4,8 +4,8 @@ machine:
 
 dependencies:
   pre:
-    - pip install -r codalab/requirements/dev_azure_nix.txt
+    - pip install -r codalab/requirements/common.txt
 
 test:
   override:
-    - (cd codalab && python manage.py test)
+    - (cd codalab && python manage.py get_users)
