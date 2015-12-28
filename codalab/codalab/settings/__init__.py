@@ -13,7 +13,8 @@ import codalab
 
 class Base(Settings):
     # Load config file
-    config_path = os.path.join(os.getenv('HOME'), '.codalab', 'website-config.json')
+    codalab_home = os.getenv('CODALAB_HOME', os.path.join(os.getenv('HOME'), '.codalab'))
+    config_path = os.path.join(codalab_home, 'website-config.json')
     if not os.path.exists(config_path):
         raise RuntimeError('Configuration file does not exist: %s' % config_path)
     config = json.loads(open(config_path).read())
