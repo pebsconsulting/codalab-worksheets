@@ -490,7 +490,8 @@ def _deploy():
     # Create local.py
     cfg = DeploymentConfig(env.cfg_label, env.cfg_path)
     buf = StringIO()
-    buf.write(json.dumps(getWebsiteConfig(cfg)))
+    json.dump(getWebsiteConfig(cfg), buf, sort_keys=True, indent=4, separators=(',', ': '))
+    buf.write('\n')
     put(buf, '.codalab/website-config.json')
 
     # Update the website configuration

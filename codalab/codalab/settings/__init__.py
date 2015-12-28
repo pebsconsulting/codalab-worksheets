@@ -22,9 +22,6 @@ class Base(Settings):
     PROJECT_APP_DIR = os.path.dirname(SETTINGS_DIR)
     PROJECT_DIR = os.path.dirname(PROJECT_APP_DIR)
     ROOT_DIR = os.path.dirname(PROJECT_DIR)
-    PORT = '8000'
-    DOMAIN_NAME = 'localhost'
-    SERVER_NAME = 'localhost'
     DEBUG = False
     TEMPLATE_DEBUG = DEBUG
 
@@ -33,14 +30,10 @@ class Base(Settings):
     LOCAL_MATHJAX = False # see prep_for_offline
     LOCAL_ACE_EDITOR = False # see prep_for_offline
 
-    if 'CONFIG_SERVER_NAME' in os.environ:
-        SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME')
-    if 'CONFIG_HTTP_PORT' in os.environ:
-        PORT = os.environ.get('CONFIG_HTTP_PORT')
-
-    MAINTENANCE_MODE = 0
-    if 'MAINTENANCE_MODE' in os.environ:
-        MAINTENANCE_MODE = os.environ.get('MAINTENANCE_MODE')
+    DOMAIN_NAME = 'localhost'
+    SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME', 'localhost')
+    PORT = os.environ.get('CONFIG_HTTP_PORT', 8000)
+    MAINTENANCE_MODE = os.environ.get('MAINTENANCE_MODE', 0)
 
     STARTUP_ENV = {
         'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'],
@@ -53,8 +46,7 @@ class Base(Settings):
     SSL_CERTIFICATE_KEY = config.get('SSL_CERTIFICATE_KEY')
     SSL_ALLOWED_HOSTS = config.get('SSL_ALLOWED_HOSTS')
 
-    TEST_DATA_PATH = os.path.join(PROJECT_DIR,'test_data')
-    TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'  #'codalab.test_runner.CodalabTestRunner'
+    # For config_gen
     CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR, 'config', 'templates')
     CONFIG_GEN_GENERATED_DIR = os.path.join(PROJECT_DIR, 'config', 'generated')
 
@@ -107,10 +99,25 @@ class Base(Settings):
     # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
     ALLOWED_HOSTS = config.get('ALLOWED_HOSTS', [])
 
+    # Email Configuration
+    if 'email' in config:
+        EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+        EMAIL_HOST = config['email']['host']
+        EMAIL_HOST_USER = config['email']['user']
+        EMAIL_HOST_PASSWORD = config['email']['password']
+        EMAIL_PORT = 587
+        EMAIL_USE_TLS = True
+        DEFAULT_FROM_EMAIL = 'CodaLab <noreply@codalab.org>'
+        SERVER_EMAIL = 'noreply@codalab.org'
+    else:
+        EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
     ADMINS = []
     if 'django' in config:
         ADMINS.append(('Admin', config['django']['admin-email']))
     MANAGERS = ADMINS
+
+    ############################################################
 
     # Local time zone for this installation. Choices can be found here:
     # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -121,10 +128,6 @@ class Base(Settings):
     # Language code for this installation. All choices can be found here:
     # http://www.i18nguy.com/unicode/language-identifiers.html
     LANGUAGE_CODE = 'en-us'
-
-    SITE_ID = 1
-    CODALAB_SITE_DOMAIN = 'codalab.org'
-    CODALAB_SITE_NAME = 'CodaLab'
 
     # If you set this to False, Django will make some optimizations so as not
     # to load the internationalization machinery.
@@ -279,20 +282,6 @@ class Base(Settings):
         'ACCESS_TOKEN_EXPIRE_SECONDS': 60 * 60 * 24 * 30,  # 30 days
     }
 
-    # Email Configuration
-    if 'email' in config:
-        EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-        EMAIL_HOST = config['email']['host']
-        EMAIL_HOST_USER = config['email']['user']
-        EMAIL_HOST_PASSWORD = config['email']['password']
-        EMAIL_PORT = 587
-        EMAIL_USE_TLS = True
-        DEFAULT_FROM_EMAIL = 'CodaLab <noreply@codalab.org>'
-        SERVER_EMAIL = 'noreply@codalab.org'
-    else:
-        EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-
     # Authentication configuration
     LOGIN_REDIRECT_URL = '/'
     ANONYMOUS_USER_ID = -1
@@ -425,6 +414,7 @@ class Base(Settings):
         if not hasattr(cls,'SERVER_NAME'):
             raise AttributeError("SERVER_NAME environment variable required")
 
+############################################################
 
 class Dev(Base):
     OPTIONAL_APPS = ('debug_toolbar','django_extensions',)

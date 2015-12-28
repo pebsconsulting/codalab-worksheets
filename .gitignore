@@ -1,6 +1,10 @@
 *.pyc
 
+codalab/static
+
 venv/
+
+# 3rd-party
 **/vendor/ace-editor
 **/vendor/mathjax
 MathJax-master
