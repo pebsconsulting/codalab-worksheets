@@ -30,6 +30,7 @@ class Base(Settings):
     LOCAL_MATHJAX = False # see prep_for_offline
     LOCAL_ACE_EDITOR = False # see prep_for_offline
 
+    SITE_ID = 1
     DOMAIN_NAME = 'localhost'
     SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME', 'localhost')
     PORT = os.environ.get('CONFIG_HTTP_PORT', 8000)
