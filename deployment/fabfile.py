@@ -1,5 +1,6 @@
 """
-Defines deployment commands.
+Deployment for CodaLab Worksheets.
+Usage: create a deployment.config file.
 """
 
 import datetime
@@ -8,9 +9,8 @@ import logging.config
 import os
 from os.path import (abspath, dirname)
 import sys
-
-# Add codalabtools to the module search path
-sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
+import yaml
+import json
 
 from StringIO import StringIO
 from fabric.api import (cd,
@@ -30,9 +30,244 @@ from fabric.api import (cd,
 from fabric.contrib.files import exists
 from fabric.network import ssh
 from fabric.utils import fastprint
-from codalabtools.deploy import DeploymentConfig, Deployment
 
-logger = logging.getLogger('codalabtools')
+logger = logging.getLogger('deployment')
+
+############################################################
+
+class DeploymentConfig(object):
+    """
+    Defines credentials and configuration values needed to deploy CodaLab.
+    """
+    def __init__(self, label, filename):
+        self.label = label
+        with open(filename, 'r') as f:
+            info = yaml.load(f)
+        self._dinfo = info['deployment']
+        self._svc_global = self._dinfo['service-global']
+        self._svc = self._dinfo['service-configurations'][label] if label is not None else {}
+        self.new_relic_key = self._dinfo['new-relic-key']
+
+    def getNewRelicKey(self):
+        return self.new_relic_key
+
+    def getLoggerDictConfig(self):
+        """Gets Dict config for logging configuration."""
+        if 'logging' in self._dinfo:
+            return self._dinfo['logging']
+        else:
+            return None
+
+    def getServicePrefix(self):
+        """Gets the unique prefix used to build the name of services and other resources."""
+        return self._svc_global['prefix']
+
+    def getServiceCertificateAlgorithm(self):
+        """Gets the algorithm for the service certificate."""
+        return self._svc_global['certificate']['algorithm']
+
+    def getServiceCertificateThumbprint(self):
+        """Gets the thumbprint for the service certificate."""
+        return self._svc_global['certificate']['thumbprint']
+
+    def getServiceCertificateFilename(self):
+        """Gets the local path of the file holding the service certificate."""
+        return self._svc_global['certificate']['filename']
+
+    def getServiceCertificateKeyFilename(self):
+        """Gets the local path of the file holding the service certificate key."""
+        return self._svc_global['certificate']['key-filename']
+
+    def getServiceCertificateFormat(self):
+        """Gets the format of the service certificate."""
+        return self._svc_global['certificate']['format']
+
+    def getServiceCertificatePassword(self):
+        """Gets the password for the service certificate."""
+        return self._svc_global['certificate']['password']
+
+    def getVirtualMachineLogonUsername(self):
+        """Gets the username to log into a virtual machine of the service deployment."""
+        return self._svc_global['vm']['username']
+
+    def getVirtualMachineLogonPassword(self):
+        """Gets the password to log into a virtual machine of the service deployment."""
+        return self._svc_global['vm']['password']
+
+    def getEmailInfo(self):
+        return self._svc_global['email']
+
+    def getServiceName(self):
+        """Gets the cloud service name."""
+        return "{0}{1}".format(self.getServicePrefix(), self.label)
+
+    def getServiceOSImageName(self):
+        """Gets the name of the OS image used to create virtual machines in the service deployment."""
+        return self._svc['vm']['os-image']
+
+    def getServiceInstanceCount(self):
+        """Gets the number of virtual machines to create in the service deployment."""
+        return self._svc['vm']['count']
+
+    def getServiceInstanceRoleSize(self):
+        """Gets the role size for each virtual machine in the service deployment."""
+        return self._svc['vm']['role-size']
+
+    def getServiceInstanceSshPort(self):
+        """Gets the base SSH port value. If this value is N, the k-th web instance will have SSH port number (N+k)."""
+        return self._svc['vm']['ssh-port']
+
+    def getGitUser(self):
+        """Gets the name of the Git user associated with the target source code repository."""
+        return self._svc['git']['user']
+
+    def getGitRepo(self):
+        """Gets the name of the Git of the target source code repository."""
+        return self._svc['git']['repo']
+
+    def getGitTag(self):
+        """Gets the Git tag defining the specific version of the source code."""
+        return self._svc['git']['tag']
+
+    def getDjangoInfo(self):
+        """Gets the value of the Django secret key."""
+        return self._svc['django']
+
+    def getDatabaseEngine(self):
+        """Gets the database engine type."""
+        return self._svc['database']['engine']
+
+    def getDatabaseName(self):
+        """Gets the Django site database name."""
+        return self._svc['database']['name']
+
+    def getDatabaseUser(self):
+        """Gets the database username."""
+        return self._svc['database']['user']
+
+    def getDatabasePassword(self):
+        """Gets the password for the database user."""
+        return self._svc['database']['password']
+
+    def getDatabaseHost(self):
+        """Gets the database host."""
+        return self._svc['database']['host']
+
+    def getDatabasePort(self):
+        """Gets the database port."""
+        return self._svc['database']['port']
+
+    def getDatabaseAdminPassword(self):
+        """Gets the password for the database admin."""
+        return self._svc['database']['admin_password']
+
+    def getSslCertificatePath(self):
+        """Gets the path of the SSL certificate file to install."""
+        return self._svc['ssl']['filename'] if 'ssl' in self._svc else ""
+
+    def getSslCertificateKeyPath(self):
+        """Gets the path of the SSL certificate key file to install."""
+        return self._svc['ssl']['key-filename'] if 'ssl' in self._svc else ""
+
+    def getSslCertificateInstalledPath(self):
+        """Gets the path of the installed SSL certificate file."""
+        if len(self.getSslCertificatePath()) > 0:
+            return "/etc/ssl/certs/%s" % os.path.basename(self.getSslCertificatePath())
+        else:
+            return ""
+
+    def getSslCertificateKeyInstalledPath(self):
+        """Gets the path of the installed SSL certificate key file."""
+        if len(self.getSslCertificateKeyPath()) > 0:
+            return "/etc/ssl/private/%s" % os.path.basename(self.getSslCertificateKeyPath())
+        else:
+            return ""
+
+    def getSslRewriteHosts(self):
+        """Gets the list of hosts for which HTTP requests are automatically re-written as HTTPS requests."""
+        if 'ssl' in self._svc and 'rewrite-hosts' in self._svc['ssl']:
+            return self._svc['ssl']['rewrite-hosts']
+        return []
+
+    def getWebHostnames(self):
+        """
+        Gets the list of web instances. Each name in the list if of the form '<service-name>.cloudapp.net:<port>'.
+        """
+        service_name = self.getServiceName()  # e.g., codalab
+        vm_numbers = range(1, 1 + self.getServiceInstanceCount())  # e.g., prod
+        ssh_port = self.getServiceInstanceSshPort()
+        return ['{0}.cloudapp.net:{1}'.format(service_name, str(ssh_port + vm_number)) for vm_number in vm_numbers]
+
+    def getBundleServiceGitUser(self):
+        """Gets the name of the Git user associated with the target source code repository for bundles."""
+        return self._svc['git-bundles']['user'] if 'git-bundles' in self._svc else ""
+
+    def getBundleServiceGitRepo(self):
+        """Gets the name of the Git of the target source code repository  for bundles."""
+        return self._svc['git-bundles']['repo'] if 'git-bundles' in self._svc else ""
+
+    def getBundleServiceGitTag(self):
+        """Gets the Git tag defining the specific version of the source code  for bundles."""
+        return self._svc['git-bundles']['tag'] if 'git-bundles' in self._svc else ""
+
+    def getBundleServiceDatabaseName(self):
+        """Gets the bundle service database name."""
+        return self._svc['database']['bundle_db_name'] if 'bundle_db_name' in self._svc['database'] else ""
+
+    def getBundleServiceDatabaseUser(self):
+        """Gets the database username."""
+        return self._svc['database']['bundle_user'] if 'bundle_user' in self._svc['database'] else ""
+
+    def getBundleServiceDatabasePassword(self):
+        """Gets the password for the database user."""
+        return self._svc['database']['bundle_password'] if 'bundle_password' in self._svc['database'] else ""
+
+############################################################
+
+def getWebsiteConfig(config):
+    """
+    Generates the ~/.codalab/website-config.json file.
+    """
+    # Use the same allowed hosts for SSL and not SSL
+    allowed_hosts = ssl_allowed_hosts = \
+        config.getSslRewriteHosts() + \
+        ['{0}.cloudapp.net'.format(config.getServiceName())]
+
+    if len(config.getSslCertificateInstalledPath()) > 0:
+        bundle_auth_scheme = "https"
+    else:
+        bundle_auth_scheme = "http"
+    bundle_auth_host = allowed_hosts[0]
+    bundle_auth_url = "{0}://{1}".format(bundle_auth_scheme, bundle_auth_host)
+
+    return {
+        'ALLOWED_HOSTS': allowed_hosts,
+        'SSL_PORT': 443,
+        'SSL_CERTIFICATE': config.getSslCertificateInstalledPath(),
+        'SSL_CERTIFICATE_KEY': config.getSslCertificateKeyInstalledPath(),
+        'SSL_ALLOWED_HOSTS': ssl_allowed_hosts,
+        'email': config.getEmailInfo(),
+        'django': config.getDjangoInfo(),
+        'database': {
+            'ENGINE': config.getDatabaseEngine(),
+            'NAME': config.getDatabaseName(),
+            'USER': config.getDatabaseUser(),
+            'PASSWORD': config.getDatabasePassword(),
+            'HOST': config.getDatabaseHost(),
+            'PORT': config.getDatabasePort(),
+            'OPTIONS': {
+                'init_command': 'SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED',
+                'read_timeout': 5,
+            }
+        },
+        # For generating OAuth key (not ideal) - consider generating the config file directly.
+        'BUNDLE_DB_NAME': config.getBundleServiceDatabaseName(),
+        'BUNDLE_DB_USER': config.getBundleServiceDatabaseUser(),
+        'BUNDLE_DB_PASSWORD': config.getBundleServiceDatabasePassword(),
+        'BUNDLE_AUTH_URL': bundle_auth_url,
+        # New relic
+        'NEW_RELIC_KEY': config.getNewRelicKey(),
+    }
 
 ############################################################
 # Configuration (run every time)
@@ -56,7 +291,6 @@ def config(label):
     configuration = DeploymentConfig(label, env.cfg_path)
     print "Configuring logger..."
     logging.config.dictConfig(configuration.getLoggerDictConfig())
-    logger.info("Loaded configuration from file: %s", configuration.getFilename())
     env.roledefs = {'web' : configuration.getWebHostnames()}
 
     # Credentials
@@ -71,7 +305,7 @@ def config(label):
     env.deploy_codalab_cli_dir = 'codalab-cli'
 
     env.django_settings_module = 'codalab.settings'
-    env.django_configuration = configuration.getDjangoConfiguration()  # Prod or Dev
+    env.django_configuration = configuration.getDjangoInfo()['configuration']  # Prod or Dev
     env.config_http_port = '80'
     env.config_server_name = "{0}.cloudapp.net".format(configuration.getServiceName())
 
@@ -174,7 +408,7 @@ def install_mysql(choice='all'):
 
 
 ############################################################
-# Deployment
+# Deployment (after each update)
 
 @roles('web')
 @task
@@ -255,11 +489,9 @@ def _deploy():
 
     # Create local.py
     cfg = DeploymentConfig(env.cfg_label, env.cfg_path)
-    dep = Deployment(cfg)
     buf = StringIO()
-    buf.write(dep.getSettingsFileContent())
-    settings_file = os.path.join(env.deploy_codalab_worksheets_dir, 'codalab', 'codalab', 'settings', 'local.py')
-    put(buf, settings_file)
+    buf.write(json.dumps(getWebsiteConfig(cfg)))
+    put(buf, '.codalab/website-config.json')
 
     # Update the website configuration
     env_prefix, env_shell = setup_env()
