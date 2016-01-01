@@ -1,12 +1,12 @@
 /** @jsx React.DOM */
 
-// Display a worksheet item which is the HTML file in a bundle.
-var HTMLBundle = React.createClass({
+// Display a worksheet item representing the file contents of a bundle.
+var ContentsItem = React.createClass({
     mixins: [CheckboxMixin, GoToBundleMixin],
-    getInitialState: function() {
+    getInitialState: function(){
         return {};
     },
-    handleClick: function(event) {
+    handleClick: function(event){
         this.props.setFocus(this.props.focusIndex, 0);
     },
 
@@ -15,13 +15,14 @@ var HTMLBundle = React.createClass({
     },
 
     render: function() {
-        var className = 'type-html' + (this.props.focused ? ' focused' : '');
-        var contents = html_sanitize(this.props.item.interpreted.join(''));
+        var className = 'type-contents' + (this.props.focused ? ' focused' : '');
+        var contents = this.props.item.interpreted.join('');
         return(
             <div className="ws-item" onClick={this.handleClick}>
                 <div className={className} ref={this.props.item.ref}>
-                    <div className="html-bundle" dangerouslySetInnerHTML={{__html: contents}}>
-                    </div>
+                    <blockquote>
+                        <p>{contents}</p>
+                    </blockquote>
                 </div>
             </div>
         );

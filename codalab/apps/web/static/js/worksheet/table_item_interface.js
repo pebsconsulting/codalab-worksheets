@@ -1,7 +1,7 @@
 /** @jsx React.DOM */
 
 // Display a worksheet item which corresponds to a table where each row is a bundle.
-var TableBundle = React.createClass({
+var TableItem = React.createClass({
     mixins: [CheckboxMixin],
 
     getInitialState: function() {
