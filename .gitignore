@@ -1,6 +1,7 @@
 *.pyc
 
 codalab/static
+codalab/config/generated
 
 venv/
 
