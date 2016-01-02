@@ -1,7 +1,7 @@
 /** @jsx React.DOM */
 
 // Display a graph over the different bundles.
-var GraphBundle = React.createClass({
+var GraphItem = React.createClass({
     mixins: [CheckboxMixin, GoToBundleMixin],
     getInitialState: function() {
       return {};
@@ -54,7 +54,7 @@ var GraphBundle = React.createClass({
         columns.push(ycol);
         totalNumPoints += points.length;
       }
-      console.log('GraphBundle._getData: %s points', totalNumPoints);
+      console.log('GraphItem._getData: %s points', totalNumPoints);
       return {
         xs: ytox,
         columns: columns,
@@ -66,7 +66,7 @@ var GraphBundle = React.createClass({
     },
 
     componentDidMount: function() {
-      //console.log('GraphBundle: componentDidMount');
+      //console.log('GraphItem: componentDidMount');
 
       // Axis labels
       var item = this.props.item;
@@ -90,7 +90,7 @@ var GraphBundle = React.createClass({
     },
 
     render: function() {
-        //console.log('GraphBundle.render', this.state.chart);
+        //console.log('GraphItem.render', this.state.chart);
 
         // Rendering the chart is slow, so throttle it.
         var self = this;

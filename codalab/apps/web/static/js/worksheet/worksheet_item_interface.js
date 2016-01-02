@@ -1,7 +1,7 @@
 /** @jsx React.DOM */
 
 // Display a worksheet item which corresponds to (sub)worksheets.
-var WorksheetBundle = React.createClass({
+var WorksheetItem = React.createClass({
     mixins: [CheckboxMixin],
 
     getInitialState: function() {

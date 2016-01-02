@@ -133,15 +133,15 @@ var addWorksheetItems = function(props, worksheet_items) {
     props.url = url;
 
     var constructor = {
-      'markup': MarkdownBundle,
-      'table': TableBundle,
-      'contents': ContentsBundle,
-      'worksheet': WorksheetBundle,
-      'wsearch': WorksheetBundle,
-      'html': HTMLBundle,
-      'record': RecordBundle,
-      'image': ImageBundle,
-      'graph': GraphBundle,
+      'markup': MarkdownItem,
+      'table': TableItem,
+      'contents': ContentsItem,
+      'worksheet': WorksheetItem,
+      'wsearch': WorksheetItem,
+      'html': HTMLItem,
+      'record': RecordItem,
+      'image': ImageItem,
+      'graph': GraphItem,
     }[item.mode];
 
     var elem;
