@@ -1,7 +1,7 @@
 /** @jsx React.DOM */
 
 // Display a worksheet item which corresponds to Markdown (with MathJax).
-var MarkdownBundle = React.createClass({
+var MarkdownItem = React.createClass({
     mixins: [CheckboxMixin],
     getInitialState: function() {
         return {};
