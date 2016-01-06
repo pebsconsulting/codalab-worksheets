@@ -14,8 +14,12 @@ import codalab
 class Base(Settings):
     # Load config file
     config_path = os.path.join(os.getenv('HOME'), '.codalab', 'website-config.json')
+    # Generate an empty config file if one does not already exist
     if not os.path.exists(config_path):
-        raise RuntimeError('Configuration file does not exist: %s' % config_path)
+        print 'No configuration file detected. Generating a blank one at %s' % config_path
+        with open(config_path, 'w') as conf:
+            conf.write('{}')
+
     config = json.loads(open(config_path).read())
 
     SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
