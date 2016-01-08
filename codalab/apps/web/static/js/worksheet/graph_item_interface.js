@@ -54,7 +54,7 @@ var GraphItem = React.createClass({
         columns.push(ycol);
         totalNumPoints += points.length;
       }
-      console.log('GraphItem._getData: %s points', totalNumPoints);
+      // console.log('GraphItem._getData: %s points', totalNumPoints);
       return {
         xs: ytox,
         columns: columns,
@@ -75,13 +75,12 @@ var GraphItem = React.createClass({
 
       var chart = c3.generate({
         bindto: '#' + this._chartId(),
-        data: this._getData(),
+        data: {json: {}},
         axis: {
           x: {label: {text: xlabel, position: 'outer-middle'}},
           y: {label: {text: ylabel, position: 'outer-middle'}},
         },
       });
-
       this.setState({'chart': chart});
     },
 
