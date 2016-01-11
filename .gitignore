@@ -3,6 +3,9 @@
 # Eclipse files.
 .*project
 
+# PyCharm files
+.idea/
+
 codalab/static
 codalab/config/generated
 
