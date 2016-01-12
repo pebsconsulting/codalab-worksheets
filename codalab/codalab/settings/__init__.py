@@ -19,6 +19,8 @@ class Base(Settings):
         raise RuntimeError('Configuration file does not exist: %s' % config_path)
     config = json.loads(open(config_path).read())
 
+    config = json.loads(open(config_path).read())
+
     SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
     PROJECT_APP_DIR = os.path.dirname(SETTINGS_DIR)
     PROJECT_DIR = os.path.dirname(PROJECT_APP_DIR)

@@ -3,6 +3,12 @@
 codalab/static
 codalab/config/generated
 
+# Eclipse files.
+.*project
+
+# PyCharm files
+.idea/
+
 venv/
 
 # 3rd-party
@@ -10,3 +16,6 @@ venv/
 **/vendor/mathjax
 MathJax-master
 ace-builds-master
+
+# Ignore dev database file
+*.sqlite3
