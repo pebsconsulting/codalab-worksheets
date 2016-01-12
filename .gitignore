@@ -16,3 +16,6 @@ venv/
 **/vendor/mathjax
 MathJax-master
 ace-builds-master
+
+# Ignore dev database file
+*.sqlite3
