@@ -421,6 +421,11 @@ var Worksheet = React.createClass({
                 />
             );
 
+        var help_bar_display = (
+                <WorksheetHelpBar
+                />
+            );
+
         var items_display = (
                 <WorksheetItemList
                     ref={"list"}
@@ -454,6 +459,7 @@ var Worksheet = React.createClass({
         return (
             <div id="worksheet" className={searchClassName}>
                 {action_bar_display}
+                {help_bar_display}
                 <div id="worksheet_panel" className="actionbar-focus">
                     {worksheet_side_panel}
                     <div className="ws-container">
