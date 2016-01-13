@@ -55,6 +55,7 @@ Fabric==1.10.2
 selenium==2.48.0
 
 # Required by codalab-cli
+MySQL-python
 docker-py==1.6.0
 # Use sckoo@stanford.edu's patched argcomplete, until pull request has been accepted
 # https://github.com/kislyuk/argcomplete/pull/118
