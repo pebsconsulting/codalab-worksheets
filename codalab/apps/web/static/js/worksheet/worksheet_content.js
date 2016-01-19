@@ -35,6 +35,7 @@ var WorksheetContent = function() {
     };
 
     WorksheetContent.prototype.saveWorksheet = function(props) {
+        if (this.info == undefined) return
         $('#update_progress').show();
         props = props || {};
         props.success = props.success || function(data){};

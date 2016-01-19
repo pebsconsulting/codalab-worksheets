@@ -400,3 +400,11 @@ class BundleService(object):
 
     def home_worksheet(self, username):
         return spec_util.home_worksheet(username)
+
+    def add_chat(self, uuid, request_string):
+        # print worksheet.uuid
+        # print focus_index
+        # print sub_focus_index
+        # print uuid
+        # print request_string
+        return self.client.add_chat(uuid, request_string)

@@ -421,8 +421,11 @@ var Worksheet = React.createClass({
                 />
             );
 
-        var help_bar_display = (
-                <WorksheetHelpBar
+        var chat_box_display = (
+                <WorksheetChatBox
+                    ws={this.state.ws}
+                    focusIndex={this.state.focusIndex}
+                    subFocusIndex={this.state.subFocusIndex}
                 />
             );
 
@@ -459,7 +462,7 @@ var Worksheet = React.createClass({
         return (
             <div id="worksheet" className={searchClassName}>
                 {action_bar_display}
-                {help_bar_display}
+                {chat_box_display}
                 <div id="worksheet_panel" className="actionbar-focus">
                     {worksheet_side_panel}
                     <div className="ws-container">

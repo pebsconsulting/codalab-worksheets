@@ -100,7 +100,7 @@
                 .appendTo(document.body)
                 .addClass('ui-widget ' +
                           'ui-corner-top ' +
-                          'ui-chatbox ' + options.helpBarId
+                          'ui-chatbox ' + options.chatBoxId
                          )
                 .attr('outline', 0)
                 .focusin(function() {

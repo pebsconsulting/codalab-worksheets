@@ -395,3 +395,22 @@ class BundleFileContentApi(views.APIView):
             tb = traceback.format_exc()
             log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
+
+class ChatBoxApi(views.APIView):
+    """
+    Return a response according to the user's question or feedback typed on the ChatBox
+    """
+    def get(self, request):
+        service = BundleService(self.request.user)
+        try:
+            request_string = request.GET['request']
+            uuid = request.GET['uuid']
+            # focus_index = request.GET['focusIndex']
+            # sub_focus_index = request.GET['subFocusIndex']
+            response, command = service.add_chat(uuid, request_string)
+            return Response({'response': response, 'command': command}, content_type="application/json")
+        except Exception as e:
+            tb = traceback.format_exc()
+            log_exception(self, e, tb)
+            return Response({"error": smart_str(e)}, status=500)
+
