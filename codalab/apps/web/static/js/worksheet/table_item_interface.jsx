@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 
 // Display a worksheet item which corresponds to a table where each row is a bundle.
 var TableItem = React.createClass({

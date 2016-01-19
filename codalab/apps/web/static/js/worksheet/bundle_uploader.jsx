@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 
 var BundleUploader = React.createClass({
   getInitialState: function() {

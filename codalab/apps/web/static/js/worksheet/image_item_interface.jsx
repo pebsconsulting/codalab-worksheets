@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 
 // Display a worksheet item which is an image file in a bundle.
 var ImageItem = React.createClass({

@@ -2,7 +2,6 @@
 TODO: replace this with WorksheetSidePanel.
 */
 
-/** @jsx React.DOM */
 var Bundle = React.createClass({
     getInitialState: function(){
         return {

@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 
 var CheckboxMixin = {
     handleCheck: function(event){

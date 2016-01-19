@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 
 // Display a graph over the different bundles.
 var GraphItem = React.createClass({
