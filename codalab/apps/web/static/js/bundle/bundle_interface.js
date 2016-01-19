@@ -34,8 +34,8 @@ var Bundle = React.createClass({
             var key = $(this).attr('name');
             var val = $(this).val();
             if (val.toLowerCase() === 'true' || val.toLowerCase() === 'false') {
-                // convert string 'true'/'false' to boolean true/false
-                val = (val.toLowerCase() === 'true')
+                //  Convert string 'true'/'false' to boolean true/false
+                val = (val.toLowerCase() === 'true');
             }
             new_metadata[key] = val;
         });
