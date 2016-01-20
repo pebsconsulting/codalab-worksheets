@@ -141,10 +141,7 @@
     <script src="{{ STATIC_URL }}dist/worksheet_interface.js"></script>
     {# ------- END JSX FILES  ------- #}
 
-    {# ------- Require JSX Transformer for the inline JSX ------- #}
-    <script src="{{ STATIC_URL }}js/vendor/JSXTransformer-0.12.2.js"></script>
-
-<script type="text/jsx">
+<script>
 MathJax.Hub.Config({
     tex2jax: {
         skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
@@ -152,7 +149,7 @@ MathJax.Hub.Config({
     }
 });
 
-React.render(<Worksheet uuid="{{worksheet_uuid}}"/>, document.getElementById('worksheet_container'));
+React.render(React.createElement(Worksheet, { uuid: "{{worksheet_uuid}}" }), document.getElementById('worksheet_container'));
 </script>
 
 {% endblock jsincludes %}
