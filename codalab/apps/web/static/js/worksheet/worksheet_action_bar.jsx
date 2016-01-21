@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 
 var ACTIONBAR_MINIMIZE_HEIGHT = 25;
 var ACTIONBAR_DRAGHEIGHT = 350;

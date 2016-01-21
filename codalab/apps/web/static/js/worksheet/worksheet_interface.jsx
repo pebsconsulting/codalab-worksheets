@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 
 /*
 Main worksheet page, which displays information about a single worksheet.

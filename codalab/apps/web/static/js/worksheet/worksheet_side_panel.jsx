@@ -3,7 +3,6 @@ Shows the side panel which contains information about the current bundle or
 worksheet (with the focus).
 */
 
-/** @jsx React.DOM */
 var WorksheetSidePanel = React.createClass({
     getInitialState: function() {
         return {};
@@ -155,7 +154,6 @@ var WorksheetSidePanel = React.createClass({
 
 ////////////////////////////////////////////////////////////
 
-/** @jsx React.DOM */
 // When selecting a worksheet.
 var WorksheetDetailSidePanel = React.createClass({
     getInitialState: function() {
@@ -232,7 +230,6 @@ var WorksheetDetailSidePanel = React.createClass({
 
 ////////////////////////////////////////////////////////////
 
-/** @jsx React.DOM */
 // When selecting a bundle.
 // props:
 // - bundle_info: contains information about the bundle to render
