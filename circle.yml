@@ -8,4 +8,4 @@ dependencies:
 
 test:
   override:
-    - (cd codalab && python manage.py get_users)
+    - (cd codalab && ./manage get_users)
