@@ -4,6 +4,7 @@ machine:
 
 dependencies:
   override:
+    - mkdir ~/.codalab
     - ./setup.sh
 
 test:
