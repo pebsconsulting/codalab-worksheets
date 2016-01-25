@@ -9,4 +9,5 @@ dependencies:
 
 test:
   override:
-    - (cd codalab && ./manage get_users)
+    - (printf '{}' > $HOME/.codalab/website-config.json)
+    - (cd codalab && ./manage syncdb --migrate && ./manage get_users)
