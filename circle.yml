@@ -3,9 +3,10 @@ machine:
     version: 2.7.5
 
 dependencies:
-  pre:
-    - pip install -r codalab/requirements/common.txt
+  override:
+    - ./setup.sh
 
 test:
   override:
-    - (cd codalab && ./manage get_users)
+    - (mkdir ~/.codalab && printf '{}' > $HOME/.codalab/website-config.json)
+    - (cd codalab && ./manage syncdb --migrate && ./manage get_users)
