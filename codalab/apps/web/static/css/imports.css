@@ -7902,7 +7902,7 @@ body,
 }
 #worksheet .ws-panel #panel_content .bundle-meta {
   font-size: 90%;
-  margin-bottom: 5px;
+  margin-bottom: 20px;
 }
 #worksheet .ws-panel #panel_content .bundle-meta.table > tbody > tr:nth-child(odd) > td,
 #worksheet .ws-panel #panel_content .bundle-meta.table > tbody > tr:nth-child(odd) > th {

@@ -1,5 +1,3 @@
-/** @jsx React.DOM */
-
 var EditableField = React.createClass({
   propTypes: {
     value: React.PropTypes.any,

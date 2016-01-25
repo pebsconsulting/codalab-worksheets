@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 
 /*
 Displays the list of items on the worksheet page.

@@ -2,7 +2,6 @@
 TODO: replace this with WorksheetSidePanel.
 */
 
-/** @jsx React.DOM */
 var Bundle = React.createClass({
     getInitialState: function(){
         return {
@@ -33,6 +32,10 @@ var Bundle = React.createClass({
         $('#metadata_table input').each(function(){
             var key = $(this).attr('name');
             var val = $(this).val();
+            if (val.toLowerCase() === 'true' || val.toLowerCase() === 'false') {
+                //  Convert string 'true'/'false' to boolean true/false
+                val = (val.toLowerCase() === 'true');
+            }
             new_metadata[key] = val;
         });
 
@@ -170,7 +173,7 @@ var Bundle = React.createClass({
         for (var i = 0; i < keys.length; i++) {
             var k = keys[i];
             // TODO: only allow editing on certain keys; needs to be passed in from Python.
-            bundleAttrs.push(<BundleAttr key={k} index={k}val={metadata[k]} editing={editing} />);
+            bundleAttrs.push(<BundleAttr key={k} index={k} val={metadata[k]} editing={editing} />);
         }
 
         var dependencies_table = [];

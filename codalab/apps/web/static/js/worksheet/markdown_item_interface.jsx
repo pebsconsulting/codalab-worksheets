@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 
 // Display a worksheet item which corresponds to Markdown (with MathJax).
 var MarkdownItem = React.createClass({

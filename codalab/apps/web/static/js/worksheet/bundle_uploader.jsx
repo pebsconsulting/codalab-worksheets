@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 
 var BundleUploader = React.createClass({
   getInitialState: function() {
@@ -31,6 +30,7 @@ var BundleUploader = React.createClass({
     if (!file) {
       return;
     }
+    this.refs.fileDialog.getDOMNode().value = null;
 
     var fileEntryKey = this.addUploading(file);
 
