@@ -2,21 +2,49 @@
 
 var WorksheetChatBox = React.createClass({
 
+  isFocusBundle: function(focusIndex, subFocusIndex) {
+    return focusIndex == 1 && subFocusIndex != -1;
+  },
+
+  getInitialState: function() {
+    return {
+      worksheetId: undefined,
+      bundleId: undefined
+    }
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    var bundleId = undefined
+    if (this.isFocusBundle(nextProps.focusIndex, nextProps.subFocusIndex)) {
+      bundleId = nextProps.ws.info.items[nextProps.focusIndex].bundle_info[nextProps.subFocusIndex].uuid
+    }
+    console.log(bundleId)
+    this.setState({
+      worksheetId: nextProps.ws.uuid,
+      bundleId: bundleId
+    })
+  },
+
   componentDidMount: function () {
-    self = this;
     $("#chat_box").chatbox({
                             chatBoxId: 'chat_box',
                             title : "Have questions for CodaLab?",
                             hidden: true,
                             user : "You",
-                            offset: 50,
-                            messageSent: function(id, user, msg){
+                            offset: 50
+                          });
+  },
+  
+  render: function () {
+    var self = this;
+    $("#chat_box").chatbox("option", "messageSent", function(id, user, msg){
                               this.boxManager.addMsg(user, msg);
                               $.ajax({
                                 url: '/api/chatbox/',
                                 data: {
                                   request: msg,
-                                  uuid :self.props.ws.uuid,
+                                  worksheetId : self.state.worksheetId,
+                                  bundleId: self.state.bundleId
                                   // focusIndex: self.props.focusIndex,
                                   // subFocusIndex: self.props.subFocusIndex
                                 },
@@ -33,11 +61,8 @@ var WorksheetChatBox = React.createClass({
                                 error: function (jqHXR, status, error) {
                                   alert('chat box error');
                                 }.bind(this)
-                              });
-                            }});
-  },
-  
-  render: function () {
+                              })});
+
     return (
       <div id="chat_box">
       </div>
