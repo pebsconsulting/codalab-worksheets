@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "gulp && gulp less",
-    "jsx": "gulp",
+    "build": "gulp jsx && gulp less",
+    "jsx": "gulp jsx",
     "less": "gulp less",
     "clean": "gulp clean"
   },
