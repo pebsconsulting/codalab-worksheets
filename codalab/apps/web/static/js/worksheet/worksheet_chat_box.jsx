@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 
 var WorksheetChatBox = React.createClass({
 
@@ -8,17 +7,17 @@ var WorksheetChatBox = React.createClass({
 
   getInitialState: function() {
     return {
-      worksheetId: undefined,
-      bundleId: undefined
+      worksheetId: -1,
+      bundleId: -1
     }
   },
 
   componentWillReceiveProps: function(nextProps) {
-    var bundleId = undefined
+    var bundleId = -1
     if (this.isFocusBundle(nextProps.focusIndex, nextProps.subFocusIndex)) {
       bundleId = nextProps.ws.info.items[nextProps.focusIndex].bundle_info[nextProps.subFocusIndex].uuid
     }
-    console.log(bundleId)
+    // console.log(bundleId)
     this.setState({
       worksheetId: nextProps.ws.uuid,
       bundleId: bundleId
@@ -43,15 +42,15 @@ var WorksheetChatBox = React.createClass({
                                 url: '/api/chatbox/',
                                 data: {
                                   request: msg,
-                                  worksheetId : self.state.worksheetId,
-                                  bundleId: self.state.bundleId
+                                  bundleId: self.state.bundleId,
+                                  worksheetId: self.state.worksheetId,
                                   // focusIndex: self.props.focusIndex,
                                   // subFocusIndex: self.props.subFocusIndex
                                 },
                                 type: 'GET',
                                 success: function (data, status, jqXHR) {
-                                  console.log(self.props.ws);
-                                  console.log(self.props.focusIndex);
+                                  // console.log(self.props.ws);
+                                  // console.log(self.props.focusIndex);
                                   console.log(data);
                                   response = data.response;
                                   response += '\nYou can run the following command:\n'

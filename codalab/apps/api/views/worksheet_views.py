@@ -406,11 +406,7 @@ class ChatBoxApi(views.APIView):
             request_string = request.GET['request']
             worksheet_uuid = request.GET['worksheetId']
             bundle_uuid = request.GET['bundleId']
-            print worksheet_uuid
-            print bundle_uuid
-            # focus_index = request.GET['focusIndex']
-            # sub_focus_index = request.GET['subFocusIndex']
-            response, command = service.add_chat(worksheet_uuid, bundle_uuid, request_string)
+            response, command = service.add_chat(request_string, worksheet_uuid, bundle_uuid)
             return Response({'response': response, 'command': command}, content_type="application/json")
         except Exception as e:
             tb = traceback.format_exc()

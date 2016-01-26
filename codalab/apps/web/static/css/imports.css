@@ -9846,6 +9846,7 @@ textarea.table.affiliation > tbody > tr > td input {
   bottom: 23px;
   padding: 2px;
   background: #CCCCCC;
+  font-size: 12px;
 }
 .ui-chatbox-titlebar {
   padding: 3px;
