@@ -41,6 +41,6 @@ anytime you make edits to the files in `static/js/bundle/`,
 
         $ npm run build
 
-* **Cleaning**: Removes the `static/dist/` directory
+* **Cleaning**: Removes the `static/dist/` directory and `static/css/imports.css` file
 
         $ npm run clean
