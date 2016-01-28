@@ -7,8 +7,6 @@ Consists of three main components:
 - side panel
 */
 
-var HOME_WORKSHEET = '/';
-
 var Worksheet = React.createClass({
     getInitialState: function() {
         return {
@@ -488,3 +486,9 @@ var Worksheet = React.createClass({
         )
     }
 });
+
+// Extract worksheet UUID from URI path.
+var uuid = window.location.pathname.match(/^\/?worksheets\/([^\/]*)/i)[1];
+
+// Create and render the rood node.
+React.render(<Worksheet uuid={uuid} />, document.getElementById('worksheet_container'));
