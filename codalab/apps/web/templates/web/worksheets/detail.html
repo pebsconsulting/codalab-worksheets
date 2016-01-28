@@ -139,7 +139,7 @@
     <script src="{{ STATIC_URL }}dist/worksheet_item_interface.js"></script>
     <script src="{{ STATIC_URL }}dist/bundle_uploader.js"></script>
     <script src="{{ STATIC_URL }}dist/editable_field.js"></script>
-    {# main entrance point for the worksheet and it's items/bundles #}
+    {# main entry point for the worksheet and its items/bundles #}
     <script src="{{ STATIC_URL }}dist/worksheet_items.js"></script>
     <script src="{{ STATIC_URL }}dist/worksheet_interface.js"></script>
     {# ------- END JSX FILES  ------- #}
@@ -151,8 +151,6 @@ MathJax.Hub.Config({
         inlineMath: [['$','$']]
     }
 });
-
-React.render(React.createElement(Worksheet, { uuid: "{{worksheet_uuid}}" }), document.getElementById('worksheet_container'));
 </script>
 
 {% endblock jsincludes %}
