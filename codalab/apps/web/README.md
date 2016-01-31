@@ -29,6 +29,10 @@ You would need to recompile after a clean checkout of the repository, and
 anytime you make edits to the files in `static/js/bundle/`,
 `static/js/worksheet/`, and `static/less/`.
 
+You also must download the [Bower](https://bower.io) dependencies before
+deploying the site, as Bower is how we track all of our third-party remote
+dependencies. The NPM script for this is listed below as well.
+
 * **Compiling only JSX**: Compile all the JSX code into the `static/dist/` directory
 
         $ npm run jsx
@@ -44,3 +48,8 @@ anytime you make edits to the files in `static/js/bundle/`,
 * **Cleaning**: Removes the `static/dist/` directory and `static/css/imports.css` file
 
         $ npm run clean
+
+* **Bower dependencies**: Install all of the third party dependencies before deploying
+
+        $ npm run bower
+
