@@ -26,13 +26,21 @@ we have inside our React components. Compilation is done using
 [NPM scripts](https://docs.npmjs.com/misc/scripts), the relevant ones are below.
 
 You would need to recompile after a clean checkout of the repository, and
-anytime you make edits to the files in `static/js/bundle/` and
-`static/js/worksheet/`
+anytime you make edits to the files in `static/js/bundle/`,
+`static/js/worksheet/`, and `static/less/`.
 
-* **Compiling JSX**: Compile all the JSX code into the `static/dist/` directory
+* **Compiling only JSX**: Compile all the JSX code into the `static/dist/` directory
 
         $ npm run jsx
 
-* **Cleaning**: Removes the `static/dist/` directory
+* **Compiling only LESS**: Compile all the LESS code into the `static/css/` directory
+
+        $ npm run less
+
+* **Compiling both JSX and LESS**: Compile all the JSX and LESS code
+
+        $ npm run build
+
+* **Cleaning**: Removes the `static/dist/` directory and `static/css/imports.css` file
 
         $ npm run clean
