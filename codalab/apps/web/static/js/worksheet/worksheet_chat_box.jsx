@@ -42,13 +42,10 @@ var WorksheetChatBox = React.createClass({
       dataType: 'json',
       cache: false,
       type: 'GET',
-      data: {
-        'answered': false
-      },
       success: function(data) {
         console.log(data)
         data.chats['Chengshu'].forEach(function(ele) {
-          $("#chat_box").chatbox("option", "boxManager").addMsg("You", ele.query);
+          $("#chat_box").chatbox("option", "boxManager").addMsg("You", ele.chat);
         })
       }.bind(this),
       error: function(xhr, status, err) {

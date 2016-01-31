@@ -9929,7 +9929,7 @@ textarea.table.affiliation > tbody > tr > td input {
 #chat-portal-user {
   border: 1px solid black;
 }
-#chat-portal-question-list {
+#chat-portal-chat-list {
   float: right;
   width: 850px;
   height: 400px;

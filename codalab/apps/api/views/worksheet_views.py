@@ -397,32 +397,15 @@ class BundleFileContentApi(views.APIView):
             return Response({"error": smart_str(e)}, status=500)
 
 class ChatBoxApi(views.APIView):
+
     """
-    Return a response according to the user's question or feedback typed on the ChatBox
+    Return a list of (the last ten?) questions that the user has asked before, together with staff's answers to them, if they exist
     """
-    def post(self, request):
-        'CHATBOXAPI POST'
-        service = BundleService(self.request.user)
-        try:
-            request_string = request.POST['request']
-            worksheet_uuid = request.POST['worksheetId']
-            bundle_uuid = request.POST['bundleId']
-            response, command = service.add_chat(request_string, worksheet_uuid, bundle_uuid)
-            return Response({'response': response, 'command': command}, content_type="application/json")
-        except Exception as e:
-            tb = traceback.format_exc()
-            log_exception(self, e, tb)
-            return Response({"error": smart_str(e)}, status=500)
     def get(self, request):
         service = BundleService(self.request.user)
         try:
-            print 'CHATBOXAPI GET'
-            answered = request.GET.get('answered', None)
             user_id = request.GET.get('user_id', None)
-            print answered
-            print user_id
             info = {
-                'answered': answered,
                 'user_id': user_id
             }
             chats = service.get_chat_log_info(info)            
@@ -433,18 +416,31 @@ class ChatBoxApi(views.APIView):
             log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
 
+    """
+    Return a response to the user's question or feedback in the ChatBox. Store this question in the backend. 
+    """
+    def post(self, request):
+        service = BundleService(self.request.user)
+        try:
+            request_string = request.POST['request']
+            worksheet_uuid = request.POST['worksheetId']
+            bundle_uuid = request.POST['bundleId']
+            response, command = service.add_chat_log_info(request_string, worksheet_uuid, bundle_uuid)
+            return Response({'response': response, 'command': command}, content_type="application/json")
+        except Exception as e:
+            tb = traceback.format_exc()
+            log_exception(self, e, tb)
+            return Response({"error": smart_str(e)}, status=500)
+
 class ChatPortalApi(views.APIView):
     """
-    Return a response according to the user's question or feedback typed on the ChatBox
+    Return a list of unanswered questions from all users
     """
     def get(self, request):
         service = BundleService(self.request.user)
         try:
-            answered = request.GET.get('answered', None)
-            user_id = request.GET.get('user_id', None)
             info = {
-                'answered': answered,
-                'user_id': user_id
+                'is_answered': False,
             }
             chats = service.get_chat_log_info(info)
             print 'ChatPortalApi GET'
@@ -455,25 +451,32 @@ class ChatPortalApi(views.APIView):
             log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
     
+    """
+    Called when a staff answers a question/feedback. Update the answer field and flip the is_answered flag for the question.
+    Return a new list of unanswered questions from all users
+    """
     def post(self, request):
         service = BundleService(self.request.user)
         try:
-            question_id = request.POST.get('question_id', None)
+            chat_id = request.POST.get('chat_id', None)
             answer = request.POST.get('answer', None)
-            print question_id
-            print answer
-            info = {
-                'question_id': question_id,
-                'answer': answer
-            }
-            chats = service.update_chat_log_info(info)
-            print 'ChatPortalApi POST'
-            print chats
-            return Response({'chats': chats}, content_type="application/json")
+            # print chat_id
+            # print answer
+            if chat_id and answer:
+                info = {
+                    'chat_id': chat_id,
+                    'answer': answer
+                }
+                chats = service.update_chat_log_info(info)
+                # print 'ChatPortalApi POST'
+                # print chats
+                return Response({'chats': chats}, content_type="application/json")
         except Exception as e:
             tb = traceback.format_exc()
             log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
+
+# class UsersApi(views.APIView):
 
         
 
