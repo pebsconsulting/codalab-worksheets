@@ -32,8 +32,8 @@ class Base(Settings):
 
     COMPILE_LESS = True # less -> css already done (true) or less.js to compile it on render (false)
 
-    LOCAL_MATHJAX = False # see prep_for_offline
-    LOCAL_ACE_EDITOR = False # see prep_for_offline
+    LOCAL_MATHJAX = True # see prep_for_offline
+    LOCAL_ACE_EDITOR = True # see prep_for_offline
 
     SITE_ID = 1
     DOMAIN_NAME = 'localhost'

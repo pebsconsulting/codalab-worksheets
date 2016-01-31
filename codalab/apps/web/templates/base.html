@@ -23,7 +23,7 @@
         <!-- Included CSS Files (Compressed) -->
         <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.dataTables.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-editable.css">
-        <link rel="stylesheet" href="{{ STATIC_URL }}js/vendor/select2/select2.css" />
+        <link rel="stylesheet" href="{{ STATIC_URL }}bower_components/select2/dist/css/select2.min.css" />
         {% if compile_less %}
             <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/imports.css">
         {% else %}
@@ -31,8 +31,8 @@
             <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.5/less.min.js"></script>
         {% endif %}
 
-        <script src="{{ STATIC_URL }}js/vendor/jquery-1.10.2.min.js"></script>
-        <script src="{{ STATIC_URL }}js/vendor/custom.modernizr.js"></script>
+        <script src="{{ STATIC_URL }}bower_components/jquery/jquery.min.js"></script>
+        <script src="{{ STATIC_URL }}js/custom/custom.modernizr.js"></script>
         <!-- IE Fix for HTML5 Tags -->
         <!--[if lt IE 9]>
             <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -147,7 +147,7 @@
     <script src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
 
     <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js"></script>
-    <script src="{{ STATIC_URL }}js/vendor/select2/select2-forked.js"></script>
+    <script src="{{ STATIC_URL }}bower_components/select2/dist/js/select2.min.js"></script>
     <script src="{{ STATIC_URL }}lib/jq/jquery.cookie.js"></script>
     <script src="{{ STATIC_URL }}js/main.js"></script>
 
