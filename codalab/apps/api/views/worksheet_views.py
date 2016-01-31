@@ -476,7 +476,16 @@ class ChatPortalApi(views.APIView):
             log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
 
-# class UsersApi(views.APIView):
+class UsersApi(views.APIView):
+    def get(self, request):
+        service = BundleService(self.request.user)
+        try:
+            user_info = service.get_user_info(None)
+            return Response({'user_info': user_info}, content_type="application/json")
+        except Exception as e:
+            tb = traceback.format_exc()
+            log_exception(self, e, tb)
+            return Response({"error": smart_str(e)}, status=500)
 
         
 

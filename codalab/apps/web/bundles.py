@@ -412,7 +412,6 @@ class BundleService(object):
     def update_chat_log_info(self, query_info):
         return self.client.update_chat_log_info(query_info)
 
-    def get_user_info(self):
-        info = self.client.get_user_info()
-        print info
+    def get_user_info(self, user_id):
+        info = self.client.get_user_info(user_id)
         return info
