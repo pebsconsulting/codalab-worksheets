@@ -46,6 +46,7 @@ var WorksheetChatBox = React.createClass({
         console.log(data)
         data.chats['Chengshu'].forEach(function(ele) {
           $("#chat_box").chatbox("option", "boxManager").addMsg("You", ele.chat);
+          if (ele.answer != '') $("#chat_box").chatbox("option", "boxManager").addMsg("Staff", ele.answer);
         })
       }.bind(this),
       error: function(xhr, status, err) {
