@@ -9900,3 +9900,37 @@ textarea.table.affiliation > tbody > tr > td input {
   word-wrap: break-word;
   /* IE */
 }
+#chat-portal-switch {
+  position: fixed;
+  bottom: 23px;
+  left: 30px;
+  padding: 2px;
+  background: #CCCCCC;
+  font-size: 12px;
+  cursor: pointer;
+  z-index: 1;
+}
+#chat-portal {
+  position: absolute;
+  top: 50px;
+  left: 50px;
+  padding: 2px;
+  background: #EEEEEE;
+  font-size: 12px;
+  width: 1000px;
+  height: 400px;
+  z-index: 10;
+}
+#chat-portal-user-list {
+  float: left;
+  width: 100px;
+  height: 400px;
+}
+#chat-portal-user {
+  border: 1px solid black;
+}
+#chat-portal-question-list {
+  float: right;
+  width: 850px;
+  height: 400px;
+}

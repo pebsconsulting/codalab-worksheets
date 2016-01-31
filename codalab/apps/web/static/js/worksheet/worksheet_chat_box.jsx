@@ -8,7 +8,8 @@ var WorksheetChatBox = React.createClass({
   getInitialState: function() {
     return {
       worksheetId: -1,
-      bundleId: -1
+      bundleId: -1,
+      chatHistory: []
     }
   },
 
@@ -32,6 +33,28 @@ var WorksheetChatBox = React.createClass({
                             user : "You",
                             offset: 50
                           });
+    this.loadChatHistory();
+  },
+
+  loadChatHistory: function() {
+    $.ajax({
+      url: '/api/chatbox/',
+      dataType: 'json',
+      cache: false,
+      type: 'GET',
+      data: {
+        'answered': false
+      },
+      success: function(data) {
+        console.log(data)
+        data.chats['Chengshu'].forEach(function(ele) {
+          $("#chat_box").chatbox("option", "boxManager").addMsg("You", ele.query);
+        })
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    });
   },
   
   render: function () {
@@ -47,7 +70,7 @@ var WorksheetChatBox = React.createClass({
                                   // focusIndex: self.props.focusIndex,
                                   // subFocusIndex: self.props.subFocusIndex
                                 },
-                                type: 'GET',
+                                type: 'POST',
                                 success: function (data, status, jqXHR) {
                                   // console.log(self.props.ws);
                                   // console.log(self.props.focusIndex);
@@ -61,7 +84,6 @@ var WorksheetChatBox = React.createClass({
                                   alert('chat box error');
                                 }.bind(this)
                               })});
-
     return (
       <div id="chat_box">
       </div>

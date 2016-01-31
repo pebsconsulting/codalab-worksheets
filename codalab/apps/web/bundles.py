@@ -405,3 +405,9 @@ class BundleService(object):
 
     def add_chat(self, request_string, worksheet_uuid, bundle_uuid):
         return self.client.add_chat(request_string, worksheet_uuid, bundle_uuid)
+
+    def get_chat_log_info(self, query_info):
+        return self.client.get_chat_log_info(query_info)
+
+    def update_chat_log_info(self, query_info):
+        return self.client.update_chat_log_info(query_info)

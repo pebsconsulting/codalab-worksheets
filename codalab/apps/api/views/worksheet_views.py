@@ -400,16 +400,83 @@ class ChatBoxApi(views.APIView):
     """
     Return a response according to the user's question or feedback typed on the ChatBox
     """
-    def get(self, request):
+    def post(self, request):
+        'CHATBOXAPI POST'
         service = BundleService(self.request.user)
         try:
-            request_string = request.GET['request']
-            worksheet_uuid = request.GET['worksheetId']
-            bundle_uuid = request.GET['bundleId']
+            request_string = request.POST['request']
+            worksheet_uuid = request.POST['worksheetId']
+            bundle_uuid = request.POST['bundleId']
             response, command = service.add_chat(request_string, worksheet_uuid, bundle_uuid)
             return Response({'response': response, 'command': command}, content_type="application/json")
         except Exception as e:
             tb = traceback.format_exc()
             log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
+    def get(self, request):
+        service = BundleService(self.request.user)
+        try:
+            print 'CHATBOXAPI GET'
+            answered = request.GET.get('answered', None)
+            user_id = request.GET.get('user_id', None)
+            print answered
+            print user_id
+            info = {
+                'answered': answered,
+                'user_id': user_id
+            }
+            chats = service.get_chat_log_info(info)            
+            print chats
+            return Response({'chats': chats}, content_type="application/json")
+        except Exception as e:
+            tb = traceback.format_exc()
+            log_exception(self, e, tb)
+            return Response({"error": smart_str(e)}, status=500)
+
+class ChatPortalApi(views.APIView):
+    """
+    Return a response according to the user's question or feedback typed on the ChatBox
+    """
+    def get(self, request):
+        service = BundleService(self.request.user)
+        try:
+            answered = request.GET.get('answered', None)
+            user_id = request.GET.get('user_id', None)
+            info = {
+                'answered': answered,
+                'user_id': user_id
+            }
+            chats = service.get_chat_log_info(info)
+            print 'ChatPortalApi GET'
+            print chats
+            return Response({'chats': chats}, content_type="application/json")
+        except Exception as e:
+            tb = traceback.format_exc()
+            log_exception(self, e, tb)
+            return Response({"error": smart_str(e)}, status=500)
+    
+    def post(self, request):
+        service = BundleService(self.request.user)
+        try:
+            question_id = request.POST.get('question_id', None)
+            answer = request.POST.get('answer', None)
+            print question_id
+            print answer
+            info = {
+                'question_id': question_id,
+                'answer': answer
+            }
+            chats = service.update_chat_log_info(info)
+            print 'ChatPortalApi POST'
+            print chats
+            return Response({'chats': chats}, content_type="application/json")
+        except Exception as e:
+            tb = traceback.format_exc()
+            log_exception(self, e, tb)
+            return Response({"error": smart_str(e)}, status=500)
+
+        
+
+
+
 

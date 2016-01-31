@@ -428,6 +428,11 @@ var Worksheet = React.createClass({
                 />
             );
 
+        var chat_portal = (
+                <WorksheetChatPortal 
+                />
+            );
+
         var items_display = (
                 <WorksheetItemList
                     ref={"list"}
@@ -462,6 +467,7 @@ var Worksheet = React.createClass({
             <div id="worksheet" className={searchClassName}>
                 {action_bar_display}
                 {chat_box_display}
+                {chat_portal}
                 <div id="worksheet_panel" className="actionbar-focus">
                     {worksheet_side_panel}
                     <div className="ws-container">

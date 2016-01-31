@@ -62,16 +62,7 @@
                     if (!self.elem.uiChatboxTitlebar.hasClass("ui-state-focus")
                         && !self.highlightLock) {
                         self.highlightLock = true;
-                        self.highlightBox();
                     }
-                },
-                highlightBox: function() {
-                    var self = this;
-                    self.elem.uiChatboxTitlebar.effect("highlight", {}, 300);
-                    self.elem.uiChatbox.effect("bounce", {times: 3}, 300, function() {
-                        self.highlightLock = false;
-                        self._scrollToBottom();
-                    });
                 },
                 toggleBox: function() {
                     this.elem.uiChatbox.toggle();
