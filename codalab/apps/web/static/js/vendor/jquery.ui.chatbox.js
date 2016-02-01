@@ -77,6 +77,9 @@
             this.uiChatboxContent.toggle();
             if (this.uiChatboxContent.is(":visible")) {
                 this.uiChatboxInputBox.focus();
+                this.uiChatboxTitlebarMinimize.html('<div>X</div>')
+            } else {
+                this.uiChatboxTitlebarMinimize.html('<div>↑</div>')
             }
         },
         widget: function() {
@@ -116,18 +119,18 @@
             uiChatboxTitle = (self.uiChatboxTitle = $('<span></span>'))
                 .html(title)
                 .appendTo(uiChatboxTitlebar),
-            // uiChatboxTitlebarMinimize = (self.uiChatboxTitlebarMinimize = $('<a href="#"></a>'))
-            //     .addClass('ui-corner-all ' +
-            //               'ui-chatbox-icon'
-            //              )
-            //     .attr('role', 'button')
-            //     .hover(function() { uiChatboxTitlebarMinimize.addClass('ui-state-hover'); },
-            //            function() { uiChatboxTitlebarMinimize.removeClass('ui-state-hover'); })
-            //     .click(function(event) {
-            //         self.toggleContent(event);
-            //         return false;
-            //     })
-            //     .appendTo(uiChatboxTitlebar),
+            uiChatboxTitlebarMinimize = (self.uiChatboxTitlebarMinimize = $('<div>↑</div>'))
+                .addClass('ui-corner-all ' +
+                          'ui-chatbox-icon'
+                         )
+                .attr('role', 'button')
+                .hover(function() { uiChatboxTitlebarMinimize.addClass('ui-state-hover'); },
+                       function() { uiChatboxTitlebarMinimize.removeClass('ui-state-hover'); })
+                .click(function(event) {
+                    self.toggleContent(event);
+                    return false;
+                })
+                .appendTo(uiChatboxTitlebar),
             // uiChatboxTitlebarMinimizeText = $('<span></span>')
             //     .addClass('ui-icon ' +
             //               'ui-icon-minusthick')
@@ -199,10 +202,10 @@
             uiChatboxTitlebar.find('*').add(uiChatboxTitlebar).disableSelection();
 
             // switch focus to input box when whatever clicked
-            uiChatboxContent.children().click(function() {
-                // click on any children, set focus on input box
-                self.uiChatboxInputBox.focus();
-            });
+            // uiChatboxContent.children().click(function() {
+            //     // click on any children, set focus on input box
+            //     self.uiChatboxInputBox.focus();
+            // });
 
             self._setWidth(self.options.width);
             self._position(self.options.offset);

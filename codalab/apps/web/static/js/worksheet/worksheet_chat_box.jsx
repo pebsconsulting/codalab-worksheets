@@ -9,7 +9,6 @@ var WorksheetChatBox = React.createClass({
     return {
       worksheetId: -1,
       bundleId: -1,
-      chatHistory: [],
       userInfo: null
     }
   },
@@ -33,6 +32,7 @@ var WorksheetChatBox = React.createClass({
       user : "You",
       offset: 50
     });
+    // setInterval(function(){ this.loadChatHistory(); }.bind(this), 5000);
     this.loadChatHistory();
   },
 
@@ -95,11 +95,11 @@ handleMessageSent: function(chatbox, id, user, msg){
 
   render: function () {
     var self = this;
-    var haha = "haha"
     $("#chat_box").chatbox("option", "messageSent", function(id, user, msg){
         // this refers to the chat box, self refers to the React component 
-        self.handleMessageSent(this, id, user, msg)
+        self.handleMessageSent(this, id, user, msg);
       });
+    // this.loadChatHistory();
     return (
       <div id="chat_box">
       </div>

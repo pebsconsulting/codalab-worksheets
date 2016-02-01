@@ -9922,15 +9922,19 @@ textarea.table.affiliation > tbody > tr > td input {
   z-index: 10;
 }
 #chat-portal-user-list {
+  position: relative;
   float: left;
-  width: 100px;
+  width: 80px;
   height: 400px;
+  overflow-y: auto;
 }
 #chat-portal-user {
-  border: 1px solid black;
+  width: 80px;
 }
 #chat-portal-chat-list {
+  position: relative;
   float: right;
-  width: 850px;
+  width: 910px;
   height: 400px;
+  overflow-y: auto;
 }

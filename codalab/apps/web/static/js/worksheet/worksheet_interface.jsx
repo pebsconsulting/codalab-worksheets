@@ -18,6 +18,7 @@ var Worksheet = React.createClass({
             showActionBar: true,  // Whether the action bar is shown
             focusIndex: -1, // Which worksheet items to be on (-1 is none)
             subFocusIndex: 0,  // For tables, which row in the table
+            userId: -1,
         };
     },
 
@@ -89,8 +90,19 @@ var Worksheet = React.createClass({
     componentDidMount: function() {
         // Initialize history stack
         window.history.replaceState({uuid: this.state.ws.uuid}, '', window.location.pathname);
-
         $('body').addClass('ws-interface');
+        $.ajax({
+        url: '/api/users/',
+            dataType: 'json',
+            cache: false,
+            type: 'GET',
+            success: function(data) {
+                this.setState({userId: data.user_info.user_id});
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
+        });
     },
 
     canEdit: function() {
@@ -426,6 +438,11 @@ var Worksheet = React.createClass({
                 />
             );
 
+        // chat_portal only appear if the user is the root user
+        // var chat_portal = this.state.userId != 4 ? null : (
+        //         <WorksheetChatPortal 
+        //         />
+        //     );
         var chat_portal = (
                 <WorksheetChatPortal 
                 />
