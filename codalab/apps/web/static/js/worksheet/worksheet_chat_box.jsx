@@ -2,7 +2,8 @@
 var WorksheetChatBox = React.createClass({
 
   isFocusBundle: function(focusIndex, subFocusIndex) {
-    return focusIndex == 1 && subFocusIndex != -1;
+    console.log('focusIndex' + focusIndex)
+    return focusIndex == 0 && subFocusIndex != -1;
   },
 
   getInitialState: function() {
@@ -18,6 +19,7 @@ var WorksheetChatBox = React.createClass({
     if (this.isFocusBundle(nextProps.focusIndex, nextProps.subFocusIndex)) {
       bundleId = nextProps.ws.info.items[nextProps.focusIndex].bundle_info[nextProps.subFocusIndex].uuid
     }
+    console.log(bundleId)
     this.setState({
       worksheetId: nextProps.ws.uuid,
       bundleId: bundleId
@@ -83,10 +85,7 @@ handleMessageSent: function(chatbox, id, user, msg){
     type: 'POST',
     success: function (data, status, jqXHR) {
       console.log(data);
-      response = data.response;
-      response += '\nYou can run the following command:\n'
-      response += data.command;
-      chatbox.boxManager.addMsg('Codalab', response);
+      chatbox.boxManager.addMsg('Codalab', data.response);
     }.bind(this),
     error: function (jqHXR, status, error) {
       alert('chat box error');

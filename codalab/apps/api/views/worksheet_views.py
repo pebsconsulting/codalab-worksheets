@@ -425,8 +425,8 @@ class ChatBoxApi(views.APIView):
             request_string = request.POST['request']
             worksheet_uuid = request.POST['worksheetId']
             bundle_uuid = request.POST['bundleId']
-            response, command = service.add_chat_log_info(request_string, worksheet_uuid, bundle_uuid)
-            return Response({'response': response, 'command': command}, content_type="application/json")
+            response = service.add_chat_log_info(request_string, worksheet_uuid, bundle_uuid)
+            return Response({'response': response}, content_type="application/json")
         except Exception as e:
             tb = traceback.format_exc()
             log_exception(self, e, tb)

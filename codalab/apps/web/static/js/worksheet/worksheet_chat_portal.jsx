@@ -178,6 +178,7 @@ var WorksheetChatPortalChat = React.createClass({
     return (
       <div id = 'chat-portal-chat'>
         {date}
+        <br />
         {chat}
         {answer_form}
       </div>
