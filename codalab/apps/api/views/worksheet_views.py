@@ -409,7 +409,6 @@ class ChatBoxApi(views.APIView):
                 'user_id': user_id
             }
             chats = service.get_chat_log_info(info)            
-            print chats
             return Response({'chats': chats}, content_type="application/json")
         except Exception as e:
             tb = traceback.format_exc()
@@ -417,7 +416,7 @@ class ChatBoxApi(views.APIView):
             return Response({"error": smart_str(e)}, status=500)
 
     """
-    Return a response to the user's question or feedback in the ChatBox. Store this question in the backend. 
+    Add the question to the chat log. Return an automatically generated response. 
     """
     def post(self, request):
         service = BundleService(self.request.user)
@@ -443,8 +442,6 @@ class ChatPortalApi(views.APIView):
                 'is_answered': False,
             }
             chats = service.get_chat_log_info(info)
-            print 'ChatPortalApi GET'
-            print chats
             return Response({'chats': chats}, content_type="application/json")
         except Exception as e:
             tb = traceback.format_exc()
@@ -460,16 +457,12 @@ class ChatPortalApi(views.APIView):
         try:
             chat_id = request.POST.get('chat_id', None)
             answer = request.POST.get('answer', None)
-            # print chat_id
-            # print answer
             if chat_id and answer:
                 info = {
                     'chat_id': chat_id,
                     'answer': answer
                 }
                 chats = service.update_chat_log_info(info)
-                # print 'ChatPortalApi POST'
-                # print chats
                 return Response({'chats': chats}, content_type="application/json")
         except Exception as e:
             tb = traceback.format_exc()

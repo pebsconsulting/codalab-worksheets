@@ -8,7 +8,6 @@ var WorksheetChatPortal = React.createClass({
   },
 
   togglePortal: function() {
-  	console.log(this.state.showChatPortal)
   	this.setState({showChatPortal: !this.state.showChatPortal})
   },
 
@@ -43,7 +42,6 @@ var WorksheetChatPortalInterface = React.createClass({
       cache: false,
       type: 'GET',
       success: function(data) {
-      	console.log(data.chats)
         this.setState({data: data.chats});
       }.bind(this),
       error: function(xhr, status, err) {
@@ -53,7 +51,6 @@ var WorksheetChatPortalInterface = React.createClass({
   },
 
   handleChangeUser: function(newUser) {
-    console.log(newUser)
   	this.setState({activeUser: newUser});
   },
 
@@ -67,7 +64,6 @@ var WorksheetChatPortalInterface = React.createClass({
       	'answer': answer
       },
       success: function(data) {
-        console.log(data.chats);
         this.setState({data: data.chats});
       }.bind(this),
       error: function(xhr, status, err) {
@@ -160,18 +156,12 @@ var WorksheetChatPortalChatList = React.createClass({
 
 var WorksheetChatPortalChat = React.createClass({
 
-  handleSubmit: function (chatId, answer) {
-  	console.log(chatId)
-  	console.log(answer)
-  },
-
   render: function () {
   	var date = this.props.chat.date;
     var chat = this.props.chat.chat;
   	var answer_form = (
         <WorksheetChatPortalAnswerForm 
         	chatId={this.props.chat.chat_id}
-        	onCommentSubmit = {this.handleSubmit}
         	handleAnswerChat = {this.props.handleAnswerChat}
         />
         );

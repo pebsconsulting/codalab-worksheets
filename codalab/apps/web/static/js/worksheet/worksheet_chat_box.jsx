@@ -2,7 +2,6 @@
 var WorksheetChatBox = React.createClass({
 
   isFocusBundle: function(focusIndex, subFocusIndex) {
-    console.log('focusIndex' + focusIndex)
     return focusIndex == 0 && subFocusIndex != -1;
   },
 
@@ -19,7 +18,6 @@ var WorksheetChatBox = React.createClass({
     if (this.isFocusBundle(nextProps.focusIndex, nextProps.subFocusIndex)) {
       bundleId = nextProps.ws.info.items[nextProps.focusIndex].bundle_info[nextProps.subFocusIndex].uuid
     }
-    console.log(bundleId)
     this.setState({
       worksheetId: nextProps.ws.uuid,
       bundleId: bundleId
@@ -34,7 +32,6 @@ var WorksheetChatBox = React.createClass({
       user : "You",
       offset: 50
     });
-    // setInterval(function(){ this.loadChatHistory(); }.bind(this), 5000);
     this.loadChatHistory();
   },
 
@@ -84,7 +81,6 @@ handleMessageSent: function(chatbox, id, user, msg){
     },
     type: 'POST',
     success: function (data, status, jqXHR) {
-      console.log(data);
       chatbox.boxManager.addMsg('Codalab', data.response);
     }.bind(this),
     error: function (jqHXR, status, error) {
@@ -98,7 +94,6 @@ handleMessageSent: function(chatbox, id, user, msg){
         // this refers to the chat box, self refers to the React component 
         self.handleMessageSent(this, id, user, msg);
       });
-    // this.loadChatHistory();
     return (
       <div id="chat_box">
       </div>
