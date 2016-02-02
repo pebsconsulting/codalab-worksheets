@@ -9,7 +9,6 @@ var WorksheetChatBox = React.createClass({
     return {
       worksheetId: -1,
       bundleId: -1,
-      userInfo: null
     }
   },
 
@@ -52,11 +51,28 @@ var WorksheetChatBox = React.createClass({
             user_id: data.user_info.user_id
           },
           success: function(data) {
-            if (userId in data.chats) {
-              data.chats[userId].forEach(function(ele) {
-                $("#chat_box").chatbox("option", "boxManager").addMsg("You", ele.chat);
-                if (ele.answer != '') $("#chat_box").chatbox("option", "boxManager").addMsg("Staff", ele.answer);
-              })
+            // console.log(data.chats)
+            var chats = data.chats;
+            if (Object.keys(chats).length > 0) {
+              for (var user_id in chats) {
+                if (chats.hasOwnProperty(user_id)) {
+                  // console.log(chats[user_id]);
+                  for (var i = 0; i < chats[user_id].length; i++) {
+                    var chat = chats[user_id][i]
+                    var sender = '';
+                    if (chat.sender_user_id == userId) {
+                      sender = 'You';
+                    } else if (chat.sender_user_id == -1) {
+                      sender = 'System';
+                    } else if (chat.sender_user_id == 0) {
+                      sender = 'Admin'
+                    } else {
+                      sender = chat.sender_user_id
+                    }
+                    $("#chat_box").chatbox("option", "boxManager").addMsg(sender, chat.chat);
+                  }
+                }
+              }
             }
           }.bind(this),
           error: function(xhr, status, err) {
@@ -75,13 +91,14 @@ handleMessageSent: function(chatbox, id, user, msg){
   $.ajax({
     url: '/api/chatbox/',
     data: {
-      request: msg,
-      bundleId: this.state.bundleId,
+      recipientUserId: -1,
+      chat: msg,
       worksheetId: this.state.worksheetId,
+      bundleId: this.state.bundleId,
     },
     type: 'POST',
     success: function (data, status, jqXHR) {
-      chatbox.boxManager.addMsg('Codalab', data.response);
+      chatbox.boxManager.addMsg('System', data.chats);
     }.bind(this),
     error: function (jqHXR, status, error) {
       alert('chat box error');

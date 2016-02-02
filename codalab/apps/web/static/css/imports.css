@@ -9938,3 +9938,6 @@ textarea.table.affiliation > tbody > tr > td input {
   height: 400px;
   overflow-y: auto;
 }
+#chat-portal-chat {
+  border-bottom: 1px black solid;
+}

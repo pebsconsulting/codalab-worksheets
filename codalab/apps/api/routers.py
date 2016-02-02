@@ -28,7 +28,6 @@ urlpatterns += (
     url(r'^bundles/(?P<uuid>[A-Za-z0-9]+)/$', views.BundleInfoApi.as_view(), name='api_bundle_info'),
 
     url(r'^chatbox/$', views.ChatBoxApi.as_view(), name='api_chat_box'),
-    url(r'^chatportal/$', views.ChatPortalApi.as_view(), name='api_chat_portal'),
 
     url(r'^users/$', views.UsersApi.as_view(), name='api_users'),
 

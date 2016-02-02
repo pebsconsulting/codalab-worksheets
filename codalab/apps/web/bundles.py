@@ -403,14 +403,11 @@ class BundleService(object):
     def home_worksheet(self, username):
         return spec_util.home_worksheet(username)
 
-    def add_chat_log_info(self, request_string, worksheet_uuid, bundle_uuid):
-        return self.client.add_chat_log_info(request_string, worksheet_uuid, bundle_uuid)
+    def add_chat_log_info(self, query_info):
+        return self.client.add_chat_log_info(query_info)
 
     def get_chat_log_info(self, query_info):
         return self.client.get_chat_log_info(query_info)
-
-    def update_chat_log_info(self, query_info):
-        return self.client.update_chat_log_info(query_info)
 
     def get_user_info(self, user_id):
         return self.client.get_user_info(user_id)

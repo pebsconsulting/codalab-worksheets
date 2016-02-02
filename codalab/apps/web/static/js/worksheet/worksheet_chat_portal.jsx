@@ -37,11 +37,15 @@ var WorksheetChatPortalInterface = React.createClass({
 
   componentDidMount: function() {
     $.ajax({
-      url: '/api/chatportal/',
+      url: '/api/chatbox/',
       dataType: 'json',
       cache: false,
       type: 'GET',
+      data: {
+        user_id: 0
+      },
       success: function(data) {
+        // console.log(data.chats)
         this.setState({data: data.chats});
       }.bind(this),
       error: function(xhr, status, err) {
@@ -54,16 +58,20 @@ var WorksheetChatPortalInterface = React.createClass({
   	this.setState({activeUser: newUser});
   },
 
-  handleAnswerChat: function(chatId, answer) {
+  handleAnswerChat: function(recipientUserId, msg) {
   	$.ajax({
-      url: '/api/chatportal/',
+      url: '/api/chatbox/',
       dataType: 'json',
       type: 'POST',
       data: {
-      	'chat_id': chatId,
-      	'answer': answer
+        senderUserId: 0,
+        recipientUserId: recipientUserId,
+        chat: msg,
+        worksheetId: -1,
+        bundleId: -1,
       },
       success: function(data) {
+        // console.log(data.chats);
         this.setState({data: data.chats});
       }.bind(this),
       error: function(xhr, status, err) {
@@ -86,6 +94,7 @@ var WorksheetChatPortalInterface = React.createClass({
                      ? this.state.data[this.state.activeUser] : []
   	var chat_list = (
         <WorksheetChatPortalChatList
+            userId={this.state.activeUser}
             chats={chats}
             handleAnswerChat={this.handleAnswerChat}
         />
@@ -142,13 +151,19 @@ var WorksheetChatPortalChatList = React.createClass({
       return (
         <WorksheetChatPortalChat
         	chat = {chat}
-        	handleAnswerChat = {self.props.handleAnswerChat}
         />
       );
     });
+    var chatbox = this.props.chats.length == 0 ? null : (
+        <WorksheetChatPortalChatBox
+            userId={this.props.userId}
+            handleAnswerChat={this.props.handleAnswerChat}
+        />
+    );
     return (
       <div id = 'chat-portal-chat-list'>
         {chatList}
+        {chatbox}
       </div>
     );
   }
@@ -159,25 +174,25 @@ var WorksheetChatPortalChat = React.createClass({
   render: function () {
   	var date = this.props.chat.date;
     var chat = this.props.chat.chat;
-  	var answer_form = (
-        <WorksheetChatPortalAnswerForm 
-        	chatId={this.props.chat.chat_id}
-        	handleAnswerChat = {this.props.handleAnswerChat}
-        />
-        );
+    var sender_user_id = this.props.chat.sender_user_id;
+    if (sender_user_id == -1) {
+      sender_user_id = 'System'
+    } else if (sender_user_id == 0) {
+      sender_user_id = 'Admin'
+    }
+    var title = date + ' user_id: ' + sender_user_id
     return (
       <div id = 'chat-portal-chat'>
-        {date}
+        {title}
         <br />
         {chat}
-        {answer_form}
       </div>
     );
   }
 });
 
 
-var WorksheetChatPortalAnswerForm = React.createClass({
+var WorksheetChatPortalChatBox = React.createClass({
   getInitialState: function() {
     return {text: ''};
   },
@@ -190,14 +205,14 @@ var WorksheetChatPortalAnswerForm = React.createClass({
     if (!text) {
       return;
     }
-    this.props.handleAnswerChat(this.props.chatId, text);
+    this.props.handleAnswerChat(this.props.userId, text);
     this.setState({text: ''});
   },
   render: function() {
     return (
-      <form className="chat-portal-answer-form" onSubmit={this.handleSubmit}>
+      <form className="chat-portal-chat-box" onSubmit={this.handleSubmit}>
         <textarea rows='5' cols='100'
-          placeholder="Your answer:"
+          placeholder="Chat here:"
           value={this.state.text}
           onChange={this.handleTextChange}
         />

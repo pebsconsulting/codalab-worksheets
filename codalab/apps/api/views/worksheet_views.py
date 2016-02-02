@@ -399,14 +399,14 @@ class BundleFileContentApi(views.APIView):
 class ChatBoxApi(views.APIView):
 
     """
-    Return a list of (the last ten?) questions that the user has asked before, together with staff's answers to them, if they exist
+    Return all the chats that the user has had before
     """
     def get(self, request):
         service = BundleService(self.request.user)
         try:
             user_id = request.GET.get('user_id', None)
             info = {
-                'user_id': user_id
+                'user_id': self.request.user.id if user_id == None else user_id
             }
             chats = service.get_chat_log_info(info)            
             return Response({'chats': chats}, content_type="application/json")
@@ -416,54 +416,25 @@ class ChatBoxApi(views.APIView):
             return Response({"error": smart_str(e)}, status=500)
 
     """
-    Add the question to the chat log. Return an automatically generated response. 
+    Add the chat to the log. Return the updated chat log
     """
     def post(self, request):
         service = BundleService(self.request.user)
         try:
-            request_string = request.POST['request']
-            worksheet_uuid = request.POST['worksheetId']
-            bundle_uuid = request.POST['bundleId']
-            response = service.add_chat_log_info(request_string, worksheet_uuid, bundle_uuid)
-            return Response({'response': response}, content_type="application/json")
-        except Exception as e:
-            tb = traceback.format_exc()
-            log_exception(self, e, tb)
-            return Response({"error": smart_str(e)}, status=500)
-
-class ChatPortalApi(views.APIView):
-    """
-    Return a list of unanswered questions from all users
-    """
-    def get(self, request):
-        service = BundleService(self.request.user)
-        try:
+            recipient_user_id = request.POST.get('recipientUserId', None)
+            chat = request.POST.get('chat', None)
+            worksheet_uuid = request.POST.get('worksheetId', -1)
+            bundle_uuid = request.POST.get('bundleId', -1)
+            sender_user_id = request.POST.get('senderUserId', None)
             info = {
-                'is_answered': False,
+                'sender_user_id': self.request.user.id if sender_user_id == None else sender_user_id,
+                'recipient_user_id': recipient_user_id,
+                'chat': chat,
+                'worksheet_uuid': worksheet_uuid,
+                'bundle_uuid': bundle_uuid,
             }
-            chats = service.get_chat_log_info(info)
+            chats = service.add_chat_log_info(info)
             return Response({'chats': chats}, content_type="application/json")
-        except Exception as e:
-            tb = traceback.format_exc()
-            log_exception(self, e, tb)
-            return Response({"error": smart_str(e)}, status=500)
-    
-    """
-    Called when a staff answers a question/feedback. Update the answer field and flip the is_answered flag for the question.
-    Return a new list of unanswered questions from all users
-    """
-    def post(self, request):
-        service = BundleService(self.request.user)
-        try:
-            chat_id = request.POST.get('chat_id', None)
-            answer = request.POST.get('answer', None)
-            if chat_id and answer:
-                info = {
-                    'chat_id': chat_id,
-                    'answer': answer
-                }
-                chats = service.update_chat_log_info(info)
-                return Response({'chats': chats}, content_type="application/json")
         except Exception as e:
             tb = traceback.format_exc()
             log_exception(self, e, tb)
