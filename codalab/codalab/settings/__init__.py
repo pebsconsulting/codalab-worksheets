@@ -119,8 +119,8 @@ class Base(Settings):
         EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
     ADMINS = []
-    if 'django' in config:
-        ADMINS.append(('Admin', config['django']['admin-email']))
+    # if 'django' in config:
+    #     ADMINS.append(('Admin', config['django']['admin-email']))
     MANAGERS = ADMINS
 
     ############################################################
