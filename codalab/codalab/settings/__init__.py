@@ -119,6 +119,7 @@ class Base(Settings):
         EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
     ADMINS = []
+    # The following two lines are commented out to suppress emails. 
     # if 'django' in config:
     #     ADMINS.append(('Admin', config['django']['admin-email']))
     MANAGERS = ADMINS
