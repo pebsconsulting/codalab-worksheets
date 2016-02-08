@@ -9312,6 +9312,18 @@ fieldset[disabled] #worksheet-list .worksheet-tile .worksheet-inner button.delet
 .bundle-upload-progress-bar {
   width: 100%;
 }
+#run-bundle-builder-form {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: 500px;
+  height: 400px;
+  margin-top: -250px;
+  margin-left: -200px;
+  background-color: #ccc;
+  display: none;
+  z-index: 200;
+}
 .competition-view {
   margin-top: 15px;
 }

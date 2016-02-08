@@ -113,6 +113,9 @@ var WorksheetSidePanel = React.createClass({
           refreshWorksheet={this.props.bundleMetadataChanged}
         />;
 
+        var run_bundle_builder = <RunBundleBuilder
+        />;
+
         var focus = this.getFocus();
         var side_panel_details = '';
         if (focus) {
@@ -146,6 +149,7 @@ var WorksheetSidePanel = React.createClass({
         return (
           <div className="ws-panel">
               {bundle_uploader}
+              {run_bundle_builder}
               {side_panel_details}
           </div>
         );
