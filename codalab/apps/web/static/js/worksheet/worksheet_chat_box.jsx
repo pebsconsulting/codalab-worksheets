@@ -1,7 +1,7 @@
-DEFAULT_WORKSHEET_ID = -1
-DEFAULT_BUNDLE_ID = -1
-SYSTEM_USER_ID = -1
-ROOT_USER_ID = 0
+DEFAULT_WORKSHEET_ID = '-1'
+DEFAULT_BUNDLE_ID = '-1'
+SYSTEM_USER_ID = '-1'
+ROOT_USER_ID = '0'
 
 var WorksheetChatBox = React.createClass({
 
@@ -102,6 +102,8 @@ handleMessageSent: function(chatbox, id, user, msg){
     },
     type: 'POST',
     success: function (data, status, jqXHR) {
+      // console.log(data.chats)
+      // auto response 
       chatbox.boxManager.addMsg('System', data.chats);
     }.bind(this),
     error: function (jqHXR, status, error) {

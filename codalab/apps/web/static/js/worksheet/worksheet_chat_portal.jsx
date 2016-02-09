@@ -1,7 +1,7 @@
-DEFAULT_WORKSHEET_ID = -1
-DEFAULT_BUNDLE_ID = -1
-SYSTEM_USER_ID = -1
-ROOT_USER_ID = 0
+DEFAULT_WORKSHEET_ID = '-1'
+DEFAULT_BUNDLE_ID = '-1'
+SYSTEM_USER_ID = '-1'
+ROOT_USER_ID = '0'
 
 var WorksheetChatPortal = React.createClass({
 
