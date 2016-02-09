@@ -114,6 +114,7 @@ var WorksheetSidePanel = React.createClass({
         />;
 
         var run_bundle_builder = <RunBundleBuilder
+          ws={this.props.ws}
         />;
 
         var focus = this.getFocus();
