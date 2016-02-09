@@ -422,14 +422,14 @@ class ChatBoxApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             recipient_user_id = request.POST.get('recipientUserId', None)
-            chat = request.POST.get('chat', None)
+            message = request.POST.get('message', None)
             worksheet_uuid = request.POST.get('worksheetId', -1)
             bundle_uuid = request.POST.get('bundleId', -1)
             sender_user_id = request.POST.get('senderUserId', None)
             info = {
                 'sender_user_id': self.request.user.id if sender_user_id == None else sender_user_id,
                 'recipient_user_id': recipient_user_id,
-                'chat': chat,
+                'message': message,
                 'worksheet_uuid': worksheet_uuid,
                 'bundle_uuid': bundle_uuid,
             }

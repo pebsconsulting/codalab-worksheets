@@ -1,3 +1,7 @@
+DEFAULT_WORKSHEET_ID = -1
+DEFAULT_BUNDLE_ID = -1
+SYSTEM_USER_ID = -1
+ROOT_USER_ID = 0
 
 var WorksheetChatBox = React.createClass({
 
@@ -7,13 +11,13 @@ var WorksheetChatBox = React.createClass({
 
   getInitialState: function() {
     return {
-      worksheetId: -1,
-      bundleId: -1,
+      worksheetId: DEFAULT_WORKSHEET_ID,
+      bundleId: DEFAULT_BUNDLE_ID,
     }
   },
 
   componentWillReceiveProps: function(nextProps) {
-    var bundleId = -1
+    var bundleId = DEFAULT_BUNDLE_ID
     if (this.isFocusBundle(nextProps.focusIndex, nextProps.subFocusIndex)) {
       bundleId = nextProps.ws.info.items[nextProps.focusIndex].bundle_info[nextProps.subFocusIndex].uuid
     }
@@ -62,14 +66,14 @@ var WorksheetChatBox = React.createClass({
                     var sender = '';
                     if (chat.sender_user_id == userId) {
                       sender = 'You';
-                    } else if (chat.sender_user_id == -1) {
+                    } else if (chat.sender_user_id == SYSTEM_USER_ID) {
                       sender = 'System';
-                    } else if (chat.sender_user_id == 0) {
+                    } else if (chat.sender_user_id == ROOT_USER_ID) {
                       sender = 'Admin'
                     } else {
                       sender = chat.sender_user_id
                     }
-                    $("#chat_box").chatbox("option", "boxManager").addMsg(sender, chat.chat);
+                    $("#chat_box").chatbox("option", "boxManager").addMsg(sender, chat.message);
                   }
                 }
               }
@@ -91,8 +95,8 @@ handleMessageSent: function(chatbox, id, user, msg){
   $.ajax({
     url: '/api/chatbox/',
     data: {
-      recipientUserId: -1,
-      chat: msg,
+      recipientUserId: SYSTEM_USER_ID,
+      message: msg,
       worksheetId: this.state.worksheetId,
       bundleId: this.state.bundleId,
     },

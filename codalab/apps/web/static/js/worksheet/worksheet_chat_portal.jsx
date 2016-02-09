@@ -1,3 +1,7 @@
+DEFAULT_WORKSHEET_ID = -1
+DEFAULT_BUNDLE_ID = -1
+SYSTEM_USER_ID = -1
+ROOT_USER_ID = 0
 
 var WorksheetChatPortal = React.createClass({
 
@@ -42,7 +46,7 @@ var WorksheetChatPortalInterface = React.createClass({
       cache: false,
       type: 'GET',
       data: {
-        user_id: 0
+        user_id: ROOT_USER_ID,
       },
       success: function(data) {
         // console.log(data.chats)
@@ -64,11 +68,11 @@ var WorksheetChatPortalInterface = React.createClass({
       dataType: 'json',
       type: 'POST',
       data: {
-        senderUserId: 0,
+        senderUserId: ROOT_USER_ID,
         recipientUserId: recipientUserId,
-        chat: msg,
-        worksheetId: -1,
-        bundleId: -1,
+        message: msg,
+        worksheetId: DEFAULT_WORKSHEET_ID,
+        bundleId: DEFAULT_BUNDLE_ID,
       },
       success: function(data) {
         // console.log(data.chats);
@@ -172,15 +176,15 @@ var WorksheetChatPortalChatList = React.createClass({
 var WorksheetChatPortalChat = React.createClass({
 
   render: function () {
-  	var date = this.props.chat.date;
-    var chat = this.props.chat.chat;
+    var time = this.props.chat.time;
+    var chat = this.props.chat.message;
     var sender_user_id = this.props.chat.sender_user_id;
-    if (sender_user_id == -1) {
+    if (sender_user_id == SYSTEM_USER_ID) {
       sender_user_id = 'System'
-    } else if (sender_user_id == 0) {
+    } else if (sender_user_id == ROOT_USER_ID) {
       sender_user_id = 'Admin'
     }
-    var title = date + ' user_id: ' + sender_user_id
+    var title = time + ' user_id: ' + sender_user_id
     return (
       <div id = 'chat-portal-chat'>
         {title}
