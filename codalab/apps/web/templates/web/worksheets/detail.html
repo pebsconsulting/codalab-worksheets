@@ -77,6 +77,9 @@
                     <tr>
                       <td><kbd>?</kbd></td><td>Show keyboard shortcut help</td>
                     </tr>
+                    <tr>
+                        <a href="http://terminal.jcubic.pl/api_reference.php" target="_blank"> More shortcuts for web terminal (see Keyboard shortcuts section) </a>
+                    </tr>
                 </table>
             </div>
         </div>
@@ -92,67 +95,66 @@
 
 {% block jsincludes %}
     {% if local_mathjax %}
-            <script src="{{ STATIC_URL }}js/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+            <script src="{{ STATIC_URL }}bower_components/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     {% else %}
             <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     {% endif %}
 
     {% if local_ace_editor %}
-            <script src="{{ STATIC_URL }}js/vendor/ace-editor/src-min-noconflict/ace.js"></script>
+            <script src="{{ STATIC_URL }}bower_components/ace-builds/src-min-noconflict/ace.js"></script>
     {% else %}
             <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.2/ace.js"></script>
     {% endif %}
 
     {# https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.js #}
-    <link href="{{ STATIC_URL }}js/vendor/c3.min.css" rel="stylesheet" type="text/css">
-    <script src="{{ STATIC_URL }}js/vendor/d3.min.js"></script>
-    <script src="{{ STATIC_URL }}js/vendor/c3.min.js"></script>
+    <script>
+      // Fix for poshytip: https://github.com/vitalets/x-editable/issues/496
+      $.fn.poshytip = { defaults: null };
+    </script>
+    <link href="{{ STATIC_URL }}bower_components/c3/c3.min.css" rel="stylesheet" type="text/css">
+    <script src="{{ STATIC_URL }}bower_components/d3/d3.min.js"></script>
+    <script src="{{ STATIC_URL }}bower_components/c3/c3.min.js"></script>
 
-    <script src="{{ STATIC_URL }}js/vendor/marked.js"></script>
-    <script src="{{ STATIC_URL }}js/vendor/html4-defs.js"></script>
-    <script src="{{ STATIC_URL }}js/vendor/html-sanitizer.js"></script>
-    <script src="{{ STATIC_URL }}js/vendor/underscore-min.js"></script>
-    <script src="{{ STATIC_URL }}js/vendor/react-0.12.2.js"></script>
-    <script src="{{ STATIC_URL }}js/vendor/jquery-editable-poshytip.js"></script>
-    <script src="{{ STATIC_URL }}js/vendor/jquery.terminal-0.8.8_custom.min.js"></script>
+    <script src="{{ STATIC_URL }}bower_components/marked/marked.min.js"></script>
+    <script src="{{ STATIC_URL }}js/custom/html4-defs.js"></script>
+    <script src="{{ STATIC_URL }}js/custom/html-sanitizer.js"></script>
+    <script src="{{ STATIC_URL }}bower_components/underscore/underscore-min.js"></script>
+    <script src="{{ STATIC_URL }}bower_components/react/react.min.js"></script>
+    <script src="{{ STATIC_URL }}bower_components/x-editable/dist/jquery-editable/js/jquery-editable-poshytip.min.js"></script>
+    <script src="{{ STATIC_URL }}js/custom/jquery.terminal-0.8.8_custom.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.12/jquery.mousewheel.js"></script>
 
-    {# TODO: remove JSX and move to deploy processing of JSX #}
-    <script src="{{ STATIC_URL }}js/vendor/JSXTransformer-0.12.2.js"></script>
+    <script src="{{ STATIC_URL }}dist/worksheet_utils.js"></script>
+    <script src="{{ STATIC_URL }}dist/worksheet_content.js"></script>
+    <script src="{{ STATIC_URL }}dist/ws_mousetrap_fork.js"></script>
 
-    <script src="{{ STATIC_URL }}js/worksheet/worksheet_utils.js"></script>
-    <script src="{{ STATIC_URL }}js/worksheet/worksheet_content.js"></script>
-    <script src="{{ STATIC_URL }}js/worksheet/ws_mousetrap_fork.js"></script>
-
-    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/ws_mixins.js"></script>
+    <script src="{{ STATIC_URL }}dist/ws_mixins.js"></script>
     {# ------- JSX FILES  ------- #}
-    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_action_bar.js"></script>
-    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_side_panel.js"></script>
+    <script src="{{ STATIC_URL }}dist/worksheet_action_bar.js"></script>
+    <script src="{{ STATIC_URL }}dist/worksheet_side_panel.js"></script>
     {# bundle type renders/actions #}
-    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/contents_item_interface.js"></script>
-    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/html_item_interface.js"></script>
-    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/image_item_interface.js"></script>
-    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/graph_item_interface.js"></script>
-    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/markdown_item_interface.js"></script>
-    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/record_item_interface.js"></script>
-    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/table_item_interface.js"></script>
-    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_item_interface.js"></script>
-    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/bundle_uploader.js"></script>
-    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/editable_field.js"></script>
-    {# main entrance point for the worksheet and it's items/bundles #}
-    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_items.js"></script>
-    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_interface.js"></script>
+    <script src="{{ STATIC_URL }}dist/contents_item_interface.js"></script>
+    <script src="{{ STATIC_URL }}dist/html_item_interface.js"></script>
+    <script src="{{ STATIC_URL }}dist/image_item_interface.js"></script>
+    <script src="{{ STATIC_URL }}dist/graph_item_interface.js"></script>
+    <script src="{{ STATIC_URL }}dist/markdown_item_interface.js"></script>
+    <script src="{{ STATIC_URL }}dist/record_item_interface.js"></script>
+    <script src="{{ STATIC_URL }}dist/table_item_interface.js"></script>
+    <script src="{{ STATIC_URL }}dist/worksheet_item_interface.js"></script>
+    <script src="{{ STATIC_URL }}dist/bundle_uploader.js"></script>
+    <script src="{{ STATIC_URL }}dist/editable_field.js"></script>
+    {# main entry point for the worksheet and its items/bundles #}
+    <script src="{{ STATIC_URL }}dist/worksheet_items.js"></script>
+    <script src="{{ STATIC_URL }}dist/worksheet_interface.js"></script>
     {# ------- END JSX FILES  ------- #}
 
-<script type="text/jsx">
+<script>
 MathJax.Hub.Config({
     tex2jax: {
         skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
         inlineMath: [['$','$']]
     }
 });
-
-React.render(<Worksheet uuid="{{worksheet_uuid}}"/>, document.getElementById('worksheet_container'));
 </script>
 
 {% endblock jsincludes %}

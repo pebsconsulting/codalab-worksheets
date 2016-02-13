@@ -108,20 +108,7 @@ class WorksheetDetailView(TemplateView):
     """
     template_name = 'web/worksheets/detail.html'
     def get_context_data(self, **kwargs):
-        context = super(WorksheetDetailView, self).get_context_data(**kwargs)
-        service = BundleService(self.request.user)
-        uuid = kwargs.get('uuid', None)
-
-        # Just call to get the title.
-        # TODO: later we call worksheet again to get the contents.
-        # Can we avoid calling get_worksheet_info twice?
-        try:
-            worksheet_info = service.basic_worksheet(uuid)
-            context['worksheet_uuid'] = worksheet_info['uuid']
-            context['worksheet_title'] = worksheet_info.get('title', worksheet_info.get('name', ''))
-        except:
-            pass
-        return context
+        return super(WorksheetDetailView, self).get_context_data(**kwargs)
 
 class BundleDetailView(TemplateView):
     """

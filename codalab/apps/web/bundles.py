@@ -50,8 +50,10 @@ class BundleService(object):
     HEAD_MAX_LINES = 100
 
     def __init__(self, user=None):
+        print "Settings = ", settings
         self.client = RemoteBundleClient(settings.BUNDLE_SERVICE_URL,
                                          lambda command: get_user_token(user), verbose=1)
+        print self.client
 
     def items(self):
         return _call_with_retries(lambda: self.client.search())

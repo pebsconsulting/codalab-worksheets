@@ -13,7 +13,8 @@ import codalab
 
 class Base(Settings):
     # Load config file
-    config_path = os.path.join(os.getenv('HOME'), '.codalab', 'website-config.json')
+    home_path = os.getenv('CODALAB_HOME', os.path.join(os.getenv('HOME'), '.codalab'))
+    config_path = os.path.join(home_path, 'website-config.json')
     # Generate an empty config file if one does not already exist
     if not os.path.exists(config_path):
         print 'No configuration file detected. Generating a blank one at %s' % config_path
@@ -31,8 +32,8 @@ class Base(Settings):
 
     COMPILE_LESS = True # less -> css already done (true) or less.js to compile it on render (false)
 
-    LOCAL_MATHJAX = False # see prep_for_offline
-    LOCAL_ACE_EDITOR = False # see prep_for_offline
+    LOCAL_MATHJAX = True # see prep_for_offline
+    LOCAL_ACE_EDITOR = True # see prep_for_offline
 
     SITE_ID = 1
     DOMAIN_NAME = 'localhost'
@@ -63,7 +64,7 @@ class Base(Settings):
     AUTH_USER_MODEL = 'authenz.ClUser'
 
     # Keep in sync with codalab-cli
-    CODALAB_VERSION = '0.1.1'
+    CODALAB_VERSION = '0.1.2'
 
     BUNDLE_SERVICE_URL = 'http://localhost:2800'
     # Bundle service location.
@@ -118,8 +119,9 @@ class Base(Settings):
         EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
     ADMINS = []
-    if 'django' in config:
-        ADMINS.append(('Admin', config['django']['admin-email']))
+    # The following two lines are commented out to suppress emails. 
+    # if 'django' in config:
+    #     ADMINS.append(('Admin', config['django']['admin-email']))
     MANAGERS = ADMINS
 
     ############################################################
