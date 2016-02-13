@@ -347,7 +347,7 @@ def install():
         run('./setup.sh')
     with cd(env.deploy_codalab_cli_dir):
         run('git checkout %s' % env.git_codalab_cli_tag)
-        run('./setup.sh')
+        run('./setup.sh server')
         run('venv/bin/pip install MySQL-Python')
 
     # Deploy!
