@@ -483,7 +483,7 @@ def _deploy():
     with cd(env.deploy_codalab_cli_dir):
         run('git pull')
         run('git checkout %s' % env.git_codalab_cli_tag)
-        run('./setup.sh')
+        run('./setup.sh server')
         run('venv/bin/pip install MySQL-Python')
         run('venv/bin/alembic upgrade head')
 
