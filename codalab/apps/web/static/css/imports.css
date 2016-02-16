@@ -6519,9 +6519,13 @@ kbd {
   border-left: 2px solid #739cb9;
   background-color: #f7f7f7;
 }
-.frontpage-button {
-  text-align: center;
+.frontpage-buttons {
+  margin: 15px;
   padding: 10px;
+  text-align: center;
+}
+.frontpage-button {
+  margin: 15px;
 }
 .frontpage-button a {
   background-color: #ffc266;
