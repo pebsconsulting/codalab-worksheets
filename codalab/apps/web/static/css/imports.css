@@ -6534,10 +6534,10 @@ kbd {
 .frontpage-button a:hover {
   background-color: #ffae33;
 }
-.bundle-1 {
+.bg-blue {
   background: #739cb9;
 }
-.bundle-2 {
+.bg-green {
   background: #92D053;
 }
 .frontpage-stage {
@@ -6561,7 +6561,7 @@ kbd {
   font-weight: bold;
 }
 .frontpage-graphic {
-  padding-top: 150px;
+  padding-top: 100px;
 }
 .frontpage-worksheets-list {
   background: #fff5e5;
