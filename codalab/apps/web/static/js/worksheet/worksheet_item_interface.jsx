@@ -147,7 +147,7 @@ var TableWorksheetRow = React.createClass({
         return (
             <tr className={className}><td>
               <div onClick={this.handleRowClick}>
-                <a href="javascript:0" onClick={this.handleTextClick}>
+                <a href="javascript:void(0)" onClick={this.handleTextClick}>
                     {worksheet_display}
                 </a>
               </div>

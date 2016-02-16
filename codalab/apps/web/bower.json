@@ -1,0 +1,43 @@
+{
+  "name": "codalab-worksheets",
+  "description": "Making it easy for anyone to track and reproduce research",
+  "main": "index.js",
+  "authors": [
+    "CodaLab <noreply@codalab.org>"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/codalab/codalab-worksheets",
+  "moduleType": [
+    "es6"
+  ],
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "datatables": "~1.9.4",
+    "datetimepicker": "~2.1.9",
+    "jquery-validation": "~1.11.1",
+    "c3": "~0.4.10",
+    "select2": "~4.0.1",
+    "jquery": "~1.10.2",
+    "jquery.scrollTo": "~1.4.6",
+    "x-editable": "~1.5.1",
+    "tablesorter": "*",
+    "lite-uploader": "~1.4.1",
+    "underscore": "^1.8.3",
+    "d3": "~3.5.0",
+    "marked": "^0.3.5",
+    "react": "~0.12.2",
+    "Readmore.js": "readmore-js#^2.1.0",
+    "MathJax": "^2.6.0",
+    "ace-builds": "^1.2.3"
+  },
+  "resolutions": {
+    "jquery": "~1.10.2"
+  }
+}

@@ -4,17 +4,19 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "bower": "bower install",
     "build": "gulp jsx && gulp less",
+    "clean": "gulp clean",
     "jsx": "gulp jsx",
     "less": "gulp less",
-    "clean": "gulp clean"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "babel-cli": "^6.4.0",
     "babel-preset-react": "^6.3.13",
+    "bower": "^1.7.7",
     "del": "^2.2.0",
     "gulp": "^3.9.0",
     "gulp-babel": "^6.1.1",
