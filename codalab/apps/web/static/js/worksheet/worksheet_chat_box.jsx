@@ -36,6 +36,10 @@ var WorksheetChatBox = React.createClass({
       offset: 50
     });
     this.loadChatHistory();
+    setInterval(function(){
+      console.log('loadChatHistory')
+      this.loadChatHistory()
+    }.bind(this), 10 * 1000);
   },
 
   loadChatHistory: function() {

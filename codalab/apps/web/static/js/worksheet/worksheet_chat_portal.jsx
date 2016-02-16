@@ -21,7 +21,7 @@ var WorksheetChatPortal = React.createClass({
 	};
     return (
       <div>
-      	<div id = "chat-portal-switch" onClick = {this.togglePortal}> Show/Hide Chat Portal
+      	<div id="chat-portal-switch" onClick = {this.togglePortal}> Show/Hide Chat Portal
       	</div>
       	{ this.state.showChatPortal ? <WorksheetChatPortalInterface /> : null }
       </div>
@@ -104,7 +104,7 @@ var WorksheetChatPortalInterface = React.createClass({
         />
         );
   	return (
-  		<div id = 'chat-portal'>
+  		<div id='chat-portal'>
   			{user_list}
   			{chat_list}
   		</div>
@@ -126,7 +126,7 @@ var WorksheetChatPortalUserList = React.createClass({
       );
     });
     return (
-      <div id = 'chat-portal-user-list'>
+      <div id='chat-portal-user-list'>
         {userList}
       </div>
     );
@@ -140,7 +140,7 @@ var WorksheetChatPortalUser = React.createClass({
   },
   render: function () {
     return (
-      <button id = 'chat-portal-user' onClick = {this.handleClick}>
+      <button className='chat-portal-user' onClick = {this.handleClick}>
         {this.props.user}
       </button>
     );
@@ -165,11 +165,16 @@ var WorksheetChatPortalChatList = React.createClass({
         />
     );
     return (
-      <div id = 'chat-portal-chat-list'>
+      <div id='chat-portal-chat-list'>
         {chatList}
         {chatbox}
       </div>
     );
+  },
+
+  componentDidUpdate: function() {
+    var chatListDiv =$('#chat-portal-chat-list');
+    chatListDiv.scrollTop(chatListDiv[0].scrollHeight);
   }
 });
 
@@ -186,7 +191,7 @@ var WorksheetChatPortalChat = React.createClass({
     }
     var title = time + ' user_id: ' + sender_user_id
     return (
-      <div id = 'chat-portal-chat'>
+      <div className='chat-portal-chat'>
         {title}
         <br />
         {chat}
@@ -212,15 +217,23 @@ var WorksheetChatPortalChatBox = React.createClass({
     this.props.handleAnswerChat(this.props.userId, text);
     this.setState({text: ''});
   },
+  componentDidMount: function() {
+    $('#chat-portal-chat-box-input').keydown(function (e) {
+      if (e.ctrlKey && e.keyCode == 13) {
+        e.preventDefault();
+        $('#chat-portal-chat-box-submit').click();
+      }
+    });
+  },
   render: function() {
     return (
       <form className="chat-portal-chat-box" onSubmit={this.handleSubmit}>
-        <textarea rows='5' cols='100'
+        <textarea id="chat-portal-chat-box-input" rows='5' cols='100'
           placeholder="Chat here:"
           value={this.state.text}
           onChange={this.handleTextChange}
         />
-        <input type="submit" value="Post" />
+        <input id="chat-portal-chat-box-submit" type="submit" value="Send" />
       </form>
     );
   }
