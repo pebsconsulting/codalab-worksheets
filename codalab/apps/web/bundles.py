@@ -411,3 +411,6 @@ class BundleService(object):
 
     def get_user_info(self, user_id):
         return self.client.get_user_info(user_id)
+
+    def get_faq(self):
+        return self.client.get_faq()

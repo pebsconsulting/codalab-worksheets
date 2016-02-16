@@ -31,4 +31,5 @@ urlpatterns += (
 
     url(r'^users/$', views.UsersApi.as_view(), name='api_users'),
 
+    url(r'^faq/$', views.FAQApi.as_view(), name='api_faq'),
 )

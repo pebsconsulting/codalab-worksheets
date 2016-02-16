@@ -451,8 +451,13 @@ class UsersApi(views.APIView):
             log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
 
-        
-
-
-
-
+class FAQApi(views.APIView):
+    def get(self, request):
+        service = BundleService(self.request.user)
+        try:
+            faq = service.get_faq()
+            return Response({'faq': faq}, content_type="application/json")
+        except Exception as e:
+            tb = traceback.format_exc()
+            log_exception(self, e, tb)
+            return Response({"error": smart_str(e)}, status=500)

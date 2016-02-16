@@ -439,11 +439,7 @@ var Worksheet = React.createClass({
             );
 
         // chat_portal only appear if the user is the root user
-        // var chat_portal = this.state.userId != 4 ? null : (
-        //         <WorksheetChatPortal 
-        //         />
-        //     );
-        var chat_portal = (
+        var chat_portal = this.state.userId !== 0 ? null : (
                 <WorksheetChatPortal 
                 />
             );
