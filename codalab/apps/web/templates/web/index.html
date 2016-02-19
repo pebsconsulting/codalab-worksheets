@@ -10,6 +10,20 @@
                 <div class="col-sm-12 col-md-8 col-md-offset-2">
                     <img src="{{STATIC_URL}}img/codalab-logo-white.png" alt="CodaLab" class="img-responsive">
                     <h4><b>Accelerating reproducible computational research.</b></h4>
+                    <div class="frontpage-buttons">
+                      {% if user.is_authenticated %}
+                        <span class="frontpage-button">
+                          <a href="/worksheets/?name=dashboard">My Dashboard</a>
+                        </span>
+                      {% else %}
+                        <span class="frontpage-button">
+                          <a href="/accounts/signup">Sign Up</a>
+                        </span>
+                        <span class="frontpage-button">
+                          <a href="/accounts/login">Sign In</a>
+                        </span>
+                      {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -26,22 +40,6 @@
             </p>
           </div>
 
-          <div class="col-sm-6 col-sm-offset-4">
-            <div class="frontpage-buttons">
-              {% if user.is_authenticated %}
-                <span class="frontpage-button">
-                  <a href="/worksheets/?name=dashboard">My Dashboard</a>
-                </span>
-              {% else %}
-                <span class="frontpage-button">
-                  <a href="/accounts/signup">Sign Up</a>
-                </span>
-                <span class="frontpage-button">
-                  <a href="/accounts/login">Sign In</a>
-                </span>
-              {% endif %}
-            </div>
-          </div>
         </div>
 
         <div class="row">
