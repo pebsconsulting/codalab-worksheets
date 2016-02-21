@@ -414,3 +414,6 @@ class BundleService(object):
 
     def get_faq(self):
         return self.client.get_faq()
+
+    def get_enable_chat(self):
+        return settings.ENABLE_CHAT

@@ -461,3 +461,14 @@ class FAQApi(views.APIView):
             tb = traceback.format_exc()
             log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
+
+class EnableChatApi(views.APIView):
+    def get(self, request):
+        service = BundleService(self.request.user)
+        try:
+            enable_chat = service.get_enable_chat()
+            return Response({'enable_chat': enable_chat}, content_type="application/json")
+        except Exception as e:
+            tb = traceback.format_exc()
+            log_exception(self, e, tb)
+            return Response({"error": smart_str(e)}, status=500)

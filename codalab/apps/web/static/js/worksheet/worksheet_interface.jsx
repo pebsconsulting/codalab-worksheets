@@ -19,6 +19,7 @@ var Worksheet = React.createClass({
             focusIndex: -1, // Which worksheet items to be on (-1 is none)
             subFocusIndex: 0,  // For tables, which row in the table
             userId: -1,
+            enableChat: false,
         };
     },
 
@@ -98,6 +99,18 @@ var Worksheet = React.createClass({
             type: 'GET',
             success: function(data) {
                 this.setState({userId: data.user_info.user_id});
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
+        });
+        $.ajax({
+        url: '/api/enablechat/',
+            dataType: 'json',
+            cache: false,
+            type: 'GET',
+            success: function(data) {
+                this.setState({enableChat: data.enable_chat});
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
@@ -430,19 +443,19 @@ var Worksheet = React.createClass({
                 />
             );
 
-        var chat_box_display = (
+        var chat_box_display = this.state.enableChat ? (
                 <WorksheetChatBox
                     ws={this.state.ws}
                     focusIndex={this.state.focusIndex}
                     subFocusIndex={this.state.subFocusIndex}
                 />
-            );
+            ): null;
 
         // chat_portal only appear if the user is the root user
-        var chat_portal = this.state.userId !== 0 ? null : (
+        var chat_portal = this.state.enableChat && this.state.userId === 0 ? (
                 <WorksheetChatPortal 
                 />
-            );
+            ): null;
 
         var items_display = (
                 <WorksheetItemList
