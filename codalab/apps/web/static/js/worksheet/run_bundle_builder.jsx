@@ -1,9 +1,11 @@
+DEFAULT_OPTION = 'Select Your Dependency';
 
 var RunBundleBuilder = React.createClass({
 
   getInitialState: function() {
     return {
       bundleList: [],
+      bundleDisplayList: [],
       dependencyKeyList: ['','',''],
       dependencyTargetList: ['','',''],
       command: null,
@@ -20,12 +22,16 @@ var RunBundleBuilder = React.createClass({
       type: 'GET',
       success: function (data, status, jqXHR) {
         bundles = data.bundles;
-        bundleList = []
+        bundleList = [];
+        bundleDisplayList = [];
         bundles.forEach(function(bundle) {
-          bundleList.push(bundle.metadata.name);
+          bundleList.push(bundle.uuid);
+          bundleDisplayList.push(bundle.metadata.name + ' (' + bundle.uuid.substr(0, 8) + ')');
         }.bind(this));
-        // console.log(bundleList);
-        this.setState({bundleList: bundleList});
+        this.setState({
+          bundleList: bundleList,
+          bundleDisplayList: bundleDisplayList,
+        });
       }.bind(this),
       error: function (jqHXR, status, error) {
         alert(errorString);
@@ -53,7 +59,7 @@ var RunBundleBuilder = React.createClass({
         command.push(key + ':' + target);
       }
     }
-    if (this.state.name != null) {
+    if (this.state.command != null) {
       command.push('\'' + this.state.command + '\'')
     }
     if (this.state.name != null) {
@@ -67,11 +73,14 @@ var RunBundleBuilder = React.createClass({
   },
 
   handleTargetChange: function(index, event) {
-    var dependencyKey = event.target.value;
+    console.log(event.target.value);
+    var dependencyTarget = event.target.value;
+    var dependencyKey = $('#bundle_dependency_'+index + ' option:selected').text();
+    dependencyKey = dependencyKey === DEFAULT_OPTION ? '' : dependencyKey.split(' ')[0];
     var dependencyKeyList = this.state.dependencyKeyList.slice();
     var dependencyTargetList = this.state.dependencyTargetList.slice();
-    dependencyKeyList[index] = dependencyKey
-    dependencyTargetList[index] = dependencyKey
+    dependencyKeyList[index] = dependencyKey;
+    dependencyTargetList[index] = dependencyTarget;
     this.setState({
       dependencyKeyList: dependencyKeyList,
       dependencyTargetList: dependencyTargetList
@@ -111,13 +120,14 @@ var RunBundleBuilder = React.createClass({
       </div>
       )
     var dependencyList = []
-    var bundleList = this.state.bundleList.map(function(bundle) {
-        return <option value={bundle}>{bundle}</option>;
-      });
-    bundleList.unshift(<option value=''>Select Your Dependency</option>)
+    var bundleList = this.state.bundleList.map(function(bundle, i) {
+        return <option value={bundle}>{this.state.bundleDisplayList[i]}</option>;
+      }.bind(this));
+    bundleList.unshift(<option value=''>{DEFAULT_OPTION}</option>)
     for (var i = 0; i < this.state.dependencyTargetList.length; i++){
+      var selectboxId = 'bundle_dependency_'+i;
       dependencyList.push(<div>
-        <select value={this.state.dependencyTargetList[i]} onChange={this.handleTargetChange.bind(this, i)}>{bundleList}</select>
+        <select id={selectboxId} value={this.state.dependencyTargetList[i]} onChange={this.handleTargetChange.bind(this, i)}>{bundleList}</select>
         <input type='text' value={this.state.dependencyKeyList[i]} placeholder='key' onChange={this.handleKeyChange.bind(this, i)}></input>
       </div>)
     } 
@@ -127,7 +137,7 @@ var RunBundleBuilder = React.createClass({
       )
 
     var name = (<div>
-        <input type='text' value={this.state.name} placeholder='name' onChange={this.handleNameChange}></input>
+        <input type='text' value={this.state.name} placeholder='customized bundle name (optional)' onChange={this.handleNameChange}></input>
       </div>
       )
 
