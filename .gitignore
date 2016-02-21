@@ -1,7 +1,8 @@
 *.pyc
 
 codalab/static
-codalab/config/generated
+codalab/config/generateid
+codalab/apps/web/static/css/imports.css
 
 # Eclipse files.
 .*project
