@@ -78,11 +78,9 @@
                         </form>
                     {% endif %}
                     <ul class="nav navbar-nav navbar-right">
-                        <li><a href="/worksheets" tabIndex=2 target="_self">Browse Worksheets</a></li>
+                        <li><a href="/worksheets/?name=home" tabIndex=2 target="_self">Public Home</a></li>
                         {% if user.is_authenticated %}
-                          <li><a href="/worksheets/?name=/" tabIndex=2 target="_self">My Worksheet</a></li>
-                        {% else %}
-                          <li><a href="/accounts/login/?next=/worksheets/?name=/" tabIndex=2 target="_self">My Worksheet</a></li>
+                          <li><a href="/worksheets/?name=dashboard" tabIndex=2 target="_self">My Dashboard</a></li>
                         {% endif %}
                         <li>
                           <a href="https://github.com/codalab/codalab-worksheets/wiki" target="_blank">Help</a>

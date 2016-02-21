@@ -1,5 +1,5 @@
 
-var ACTIONBAR_MINIMIZE_HEIGHT = 25;
+var ACTIONBAR_MINIMIZE_HEIGHT = 30;
 var ACTIONBAR_DRAGHEIGHT = 350;
 
 var WorksheetActionBar = React.createClass({
@@ -38,10 +38,10 @@ var WorksheetActionBar = React.createClass({
         self.props.refreshWorksheet();
       });
     }, {
-      greetings: '[CodaLab web terminal] Press "c" to focus, ESC to unfocus.  Type "cl help" to see all commands.',
+      greetings: 'Click here to enter commands (e.g., help, run \'<bash command>\', rm <bundle>, kill <bundle>, etc.).',
       name: 'command_line',
       height: ACTIONBAR_MINIMIZE_HEIGHT,
-      prompt: '> ',
+      prompt: 'CodaLab> ',
       history: true,
       keydown: function (event, terminal) {
         if (event.keyCode === 27) { // esc

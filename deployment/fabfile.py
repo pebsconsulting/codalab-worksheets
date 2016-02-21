@@ -335,6 +335,11 @@ def install():
     sudo('apt-get install -y python-dev libmysqlclient-dev libjpeg-dev')
     sudo('apt-get install -y nginx supervisor')
 
+    # Install Node.js
+    # https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions
+    sudo('curl -sL https://deb.nodesource.com/setup_4.x | bash -')
+    sudo('apt-get install -y nodejs')
+
     # Setup repositories
     def ensure_repo_exists(repo, dest):
         run('[ -e %s ] || git clone %s %s' % (dest, repo, dest))
@@ -347,7 +352,7 @@ def install():
         run('./setup.sh')
     with cd(env.deploy_codalab_cli_dir):
         run('git checkout %s' % env.git_codalab_cli_tag)
-        run('./setup.sh')
+        run('./setup.sh server')
         run('venv/bin/pip install MySQL-Python')
 
     # Deploy!
@@ -483,7 +488,7 @@ def _deploy():
     with cd(env.deploy_codalab_cli_dir):
         run('git pull')
         run('git checkout %s' % env.git_codalab_cli_tag)
-        run('./setup.sh')
+        run('./setup.sh server')
         run('venv/bin/pip install MySQL-Python')
         run('venv/bin/alembic upgrade head')
 
@@ -514,6 +519,15 @@ def _deploy():
         sudo('ln -sf `pwd`/config/generated/supervisor.conf /etc/supervisor/conf.d/codalab.conf')
         # Setup new relic
         run('newrelic-admin generate-config %s newrelic.ini' % cfg.getNewRelicKey())
+
+    # Build and install steps for JavaScript application
+    with cd(env.deploy_codalab_worksheets_dir), cd('codalab/apps/web'):
+        # Update NPM packages
+        run('npm install')
+        # Build static files (e.g. JSX and LESS)
+        run('npm run build')
+        # Install third-party dependencies
+        run('npm run bower')
 
     # Install SSL certficates (/etc/ssl/certs/)
     require('configuration')
