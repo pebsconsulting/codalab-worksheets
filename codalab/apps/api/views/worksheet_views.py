@@ -404,9 +404,11 @@ class ChatBoxApi(views.APIView):
     def get(self, request):
         service = BundleService(self.request.user)
         try:
-            user_id = request.GET.get('user_id', None)
+            user_id = request.GET.get('user_id')
+            if not service.is_root_user(self.request.user.id) and (not user_id or str(user_id) != str(self.request.user.id)):
+                return Response(None, status=401)
             info = {
-                'user_id': self.request.user.id if user_id == None else user_id
+                'user_id': user_id
             }
             chats = service.get_chat_log_info(info)            
             return Response({'chats': chats}, content_type="application/json")
@@ -426,6 +428,8 @@ class ChatBoxApi(views.APIView):
             worksheet_uuid = request.POST.get('worksheetId', -1)
             bundle_uuid = request.POST.get('bundleId', -1)
             sender_user_id = request.POST.get('senderUserId', None)
+            if not service.is_root_user(self.request.user.id) and (not sender_user_id or str(sender_user_id) != str(self.request.user.id)):
+                return Response(None, status=401)
             info = {
                 'sender_user_id': self.request.user.id if sender_user_id == None else sender_user_id,
                 'recipient_user_id': recipient_user_id,

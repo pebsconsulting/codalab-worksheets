@@ -417,3 +417,6 @@ class BundleService(object):
 
     def get_enable_chat(self):
         return settings.ENABLE_CHAT
+
+    def is_root_user(self, user_id):
+        return self.client.is_root_user(user_id)
