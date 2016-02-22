@@ -115,47 +115,85 @@ var RunBundleBuilder = React.createClass({
   },
 
   render: function () {
-    var addDepBtn = (<div>
-        <button onClick={this.addDependency}>Add more dependency</button>
-      </div>
-      )
-    var dependencyList = []
-    var bundleList = this.state.bundleList.map(function(bundle, i) {
-        return <option value={bundle}>{this.state.bundleDisplayList[i]}</option>;
-      }.bind(this));
-    bundleList.unshift(<option value=''>{DEFAULT_OPTION}</option>)
-    for (var i = 0; i < this.state.dependencyTargetList.length; i++){
-      var selectboxId = 'bundle_dependency_'+i;
-      dependencyList.push(<div>
-        <select id={selectboxId} value={this.state.dependencyTargetList[i]} onChange={this.handleTargetChange.bind(this, i)}>{bundleList}</select>
-        <input type='text' value={this.state.dependencyKeyList[i]} placeholder='key' onChange={this.handleKeyChange.bind(this, i)}></input>
-      </div>)
-    } 
-    var command = (<div>
-        <input type='text' value={this.state.command} placeholder='command' onChange={this.handleCommandChange}></input>
-      </div>
-      )
+    // var addDepBtn = (<div>
+    //     <button onClick={this.addDependency}>Add more dependency</button>
+    //   </div>
+    //   )
+    // var dependencyList = []
+    // var bundleList = this.state.bundleList.map(function(bundle, i) {
+    //     return <option value={bundle}>{this.state.bundleDisplayList[i]}</option>;
+    //   }.bind(this));
+    // bundleList.unshift(<option value=''>{DEFAULT_OPTION}</option>)
+    // for (var i = 0; i < this.state.dependencyTargetList.length; i++){
+    //   var selectboxId = 'bundle_dependency_'+i;
+    //   dependencyList.push(<div>
+    //     <select id={selectboxId} value={this.state.dependencyTargetList[i]} onChange={this.handleTargetChange.bind(this, i)}>{bundleList}</select>
+    //     <input type='text' value={this.state.dependencyKeyList[i]} placeholder='key' onChange={this.handleKeyChange.bind(this, i)}></input>
+    //   </div>)
+    // } 
+    // var command = (<div>
+    //     <input type='text' value={this.state.command} placeholder='command' onChange={this.handleCommandChange}></input>
+    //   </div>
+    //   )
 
-    var name = (<div>
-        <input type='text' value={this.state.name} placeholder='customized bundle name (optional)' onChange={this.handleNameChange}></input>
-      </div>
-      )
+    // var name = (<div>
+    //     <input type='text' value={this.state.name} placeholder='customized bundle name (optional)' onChange={this.handleNameChange}></input>
+    //   </div>
+    //   )
+
+      var worksheet = this.props.worksheet_info;
+      if (!worksheet) return <div />;
+
+      // Show brief summary of contents.
+      var rows = [];
+      if (worksheet.items) {
+        worksheet.items.forEach(function(item) {
+          if (item.bundle_info) {
+            // Show bundle
+            var bundle_infos = item.bundle_info;
+            if (!(bundle_infos instanceof Array))
+              bundle_infos = [bundle_infos];
+
+            bundle_infos.forEach(function(b) {
+              var url = "/bundles/" + b.uuid;
+              var short_uuid = shorten_uuid(b.uuid);
+              rows.push(<tr>
+                <td>{b.bundle_type}</td>
+                <td><a href={url} target="_blank">{b.metadata.name}({short_uuid})</a></td>
+              </tr>);
+            });
+          } else if (item.mode == 'worksheet') {
+            // Show worksheet
+            var info = item.subworksheet_info;
+            var title = info.title || info.name;
+            var url = '/worksheets/' + info.uuid;
+            rows.push(<tr>
+              <td>worksheet</td>
+              <td><a href={url} target="_blank">{title}</a></td>
+            </tr>);
+          }
+        });
+      }
+
+      var bundles_html = (
+        <div className="bundles-table">
+            <table className="bundle-meta table">
+                <thead>
+                  <tr>
+                    <th>type</th>
+                    <th>name</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows}
+                </tbody>
+            </table>
+        </div>
+      );
 
     return (
       <div>
-        <div id="abc">
-          <div id="popupContact">
-            <form id='run-bundle-builder-form' onSubmit={this.buildRunBundle}>
-              <h4>Build Run Bundle</h4>
-              <hr></hr>
-              {addDepBtn}
-              {dependencyList}
-              {command}
-              {name}
-              <button type="submit">Build</button>
-            </form>
-          </div>
-        </div>
+        {bundles_html}
         <button id="popup" onClick={this.popupBuilder}>Build Run Bunddle</button>
       </div>
       );

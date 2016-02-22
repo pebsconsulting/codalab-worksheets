@@ -64,7 +64,7 @@ class Base(Settings):
     AUTH_USER_MODEL = 'authenz.ClUser'
 
     # Keep in sync with codalab-cli
-    CODALAB_VERSION = '0.1.1'
+    CODALAB_VERSION = '0.1.2'
 
     BUNDLE_SERVICE_URL = 'http://localhost:2800'
     # Bundle service location.
@@ -160,7 +160,7 @@ class Base(Settings):
     # Don't put anything in this directory yourself; store your static files
     # in apps' "static/" subdirectories and in STATICFILES_DIRS.
     # Example: "/var/www/example.com/static/"
-    STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
+    STATIC_ROOT = os.path.join(PROJECT_DIR, 'apps/web/static')
 
     # URL prefix for static files.
     # Example: "http://example.com/static/", "http://static.example.com/"
