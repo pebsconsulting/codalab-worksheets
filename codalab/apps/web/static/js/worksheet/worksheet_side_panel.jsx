@@ -116,7 +116,6 @@ var WorksheetSidePanel = React.createClass({
         var run_bundle_builder = <RunBundleBuilder
           ws={this.props.ws}
         />;
-        console.log(this.props.ws);
 
         var focus = this.getFocus();
         var side_panel_details = '';
@@ -169,6 +168,7 @@ var WorksheetDetailSidePanel = React.createClass({
     render: function() {
       // Select the current worksheet or the subworksheet.
       var worksheet = this.props.worksheet_info;
+      console.log(worksheet)
       if (!worksheet) return <div />;
 
       // Show brief summary of contents.
@@ -309,6 +309,7 @@ var BundleDetailSidePanel = React.createClass({
     render: function() {
       //console.log('BundleDetailSidePanel.render');
       var bundle_info = this.state;
+      // console.log(bundle_info);
 
       var fileBrowser = '';
       if (bundle_info.type == 'directory') {
@@ -318,6 +319,10 @@ var BundleDetailSidePanel = React.createClass({
           updateFileBrowser={this.updateFileBrowser}
           currentWorkingDirectory={this.state.currentWorkingDirectory}/>);
       }
+
+      // console.log(renderContents(bundle_info));
+      // console.log(renderDependencies(bundle_info));
+
 
       return (<div id="panel_content">
         {renderHeader(bundle_info, this.props.bundleMetadataChanged)}

@@ -141,7 +141,29 @@ var RunBundleBuilder = React.createClass({
     //   </div>
     //   )
 
-      var worksheet = this.props.worksheet_info;
+      var bundles_html = (
+        <BundleBrowser
+          ws={this.props.ws}
+        />
+      );
+
+    return (
+      <div>
+        {bundles_html}
+        <button id="popup" onClick={this.popupBuilder}>Build Run Bunddle</button>
+      </div>
+      );
+  }
+});
+
+
+var BundleBrowser = React.createClass({
+
+    handleBundleSelection: function(uuid, e) {
+      console.log(uuid);
+    },
+    render: function () {
+      var worksheet = this.props.ws.info;
       if (!worksheet) return <div />;
 
       // Show brief summary of contents.
@@ -158,44 +180,26 @@ var RunBundleBuilder = React.createClass({
               var url = "/bundles/" + b.uuid;
               var short_uuid = shorten_uuid(b.uuid);
               rows.push(<tr>
-                <td>{b.bundle_type}</td>
+                <td><input
+                  type="checkbox"
+                  onChange={this.handleBundleSelection.bind(this, b.uuid)}
+                /></td>
                 <td><a href={url} target="_blank">{b.metadata.name}({short_uuid})</a></td>
               </tr>);
-            });
-          } else if (item.mode == 'worksheet') {
-            // Show worksheet
-            var info = item.subworksheet_info;
-            var title = info.title || info.name;
-            var url = '/worksheets/' + info.uuid;
-            rows.push(<tr>
-              <td>worksheet</td>
-              <td><a href={url} target="_blank">{title}</a></td>
-            </tr>);
+            }.bind(this));
           }
-        });
+        }.bind(this));
       }
 
-      var bundles_html = (
+      return (
         <div className="bundles-table">
             <table className="bundle-meta table">
-                <thead>
-                  <tr>
-                    <th>type</th>
-                    <th>name</th>
-                  </tr>
-                </thead>
                 <tbody>
                   {rows}
                 </tbody>
             </table>
         </div>
       );
-
-    return (
-      <div>
-        {bundles_html}
-        <button id="popup" onClick={this.popupBuilder}>Build Run Bunddle</button>
-      </div>
-      );
-  }
+    }
 });
+
