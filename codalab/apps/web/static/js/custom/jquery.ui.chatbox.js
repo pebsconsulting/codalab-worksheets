@@ -11,6 +11,15 @@
  *
  */
 
+ /*
+Custom change:
+1) add flexibility to style conversation target
+2) change symbol for title bar, '_' means minimize, '☓' means close
+3) don't always focus on input box in case the user wants to copy from the log
+4) by default minimize the chat box
+5) change overall style to sync up all components
+ */
+
 
 (function($) {
     $.widget("ui.chatbox", {
@@ -63,7 +72,16 @@
                     if (!self.elem.uiChatboxTitlebar.hasClass("ui-state-focus")
                         && !self.highlightLock) {
                         self.highlightLock = true;
+                        self.highlightBox();
                     }
+                },
+                highlightBox: function() {
+                    var self = this;
+                    self.elem.uiChatboxTitlebar.effect("highlight", {}, 300);
+                    self.elem.uiChatbox.effect("bounce", {times: 3}, 300, function() {
+                        self.highlightLock = false;
+                        self._scrollToBottom();
+                    });
                 },
                 toggleBox: function() {
                     this.elem.uiChatbox.toggle();
@@ -78,9 +96,9 @@
             this.uiChatboxContent.toggle();
             if (this.uiChatboxContent.is(":visible")) {
                 this.uiChatboxInputBox.focus();
-                this.uiChatboxTitlebarMinimize.html('<div>X</div>')
+                this.uiChatboxTitlebarMinimizeText.text('_');
             } else {
-                this.uiChatboxTitlebarMinimize.html('<div>↑</div>')
+                this.uiChatboxTitlebarMinimizeText.text('');
             }
         },
         widget: function() {
@@ -95,7 +113,7 @@
                 .appendTo(document.body)
                 .addClass('ui-widget ' +
                           'ui-corner-top ' +
-                          'ui-chatbox ' + options.chatBoxId
+                          'ui-chatbox'
                          )
                 .attr('outline', 0)
                 .focusin(function() {
@@ -120,41 +138,37 @@
             uiChatboxTitle = (self.uiChatboxTitle = $('<span></span>'))
                 .html(title)
                 .appendTo(uiChatboxTitlebar),
-            uiChatboxTitlebarMinimize = (self.uiChatboxTitlebarMinimize = $('<div>↑</div>'))
+            uiChatboxTitlebarClose = (self.uiChatboxTitlebarClose = $('<div></div>'))
+                .addClass('ui-corner-all ' +
+                          'ui-chatbox-icon '
+                         )
+                .attr('role', 'button')
+                .click(function(event) {
+                    uiChatbox.hide();
+                    self.options.boxClosed(self.options.id);
+                    return false;
+                })
+                .appendTo(uiChatboxTitlebar),
+            uiChatboxTitlebarCloseText = $('<span></span>')
+                .addClass('ui-icon ' +
+                          'ui-icon-closethick')
+                .text('☓')
+                .appendTo(uiChatboxTitlebarClose)
+            uiChatboxTitlebarMinimize = (self.uiChatboxTitlebarMinimize = $('<div></div>'))
                 .addClass('ui-corner-all ' +
                           'ui-chatbox-icon'
                          )
                 .attr('role', 'button')
-                .hover(function() { uiChatboxTitlebarMinimize.addClass('ui-state-hover'); },
-                       function() { uiChatboxTitlebarMinimize.removeClass('ui-state-hover'); })
                 .click(function(event) {
                     self.toggleContent(event);
                     return false;
                 })
                 .appendTo(uiChatboxTitlebar),
-            // uiChatboxTitlebarMinimizeText = $('<span></span>')
-            //     .addClass('ui-icon ' +
-            //               'ui-icon-minusthick')
-            //     .text('-')
-            //     .appendTo(uiChatboxTitlebarMinimize),
-            // uiChatboxTitlebarClose = (self.uiChatboxTitlebarClose = $('<a href="#"></a>'))
-            //     .addClass('ui-corner-all ' +
-            //               'ui-chatbox-icon '
-            //              )
-            //     .attr('role', 'button')
-            //     .hover(function() { uiChatboxTitlebarClose.addClass('ui-state-hover'); },
-            //            function() { uiChatboxTitlebarClose.removeClass('ui-state-hover'); })
-            //     .click(function(event) {
-            //         uiChatbox.hide();
-            //         self.options.boxClosed(self.options.id);
-            //         return false;
-            //     })
-            //     .appendTo(uiChatboxTitlebar),
-            // uiChatboxTitlebarCloseText = $('<span></span>')
-            //     .addClass('ui-icon ' +
-            //               'ui-icon-closethick')
-            //     .text('x')
-            //     .appendTo(uiChatboxTitlebarClose),
+            uiChatboxTitlebarMinimizeText = (self.uiChatboxTitlebarMinimizeText = $('<span></span>'))
+                .addClass('ui-icon ' +
+                          'ui-icon-minusthick')
+                .text('_')
+                .appendTo(uiChatboxTitlebarMinimize),
             // content
             uiChatboxContent = (self.uiChatboxContent = $('<div></div>'))
                 .addClass('ui-widget-content ' +
@@ -214,8 +228,10 @@
             self.options.boxManager.init(self);
 
             if (self.options.hidden) {
+                uiChatbox.hide();
+            } else {
                 this.toggleContent();
-            } 
+            }
         },
         _setOption: function(option, value) {
             if (value != null) {
@@ -237,10 +253,7 @@
             $.Widget.prototype._setOption.apply(this, arguments);
         },
         _setWidth: function(width) {
-            this.uiChatboxTitlebar.width(width + "px");
-            this.uiChatboxLog.width(width + "px");
-            this.uiChatboxInput.css("maxWidth", width + "px");
-            // padding:2, boarder:2, margin:5
+            this.uiChatbox.width(width + "px");
         },
         _position: function(offset) {
             this.uiChatbox.css("right", offset);

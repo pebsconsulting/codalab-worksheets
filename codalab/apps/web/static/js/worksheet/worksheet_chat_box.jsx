@@ -12,7 +12,7 @@ var WorksheetChatBox = React.createClass({
     return {
       worksheetId: DEFAULT_ID,
       bundleId: DEFAULT_ID,
-      chatHistory: {},
+      numOfChatHistory: 0,
     }
   },
 
@@ -31,7 +31,6 @@ var WorksheetChatBox = React.createClass({
     $("#chat_box").chatbox({
       chatBoxId: 'chat_box',
       title : "Questions or feedback?",
-      hidden: true,
       user : "You",
       offset: 50
     });
@@ -58,14 +57,12 @@ var WorksheetChatBox = React.createClass({
             user_id: data.user_info.user_id
           },
           success: function(data) {
+            console.log(this.state.numOfChatHistory);
             var chats = data.chats;
             if (Object.keys(chats).length > 0) {
               for (var user_id in chats) {
                 if (chats.hasOwnProperty(user_id)) {
-                  var newMsgIndex = this.state.chatHistory[user_id] ? this.state.chatHistory[user_id].length : 0;
-                  if (newMsgIndex === 0) {
-                    this.state.chatHistory[user_id] = [];
-                  }
+                  var newMsgIndex = this.state.numOfChatHistory;
                   for (var i = newMsgIndex; i < chats[user_id].length; i++) {
                     var chat = chats[user_id][i]
                     var sender = '';
@@ -79,8 +76,8 @@ var WorksheetChatBox = React.createClass({
                       sender = chat.sender_user_id;
                     }
                     $("#chat_box").chatbox("option", "boxManager").addMsg(sender, chat.message);
-                    this.state.chatHistory[user_id].push(chat)
                   }
+                  this.setState({numOfChatHistory: chats[user_id].length})
                 }
               }
             }
@@ -98,6 +95,7 @@ var WorksheetChatBox = React.createClass({
 
 handleMessageSent: function(chatbox, id, user, msg){
   chatbox.boxManager.addMsg(user, msg);
+  this.setState({numOfChatHistory: this.state.numOfChatHistory + 1})
   $.ajax({
     url: '/api/chatbox/',
     data: {
@@ -108,9 +106,9 @@ handleMessageSent: function(chatbox, id, user, msg){
     },
     type: 'POST',
     success: function (data, status, jqXHR) {
-      // console.log(data.chats)
       // auto response 
       chatbox.boxManager.addMsg('System', data.chats);
+      this.setState({numOfChatHistory: this.state.numOfChatHistory + 1})
     }.bind(this),
     error: function (jqHXR, status, error) {
       alert('chat box error');
