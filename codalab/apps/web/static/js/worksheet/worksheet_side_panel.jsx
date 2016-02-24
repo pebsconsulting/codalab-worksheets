@@ -113,6 +113,9 @@ var WorksheetSidePanel = React.createClass({
           refreshWorksheet={this.props.bundleMetadataChanged}
         />;
 
+        var new_worksheet = <NewWorksheet 
+        />;
+
         var focus = this.getFocus();
         var side_panel_details = '';
         if (focus) {
