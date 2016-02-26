@@ -13,6 +13,9 @@
                     <div class="frontpage-buttons">
                       {% if user.is_authenticated %}
                         <span class="frontpage-button">
+                          <a href="/worksheets/?name=/">My Home</a>
+                        </span>
+                        <span class="frontpage-button">
                           <a href="/worksheets/?name=dashboard">My Dashboard</a>
                         </span>
                       {% else %}
