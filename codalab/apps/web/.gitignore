@@ -2,3 +2,4 @@ node_modules
 *.swp
 static/dist
 static/bower_components
+static/css/imports.css
