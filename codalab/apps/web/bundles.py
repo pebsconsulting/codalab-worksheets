@@ -137,6 +137,8 @@ class BundleService(object):
 
         # Set permissions
         worksheet_info['edit_permission'] = (worksheet_info['permission'] == GROUP_OBJECT_PERMISSION_ALL)
+        # Check enable chat box
+        worksheet_info['enable_chat'] = settings.ENABLE_CHAT
         # Format permissions into strings
         worksheet_info['permission_str'] = permission_str(worksheet_info['permission'])
         for group_permission in worksheet_info['group_permissions']:
@@ -414,9 +416,3 @@ class BundleService(object):
 
     def get_faq(self):
         return self.client.get_faq()
-
-    def get_enable_chat(self):
-        return settings.ENABLE_CHAT
-
-    def is_root_user(self, user_id):
-        return self.client.is_root_user(user_id)

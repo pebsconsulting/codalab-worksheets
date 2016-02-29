@@ -16,10 +16,9 @@ var Worksheet = React.createClass({
             editMode: false,  // Whether we're editing the worksheet
             editorEnabled: false, // Whether the editor is actually showing (sometimes lags behind editMode)
             showActionBar: true,  // Whether the action bar is shown
-            focusIndex: -1, // Which worksheet items to be on (-1 is none)
+            focusIndex: -1,  // Which worksheet items to be on (-1 is none)
             subFocusIndex: 0,  // For tables, which row in the table
-            userId: -1,
-            enableChat: false,
+            userInfo: null, // User info of the current user. (null is the default)
         };
     },
 
@@ -98,19 +97,9 @@ var Worksheet = React.createClass({
             cache: false,
             type: 'GET',
             success: function(data) {
-                this.setState({userId: data.user_info.user_id});
-            }.bind(this),
-            error: function(xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
-            }.bind(this)
-        });
-        $.ajax({
-        url: '/api/enablechat/',
-            dataType: 'json',
-            cache: false,
-            type: 'GET',
-            success: function(data) {
-                this.setState({enableChat: data.enable_chat});
+                this.setState({
+                    userInfo: data.user_info
+                });
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
@@ -443,17 +432,20 @@ var Worksheet = React.createClass({
                 />
             );
 
-        var chat_box_display = this.state.enableChat ? (
+        // chat_box only appears if ENABLE_CHAT flag is on in website-config.json and the current user is NOT root user
+        var chat_box_display = this.state.ws.info.enable_chat && this.state.userInfo && !this.state.userInfo.is_root_user ? (
                 <WorksheetChatBox
                     ws={this.state.ws}
                     focusIndex={this.state.focusIndex}
                     subFocusIndex={this.state.subFocusIndex}
+                    userInfo={this.state.userInfo}
                 />
             ): null;
 
-        // chat_portal only appear if the user is the root user
-        var chat_portal = this.state.enableChat && this.state.userId === 0 ? (
-                <WorksheetChatPortal 
+        // chat_portal only appears if ENABLE_CHAT flag is on in website-config.json and the current user is root user
+        var chat_portal = this.state.ws.info.enable_chat && this.state.userInfo && this.state.userInfo.is_root_user ? (
+                <WorksheetChatPortal
+                    userInfo={this.state.userInfo}
                 />
             ): null;
 

@@ -1,7 +1,4 @@
-DEFAULT_WORKSHEET_ID = '-1'
-DEFAULT_BUNDLE_ID = '-1'
-SYSTEM_USER_ID = '-1'
-ROOT_USER_ID = '0'
+DEFAULT_ID = '-1'
 
 var WorksheetChatPortal = React.createClass({
 
@@ -22,8 +19,9 @@ var WorksheetChatPortal = React.createClass({
     return (
       <div>
       	<div id="chat-portal-switch" onClick = {this.togglePortal}> Show/Hide Chat Portal
-      	</div>
-      	{ this.state.showChatPortal ? <WorksheetChatPortalInterface /> : null }
+        </div>{
+          this.state.showChatPortal ? <WorksheetChatPortalInterface userInfo={this.props.userInfo} /> : null
+        }
       </div>
     )
   }
@@ -34,7 +32,9 @@ var WorksheetChatPortalInterface = React.createClass({
 
   getInitialState: function() {
     return {
-      data : [],
+      // chats is a map whose key is the user id of the target user that Admin has
+      // talked to and value is an array of chats between them
+      chats : {},
       activeUser: null
     }
   },
@@ -45,17 +45,33 @@ var WorksheetChatPortalInterface = React.createClass({
       dataType: 'json',
       cache: false,
       type: 'GET',
-      data: {
-        user_id: ROOT_USER_ID,
-      },
       success: function(data) {
-        // console.log(data.chats)
-        this.setState({data: data.chats});
+        this.setState({chats: this.splitChatsToUsers(data.chats)});
       }.bind(this),
       error: function(xhr, status, err) {
         console.error(this.props.url, status, err.toString());
       }.bind(this)
     });
+  },
+
+  splitChatsToUsers: function(chats_list) {
+    var chats = {};
+    var chat_list = chats_list;
+    for (var i = 0; i < chat_list.length; i++) {
+      var target = ''
+      var chat = chat_list[i]
+      if (chat.recipient_user_id === this.props.userInfo.system_user_id ||
+        chat.recipient_user_id === this.props.userInfo.root_user_id) {
+        target = chat.sender_user_id;
+      } else {
+        target = chat.recipient_user_id;
+      }
+      if (!chats.hasOwnProperty(target)) {
+        chats[target] = [];
+      }
+      chats[target].push(chat);
+    }
+    return chats
   },
 
   handleChangeUser: function(newUser) {
@@ -68,15 +84,13 @@ var WorksheetChatPortalInterface = React.createClass({
       dataType: 'json',
       type: 'POST',
       data: {
-        senderUserId: ROOT_USER_ID,
         recipientUserId: recipientUserId,
         message: msg,
-        worksheetId: DEFAULT_WORKSHEET_ID,
-        bundleId: DEFAULT_BUNDLE_ID,
+        worksheetId: DEFAULT_ID,
+        bundleId: DEFAULT_ID,
       },
       success: function(data) {
-        // console.log(data.chats);
-        this.setState({data: data.chats});
+        this.setState({chats: this.splitChatsToUsers(data.chats)});
       }.bind(this),
       error: function(xhr, status, err) {
         console.error(this.props.url, status, err.toString());
@@ -88,18 +102,18 @@ var WorksheetChatPortalInterface = React.createClass({
   	var user_list = (
         <WorksheetChatPortalUserList
             activeUser={this.state.activeUser}
-            userList={Object.keys(this.state.data)}
+            userList={Object.keys(this.state.chats)}
             handleChangeUser={this.handleChangeUser}
         />
         );
-
-  	var chats = this.state.activeUser != null && this.state.data[this.state.activeUser]
-                     ? this.state.data[this.state.activeUser] : []
+    var chats = this.state.activeUser != null && this.state.chats[this.state.activeUser]
+      ? this.state.chats[this.state.activeUser] : []
   	var chat_list = (
         <WorksheetChatPortalChatList
             userId={this.state.activeUser}
             chats={chats}
             handleAnswerChat={this.handleAnswerChat}
+            userInfo={this.props.userInfo}
         />
         );
   	return (
@@ -153,11 +167,12 @@ var WorksheetChatPortalChatList = React.createClass({
   	var chatList = this.props.chats.map(function(chat) {
       return (
         <WorksheetChatPortalChat
-        	chat = {chat}
+          chat={chat}
+          userInfo={this.props.userInfo}
         />
       );
-    });
-    var chatbox = this.props.chats.length == 0 ? null : (
+    }.bind(this));
+    var chatbox = this.props.chats.length === 0 ? null : (
         <WorksheetChatPortalChatBox
             userId={this.props.userId}
             handleAnswerChat={this.props.handleAnswerChat}
@@ -186,9 +201,9 @@ var WorksheetChatPortalChat = React.createClass({
     var hour = time.substr(12,5);
     time = date + ', ' + hour;
     var sender_user_id = this.props.chat.sender_user_id;
-    if (sender_user_id == SYSTEM_USER_ID) {
+    if (sender_user_id === this.props.userInfo.system_user_id) {
       sender_user_id = 'System';
-    } else if (sender_user_id == ROOT_USER_ID) {
+    } else if (sender_user_id === this.props.userInfo.root_user_id) {
       sender_user_id = 'Admin';
     }
     var target = <span className='chat-portal-chat-target'>
@@ -232,7 +247,7 @@ var WorksheetChatPortalChatBox = React.createClass({
 
   componentDidMount: function() {
     $('#chat-portal-chat-box-input').keydown(function (e) {
-      if ((e.ctrlKey || e.metaKey) && e.keyCode == 13) {
+      if ((e.ctrlKey || e.metaKey) && e.keyCode === 13) {
         e.preventDefault();
         $('#chat-portal-chat-box-submit').click();
       }
