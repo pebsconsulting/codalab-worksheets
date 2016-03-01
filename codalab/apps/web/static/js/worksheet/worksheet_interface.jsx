@@ -431,9 +431,8 @@ var Worksheet = React.createClass({
                     setFocus={this.setFocus}
                 />
             );
-
         // chat_box only appears if ENABLE_CHAT flag is on in website-config.json and the current user is NOT root user
-        var chat_box_display = this.state.ws.info.enable_chat && this.state.userInfo && !this.state.userInfo.is_root_user ? (
+        var chat_box_display = info && info.enable_chat && this.state.userInfo && !this.state.userInfo.is_root_user ? (
                 <WorksheetChatBox
                     ws={this.state.ws}
                     focusIndex={this.state.focusIndex}
@@ -443,7 +442,7 @@ var Worksheet = React.createClass({
             ): null;
 
         // chat_portal only appears if ENABLE_CHAT flag is on in website-config.json and the current user is root user
-        var chat_portal = this.state.ws.info.enable_chat && this.state.userInfo && this.state.userInfo.is_root_user ? (
+        var chat_portal = info && info.enable_chat && this.state.userInfo && this.state.userInfo.is_root_user ? (
                 <WorksheetChatPortal
                     userInfo={this.state.userInfo}
                 />
