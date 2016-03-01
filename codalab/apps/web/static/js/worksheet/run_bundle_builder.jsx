@@ -19,7 +19,7 @@ var RunBundleBuilder = React.createClass({
     this.setState({showBuilder: !this.state.showBuilder});
   },
 
-  buildRunBundle: function(e) {
+  createRunBundle: function(e) {
     e.preventDefault();
     var command = this.createCommand()
     console.log(command)
@@ -105,7 +105,7 @@ var RunBundleBuilder = React.createClass({
         command={this.state.command}
         handleKeyChange={this.handleKeyChange}
         handleCommandChange={this.handleCommandChange}
-        buildRunBundle={this.buildRunBundle}
+        createRunBundle={this.createRunBundle}
       />
     );
 
@@ -122,7 +122,7 @@ var RunBundleBuilder = React.createClass({
       <div>
         <div id='run-bundle-builder'>
           <span className='close' onClick={this.toggleBuilder}>×</span>
-          <p>Build Your Run Bundle</p>
+          <p>Create Run Bundle</p>
           <div className='run-bundle-container'>
             <div className='run-bundle-text'>Step 1: Specify your depedency. For example, if you need to sort a file called a.txt. Select a.txt and sort.py.</div>
             <div id='bundle-browser'>
@@ -136,11 +136,11 @@ var RunBundleBuilder = React.createClass({
             </div>
           </div>
           <div>
-            <button className='pop-up-button' onClick={this.buildRunBundle}>Run</button>
+            <button className='pop-up-button' onClick={this.createRunBundle}>Run</button>
           </div>
           {clCommand}
         </div>
-        <button onClick={this.toggleBuilder}>Build Run Bunddle</button>
+        <button onClick={this.toggleBuilder}>Create Run Bundle</button>
       </div>
       );
   }
@@ -249,7 +249,7 @@ var BundleBrowser = React.createClass({
 var RunBundleTerminal = React.createClass({
     handleKeyUp: function(e) {
       if ((e.ctrlKey || e.metaKey) && e.keyCode == 13)
-        this.props.buildRunBundle();
+        this.props.createRunBundle();
     },
     render: function () {
       var command = (<div>
