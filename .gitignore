@@ -2,6 +2,7 @@
 
 # Eclipse files.
 .*project
+.settings
 
 # PyCharm files
 .idea/
