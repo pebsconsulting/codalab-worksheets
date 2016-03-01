@@ -46,30 +46,30 @@ Main page (./apps/web/templates/web/index.html)
   ./apps/web/templates/500.html
 
 Worksheet lists page (./apps/web/templates/web/worksheets/index.html)
-  react Worksheets (./apps/web/static/js/worksheet/worksheet_list.js)
+  react Worksheets (./apps/web/static/js/worksheet/worksheet_list.jsx)
     react WorksheetSearch
     react WorksheetList
       react Worksheet
 
 Worksheet page (./apps/web/templates/web/worksheets/detail.html)
-  WorksheetContent (./apps/web/static/js/worksheet/worksheet_content.js)
-  react Worksheet (./apps/web/static/js/worksheet/worksheet_interface.js)
-    react WorksheetActionBar (./apps/web/static/js/worksheet/worksheet_action_bar.js)
-    react WorksheetSidePanel, WorksheetDetailSidePanel, BundleDetailSidePanel (./apps/web/static/js/worksheet/worksheet_side_panel.js)
-    react WorksheetItemList (./apps/web/static/js/worksheet/worksheet_items.js)
-      react ContentsBundle (./apps/web/static/js/worksheet/contents_bundle_interface.js)
-      react HTMLBundle (./apps/web/static/js/worksheet/html_bundle_interface.js)
-      react ImageBundle (./apps/web/static/js/worksheet/image_bundle_interface.js)
-      react GraphBundle (./apps/web/static/js/worksheet/graph_bundle_interface.js)
-      react MarkdownBundle (./apps/web/static/js/worksheet/markdown_bundle_interface.js)
-      react RecordBundle (./apps/web/static/js/worksheet/record_bundle_interface.js)
-      react TableBundle, TableRow (./apps/web/static/js/worksheet/table_bundle_interface.js)
-      react WorksheetBundle (./apps/web/static/js/worksheet/worksheet_bundle_interface.js)
+  WorksheetContent (./apps/web/static/js/worksheet/worksheet_content.jsx)
+  react Worksheet (./apps/web/static/js/worksheet/worksheet_interface.jsx)
+    react WorksheetActionBar (./apps/web/static/js/worksheet/worksheet_action_bar.jsx)
+    react WorksheetSidePanel, WorksheetDetailSidePanel, BundleDetailSidePanel (./apps/web/static/js/worksheet/worksheet_side_panel.jsx)
+    react WorksheetItemList (./apps/web/static/js/worksheet/worksheet_items.jsx)
+      react ContentsBundle (./apps/web/static/js/worksheet/contents_bundle_interface.jsx)
+      react HTMLBundle (./apps/web/static/js/worksheet/html_bundle_interface.jsx)
+      react ImageBundle (./apps/web/static/js/worksheet/image_bundle_interface.jsx)
+      react GraphBundle (./apps/web/static/js/worksheet/graph_bundle_interface.jsx)
+      react MarkdownBundle (./apps/web/static/js/worksheet/markdown_bundle_interface.jsx)
+      react RecordBundle (./apps/web/static/js/worksheet/record_bundle_interface.jsx)
+      react TableBundle, TableRow (./apps/web/static/js/worksheet/table_bundle_interface.jsx)
+      react WorksheetBundle (./apps/web/static/js/worksheet/worksheet_bundle_interface.jsx)
 
 Bundle page (./apps/web/templates/web/bundles/detail.html)
-  react Bundle (./apps/web/static/js/bundle/bundle_interface.js)
+  react Bundle (./apps/web/static/js/bundle/bundle_interface.jsx)
 
 Utilities
-  react CheckboxMixin, GoToBundleMixin (./apps/web/static/js/worksheet/ws_mixins.js)
-  Mousetrap (./apps/web/static/js/worksheet/ws_mousetrap_fork.js): handle keyboard shortcuts
-  Other utilities (./apps/web/static/js/worksheet/worksheet_utils.js)
+  react CheckboxMixin, GoToBundleMixin (./apps/web/static/js/worksheet/ws_mixins.jsx)
+  Mousetrap (./apps/web/static/js/worksheet/ws_mousetrap_fork.jsx): handle keyboard shortcuts
+  Other utilities (./apps/web/static/js/worksheet/worksheet_utils.jsx)
