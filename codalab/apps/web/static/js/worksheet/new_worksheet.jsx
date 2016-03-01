@@ -3,15 +3,23 @@ var NewWorksheet = React.createClass({
   getInitialState: function() {
     return {
       showNewWorksheet: false,
-      newWorksheetName: 'user-',
+      newWorksheetName: 'user-sampleworksheet',
     };
+  },
+
+  componentDidMount: function() {
   },
 
   toggleNewWorksheet: function() {
     if (this.state.showNewWorksheet) {
       $('#new-worksheet').css('display', 'none');
+      this.setState({newWorksheetName: 'user-sampleworksheet'});
     } else {
       $('#new-worksheet').css('display', 'block');
+      var inputVal = $('#new-worksheet-input').val()
+      // highlight the second part of the suggested title for the user to change
+      $('#new-worksheet-input')[0].setSelectionRange(inputVal.indexOf('-') + 1, inputVal.length);
+      $('#new-worksheet-input').focus()
     }
     this.setState({showNewWorksheet: !this.state.showNewWorksheet});
   },
@@ -22,20 +30,26 @@ var NewWorksheet = React.createClass({
 
   createNewWorksheet: function(e) {
     var command = 'cl new ' + this.state.newWorksheetName;
-    $('#command_line').terminal().exec(command);
-    this.setState({newWorksheetName: ''});
+    response = $('#command_line').terminal().exec(command);
+    this.toggleNewWorksheet();
   },
 
   render: function () {
-    var new_worksheet_name = (<div>
-        <input type='text' className='' value={this.state.newWorksheetName} onChange={this.handleNameChange}></input>
-      </div>);
+    var new_worksheet_name = (
+        <input type='text' id='new-worksheet-input' value={this.state.newWorksheetName} onChange={this.handleNameChange} ></input>
+      );
     return (
       <div>
         <div id='new-worksheet'>
           <span className='close' onClick={this.toggleNewWorksheet}>×</span>
-          New Worksheet Name: {new_worksheet_name}
-          <button className='pop-up-button' onClick={this.createNewWorksheet}>Create</button>
+          <p className='pop-up-title'>New Worksheet</p>{new_worksheet_name}
+          <p id='new-worksheet-message' className='pop-up-text'>Equivalent web terminal command:<br />
+            <span className='pop-up-command'>cl new {this.state.newWorksheetName}</span>
+          </p>
+          <div id='new-worksheet-button'>
+            <button className='pop-up-button' onClick={this.toggleNewWorksheet}>Cancel</button>
+            <button className='pop-up-button' onClick={this.createNewWorksheet}>Create</button>
+          </div>
         </div>
         <button onClick={this.toggleNewWorksheet}>Create New Worksheet</button>
       </div>
