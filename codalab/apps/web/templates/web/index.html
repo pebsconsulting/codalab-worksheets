@@ -9,9 +9,12 @@
             <div class="row">
                 <div class="col-sm-12 col-md-8 col-md-offset-2">
                     <img src="{{STATIC_URL}}img/codalab-logo-white.png" alt="CodaLab" class="img-responsive">
-                    <h4><b>Accelerating reproducible computational research.</b></h4>
+                    <h4><b><i>A collaborative platform for reproducible research.</i></b></h4>
                     <div class="frontpage-buttons">
                       {% if user.is_authenticated %}
+                        <span class="frontpage-button">
+                          <a href="/worksheets/?name=/">My Home</a>
+                        </span>
                         <span class="frontpage-button">
                           <a href="/worksheets/?name=dashboard">My Dashboard</a>
                         </span>
@@ -35,8 +38,15 @@
         <div class="row">
           <div class="col-sm-12">
             <p>
-            To get started, read about the <a target="_blank" href="https://github.com/codalab/codalab-worksheets/wiki">mission of CodaLab Worksheets</a> or
-            go through the <a target="_blank" href="https://github.com/codalab/codalab-worksheets/wiki/User_CodaLab-Worksheets-Tutorial">tutorial</a>.
+            Running 100 experiments in parallel on different versions of your code/data?
+            Don't remember how you got that result from 6 months ago?
+            CodaLab allows you to run your jobs on a cluster, document and share your experiments,
+            all while keeping track of full provenance,
+            so you can be a more efficient researcher.
+            <p>
+            To get started, read more about the <a target="_blank" href="https://github.com/codalab/codalab-worksheets/wiki">mission</a>,
+            <a href="/accounts/signup">sign up</a> for an account,
+            and go through the <a target="_blank" href="https://github.com/codalab/codalab-worksheets/wiki/User_CodaLab-Worksheets-Tutorial">tutorial</a> to try it out!
             </p>
           </div>
 
