@@ -589,6 +589,7 @@ var FileBrowser = React.createClass({
           var short_uuid = shorten_uuid(this.props.bundle_uuid);
           checkbox = (<input
             type="checkbox"
+            className="run-bundle-check-box"
             onChange={this.props.handleCheckbox.bind(this, this.props.bundle_uuid, this.props.bundle_name, '')}
             />);
           header = (
@@ -660,6 +661,7 @@ var FileBrowserItem = React.createClass({
         // this.props.hasCheckbox is true in run_bundle_builder for the user to select bundle depedency
         // otherwise, it is always false
         var checkbox = this.props.hasCheckbox ? (<input
+                className="run-bundle-check-box"
                 type="checkbox"
                 onChange={this.props.handleCheckbox.bind(this, this.props.bundle_uuid, this.props.bundle_name, file_location)}
               />) : null;
