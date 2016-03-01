@@ -515,7 +515,6 @@ var FileBrowser = React.createClass({
                 folder_path = this.state.currentWorkingDirectory;
             }
         }
-        console.log(folder_path)
         this.setState({"currentWorkingDirectory": folder_path});
 
         var url = '/api/bundles/content/' + this.props.bundle_uuid + '/' + folder_path;
@@ -565,7 +564,7 @@ var FileBrowser = React.createClass({
           // Show files
           entities.forEach(function(item) {
             if (item.type == 'file')
-              items.push(<FileBrowserItem bundle_uuid={self.props.bundle_uuid} key={item.name} index={item.name} type={item.type} size={item.size} size_str={item.size_str} updateFileBrowser={self.updateFileBrowser} currentWorkingDirectory={self.state.currentWorkingDirectory} hasCheckbox={self.props.hasCheckbox} handleCheckbox={self.props.handleCheckbox}/>);
+              items.push(<FileBrowserItem bundle_uuid={self.props.bundle_uuid} bundle_name={self.props.bundle_name} key={item.name} index={item.name} type={item.type} size={item.size} size_str={item.size_str} updateFileBrowser={self.updateFileBrowser} currentWorkingDirectory={self.state.currentWorkingDirectory} hasCheckbox={self.props.hasCheckbox} handleCheckbox={self.props.handleCheckbox}/>);
           });
           file_browser = (
             <table className="file-browser-table">
@@ -580,29 +579,31 @@ var FileBrowser = React.createClass({
             updateFileBrowser={this.updateFileBrowser}
             currentWorkingDirectory={this.state.currentWorkingDirectory}/>);
 
+        var content_class_name = this.props.startCollapsed ? "collapsible-content-collapsed" : "collapsible-content";
+        var arrow = this.props.startCollapsed ? <span>&#x25B8;</span> : <span>&#x25BE;</span>;
         var header, checkbox;
         // this.props.hasCheckbox is true in run_bundle_builder for the user to select bundle depedency
-        // otherwise, it is always false
+        // In other cases, it is false
         if (this.props.hasCheckbox) {
           var url = "/bundles/" + this.props.bundle_uuid;
           var short_uuid = shorten_uuid(this.props.bundle_uuid);
           checkbox = (<input
             type="checkbox"
-            onChange={this.props.handleCheckbox.bind(this, this.props.bundle_uuid, '/', this.props.bundle_name)}
+            onChange={this.props.handleCheckbox.bind(this, this.props.bundle_uuid, this.props.bundle_name, '')}
             />);
           header = (
             <div className="collapsible-header inline-block">
               <a href={url} target="_blank">{this.props.bundle_name}({short_uuid})</a>
-              <span>&#x25BE;</span>
+              {arrow}
             </div>);
         } else {
-          header = (<div className="collapsible-header"><span><p>contents &#x25BE;</p></span></div>);
-          checkbox = 0
+          header = (<div className="collapsible-header"><span><p>contents {arrow}</p></span></div>);
+          checkbox = null
         }
         return (<div>
           {checkbox}
           {header}
-          <div className="collapsible-content">
+          <div className={content_class_name}>
             <div className="panel panel-default">
                 {bread_crumbs}
                 <div className="panel-body">
@@ -660,7 +661,7 @@ var FileBrowserItem = React.createClass({
         // otherwise, it is always false
         var checkbox = this.props.hasCheckbox ? (<input
                 type="checkbox"
-                onChange={this.props.handleCheckbox.bind(this, this.props.bundle_uuid, file_location, this.props.index)}
+                onChange={this.props.handleCheckbox.bind(this, this.props.bundle_uuid, this.props.bundle_name, file_location)}
               />) : null;
         if (this.props.hasOwnProperty('size_str'))
           size = this.props['size_str'];
