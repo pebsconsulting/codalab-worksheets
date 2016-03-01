@@ -136,7 +136,7 @@ var RunBundleBuilder = React.createClass({
             </div>
           </div>
           <div>
-            <button id='run-bundle-button' onClick={this.buildRunBundle}>Run</button>
+            <button className='pop-up-button' onClick={this.buildRunBundle}>Run</button>
           </div>
           {clCommand}
         </div>
@@ -253,7 +253,7 @@ var RunBundleTerminal = React.createClass({
     },
     render: function () {
       var command = (<div>
-        $ <input type='text' className='inline-block run-bundle-terminal-input run-bundle-terminal-command'value={this.props.command} placeholder="type your command here (e.g 'python sort.py <input> output')" onChange={this.props.handleCommandChange}></input>
+        $ <input type='text' id='run-bundle-terminal-command' className='inline-block run-bundle-terminal-input' value={this.props.command} placeholder="type your command here (e.g 'python sort.py <input> output')" onChange={this.props.handleCommandChange}></input>
       </div>
       )
       var depedencies = this.props.selectedDependencies.map(function(d, i) {
