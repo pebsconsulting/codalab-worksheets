@@ -56,7 +56,3 @@ var NewWorksheet = React.createClass({
       );
   }
 });
-
-
-
-
