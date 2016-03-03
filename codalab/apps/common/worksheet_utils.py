@@ -12,28 +12,14 @@ def get_worksheets(request_user, limit=3):
     '''
     service = BundleService(request_user)
 
-    # Select good high-quality worksheets
+    # Select good high-quality worksheets and randomly choose some
     list_worksheets = service.search_worksheets(['tag=paper,software,data'])
+    list_worksheets = random.sample(list_worksheets, min(limit, len(list_worksheets)))
+
+    # Always put home worksheet in
+    list_worksheets = service.search_worksheets(['name=home']) + list_worksheets
 
     # Reformat
     list_worksheets = [(val['uuid'], val.get('title') or val['name'], val['name'], val['owner_name']) for val in list_worksheets]
 
-    # Randomly choose some
-    list_worksheets = random.sample(list_worksheets, min(limit, len(list_worksheets)))
-
     return list_worksheets
-
-
-def recent_worksheets(request_user, limit=3):
-    """Used for worksheets in competitions. Issue 1014"""
-    # TODO: deprecate this
-    service = BundleService(request_user)
-    unsorted_worksheets = service.worksheets()
-
-
-    #if not worksheets:
-    #   return worksheets  # just incase the list is empty
-
-    sorted_worksheets = sorted(unsorted_worksheets, key=lambda k: k['id'], reverse=True)
-    worksheets = [(val['uuid'], val['name'], val['owner_name']) for val in sorted_worksheets]
-    return worksheets[0:limit]
