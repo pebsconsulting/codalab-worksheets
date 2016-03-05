@@ -306,6 +306,7 @@ var Worksheet = React.createClass({
         this.state.ws.fetch({
             success: function(data) {
                 $('#update_progress, #worksheet-message').hide();
+                this.updateTitle();
                 $('#worksheet_content').show();
                 this.setState({updating: false, version: this.state.version + 1});
                 // Fix out of bounds.
@@ -328,6 +329,22 @@ var Worksheet = React.createClass({
                 $('#worksheet_container').hide();
             }.bind(this)
         });
+    },
+
+    updateTitle: function() {
+      if (!this.state.titleUpdated) {
+        this.state.titleUpdated = true;
+        // Doing this dynamically is not ideal, since not all crawlers run
+        // JavaScript. It's better than nothing, though.
+        if (this.state.ws.info.title) {
+          title = this.state.ws.info.title;
+        } else {
+          title = this.state.ws.info.name;
+        }
+        document.title = document.title + ': ' + title;
+        title_meta = $('meta[property="og:title"]')
+        title_meta.attr('content', title_meta.attr('content') + ': ' + title);
+      }
     },
 
     openWorksheet: function(uuid) {

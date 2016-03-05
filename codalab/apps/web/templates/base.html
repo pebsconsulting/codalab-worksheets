@@ -1,5 +1,4 @@
 {% load url from future %}
-{% load account %}
 {% load analytical %}
 {% load codalab_tags %}
 {% load compress %}
@@ -20,6 +19,8 @@
     <title>CodaLab - {% block head_title %}{% endblock %}</title>
 
     {% block css %}
+        <!-- Add a timestamp to the account CSS name to prevent caching. -->
+        <link rel="stylesheet" href="/rest/account/css?={% now "U" %}">
         <!-- Included CSS Files (Compressed) -->
         <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.dataTables.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-editable.css">
@@ -78,35 +79,30 @@
                         </form>
                     {% endif %}
                     <ul class="nav navbar-nav navbar-right">
-                        <li><a href="/worksheets/?name=home" tabIndex=2 target="_self">Public Home</a></li>
-                        {% if user.is_authenticated %}
-                          <li><a href="/worksheets/?name=/" tabIndex=2 target="_self">My Home</a></li>
-                          <li><a href="/worksheets/?name=dashboard" tabIndex=2 target="_self">My Dashboard</a></li>
-                        {% endif %}
+                        <li><a href="/rest/worksheets/?name=home" tabIndex=2 target="_self">Public Home</a></li>
+                        <li class="user-authenticated">
+                          <a href="/rest/worksheets/?name=%2F" tabIndex=2 target="_self">My Home</a>
+                        </li>
+                        <li class="user-authenticated">
+                          <a href="/rest/worksheets/?name=dashboard" tabIndex=2 target="_self">My Dashboard</a>
+                        </li>
                         <li>
                           <a href="https://github.com/codalab/codalab-worksheets/wiki" target="_blank">Help</a>
                         </li>
-                        {% if user.is_authenticated %}
-                            <li class="dropdown {% active request '/accounts/' %}">
-                                <a href="{% url 'user_settings' %}">
-                                    <img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini-avatar" alt="{{user.username}}"> {{user.username}} <span class="caret"></span>
-                                </a>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a href="{% url 'user_settings' %}">Settings</a></li>
-                                    <li class="divider"></li>
-                                    <li><a href="/accounts/password/reset/" target="_self">Change Password</a></li>
-                                    <li class="divider"></li>
-                                    <li><a href="{% url 'account_logout' %}" target="_self">Sign Out</a></li>
-                                </ul>
-                            </li>
-                        {% else %}
-                            <li>
-                                <a href="{% url 'account_signup' %}?next={{request.path}}" target="_self">Sign Up</a>
-                            </li>
-                            <li>
-                                <a href="{% url 'account_login' %}?next={{request.path}}" target="_self">Sign In</a>
-                            </li>
-                        {% endif %}
+                        <li class="user-authenticated dropdown {% active request '/accounts/' %}">
+                            <a>
+                                <img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini-avatar"> <span class="user-name"></span> <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="/rest/account/logout?redirect_uri={{request.path|urlencode:""}}" target="_self">Sign Out</a></li>
+                            </ul>
+                        </li>
+                        <li class="user-not-authenticated">
+                            <a href="/rest/account/signup" target="_self">Sign Up</a>
+                        </li>
+                        <li class="user-not-authenticated">
+                            <a href="/rest/account/login?redirect_uri={{request.path|urlencode:""}}" target="_self">Sign In</a>
+                        </li>
                     </ul>
                 </div>
             {% endblock top_bar_right_menus %}

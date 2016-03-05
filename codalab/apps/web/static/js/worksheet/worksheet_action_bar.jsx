@@ -123,7 +123,7 @@ var WorksheetActionBar = React.createClass({
     return $.ajax({
       type: 'POST',
       cache: false,
-      url: '/api/worksheets/command/',
+      url: '/rest/api/worksheets/command/',
       contentType: "application/json; charset=utf-8",
       dataType: 'json',
       data: JSON.stringify({
@@ -159,7 +159,7 @@ var WorksheetActionBar = React.createClass({
     $.ajax({
       type: 'POST',
       cache: false,
-      url: '/api/worksheets/command/',
+      url: '/rest/api/worksheets/command/',
       contentType: "application/json; charset=utf-8",
       dataType: 'json',
       data: JSON.stringify({

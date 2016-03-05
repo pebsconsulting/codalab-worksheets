@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block custom_body_attributes %}{% endblock %}
-{% block head_title %}Worksheet: {{worksheet_title}}{% endblock head_title %}
+{% block head_title %}Worksheet{% endblock head_title %}
 {% block meta %}
-    <meta property="og:title" content="Worksheet: {{worksheet_title}}">
+    <meta property="og:title" content="Worksheet">
     <meta property="og:site_name" content="CodaLab">
     <meta property="og:type" content="article">
     <meta property="og:image" content="{{ request.META.HTTP_HOST }}{{STATIC_URL}}img/codalab-logo.png">
