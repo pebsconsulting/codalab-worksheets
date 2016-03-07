@@ -1,7 +1,8 @@
 *.pyc
 
-# Eclipse files.
+# Eclipse files
 .*project
+.settings
 
 # PyCharm files
 .idea/
@@ -9,19 +10,7 @@
 codalab/static
 codalab/config/generated
 
-# Eclipse files.
-.*project
-
-# PyCharm files
-.idea/
-
 venv/
 
-# 3rd-party
-**/vendor/ace-editor
-**/vendor/mathjax
-MathJax-master
-ace-builds-master
-
-# Ignore dev database file
+# Dev database file
 *.sqlite3

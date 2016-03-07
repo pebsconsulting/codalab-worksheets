@@ -55,6 +55,5 @@ Fabric==1.10.2
 selenium==2.48.0
 
 # Required by codalab-cli
+argcomplete==1.1.0
 docker-py==1.6.0
-# Use latest master branch, until next release includes PR#118
-git+https://github.com/kislyuk/argcomplete.git
