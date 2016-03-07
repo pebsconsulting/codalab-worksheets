@@ -26,7 +26,13 @@
         "default_user_info": {
             "time_quota": "7d",
             "disk_quota": "10g"
-        }
+        },
+        "secret_key": "{{SECRET_KEY}}"
+    },
+    "email": {
+        "host": "{{EMAIL_HOST}}",
+        "user": "{{EMAIL_HOST_USER}}",
+        "password": "{{EMAIL_HOST_PASSWORD}}"
     },
     "workers": {
         "q": {
