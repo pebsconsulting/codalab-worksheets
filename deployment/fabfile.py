@@ -480,14 +480,16 @@ def _deploy():
     # Update website
     env_prefix, env_shell = setup_env()
     with env_prefix, env_shell, cd(env.deploy_codalab_worksheets_dir):
-        run('git pull')
+        run('git fetch')
         run('git checkout %s' % env.git_codalab_tag)
+        run('git pull')
         run('./setup.sh')
 
     # Update bundle service
     with cd(env.deploy_codalab_cli_dir):
-        run('git pull')
+        run('git fetch')
         run('git checkout %s' % env.git_codalab_cli_tag)
+        run('git pull')
         run('./setup.sh server')
         run('venv/bin/pip install MySQL-Python')
         run('venv/bin/alembic upgrade head')
