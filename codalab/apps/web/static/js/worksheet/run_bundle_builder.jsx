@@ -26,8 +26,7 @@ var RunBundleBuilder = React.createClass({
     this.setState({showBuilder: !this.state.showBuilder});
   },
 
-  createRunBundle: function(e) {
-    e.preventDefault();
+  createRunBundle: function() {
     var clCommand = this.getClCommand(this.state.selectedDependencies, this.state.dependencyKeyList, this.state.command, true)
     // console.log(command)
     var response = $('#command_line').terminal().exec(clCommand);
@@ -118,7 +117,6 @@ var RunBundleBuilder = React.createClass({
 
   componentDidUpdate: function() {
     var clCommandHTML = $('#run-bundle-cl-command-container')
-    console.log(clCommandHTML[0]);
     clCommandHTML.scrollLeft(clCommandHTML[0].scrollWidth);
   },
 
@@ -140,6 +138,16 @@ var RunBundleBuilder = React.createClass({
         createRunBundle={this.createRunBundle}
       />
     );
+    var run_button = <Button 
+      text='Run'
+      type='primary'
+      handleClick={this.createRunBundle}
+    />
+    var cancel_button = <Button 
+      text='Cancel'
+      type='default'
+      handleClick={this.toggleBuilder}
+    />
     return (
       <div>
         <div id='run-bundle-builder'>
@@ -163,8 +171,8 @@ var RunBundleBuilder = React.createClass({
             </div>
           </div>
           <div id='run-bundle-button'>
-            <button className='pop-up-button' onClick={this.toggleBuilder}>Cancel</button>
-            <button className='pop-up-button' onClick={this.createRunBundle}>Run</button>
+            {cancel_button}
+            {run_button}
           </div>
         </div>
         <button onClick={this.toggleBuilder}>Create Run Bundle</button>
@@ -276,25 +284,27 @@ var BundleBrowser = React.createClass({
 
 var RunBundleTerminal = React.createClass({
   handleKeyUp: function(e) {
-    if ((e.ctrlKey || e.metaKey) && e.keyCode === 13)
+    if (e.keyCode === 13) {
+      e.preventDefault()
       this.props.createRunBundle();
+    }
   },
   render: function () {
-    var command = (<div>
-      $ <input type='text' id='run-bundle-terminal-command' className='inline-block run-bundle-terminal-input' value={this.props.command} placeholder="run your program here (e.g 'cat data.txt')" onChange={this.props.handleCommandChange}></input>
+    var command = (<div className='run-bundle-terminal-item'>
+      $ <input type='text' id='run-bundle-terminal-command' className='inline-block run-bundle-terminal-input' value={this.props.command} placeholder="run your program here (e.g 'cat data.txt')" onChange={this.props.handleCommandChange} onKeyUp={this.handleKeyUp}></input>
     </div>
     )
     var depedencies = this.props.selectedDependencies.map(function(d, i) {
       var short_uuid = shorten_uuid(d.bundle_uuid);
       var target = d.path === '' ? d.bundle_name : d.bundle_name + '/' + d.path
-      return (<div>
-         <input type='text' className='run-bundle-terminal-input' value={this.props.dependencyKeyList[i]} onChange={this.props.handleKeyChange.bind(this, i)} onKeyUp={this.handleKeyUp}></input>
+      return (<div className='run-bundle-terminal-item'>
+         <input type='text' className='run-bundle-terminal-input' value={this.props.dependencyKeyList[i]} onChange={this.props.handleKeyChange.bind(this, i)}></input>
           &#8594; {target}({short_uuid})
         </div>)
     }.bind(this));
     return (
       <div>
-        <div>$ ls</div>
+        <div className='run-bundle-terminal-item'>$ ls</div>
         {depedencies}
         {command}
       </div>

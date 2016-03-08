@@ -77,3 +77,6 @@ Utilities
   react CheckboxMixin, GoToBundleMixin (./apps/web/static/js/worksheet/ws_mixins.jsx)
   Mousetrap (./apps/web/static/js/worksheet/ws_mousetrap_fork.jsx): handle keyboard shortcuts
   Other utilities (./apps/web/static/js/worksheet/worksheet_utils.jsx)
+
+General Components
+  react Button (./apps/web/static/js/worksheet/button.jsx)

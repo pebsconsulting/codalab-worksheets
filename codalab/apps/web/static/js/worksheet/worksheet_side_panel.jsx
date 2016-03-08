@@ -246,7 +246,6 @@ var BundleDetailSidePanel = React.createClass({
         return this.props.bundle_info;  
     },
     fetchExtra: function() {
-      console.log('fetchExtra');
       // Fetch detailed information about this bundle.
       var bundle_info = this.state;
       // console.log('BundleDetailSidePanel.fetchExtra', bundle_info.uuid);
@@ -597,6 +596,7 @@ var FileBrowser = React.createClass({
               <a href={url} target="_blank">{this.props.bundle_name}({short_uuid})</a>
               {arrow}
             </div>);
+          bread_crumbs = null;
         } else {
           header = (<div className="collapsible-header"><span><p>contents {arrow}</p></span></div>);
           checkbox = null
