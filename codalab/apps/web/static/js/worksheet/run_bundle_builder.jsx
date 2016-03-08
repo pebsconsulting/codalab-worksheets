@@ -292,6 +292,7 @@ var RunBundleTerminal = React.createClass({
     return (
       <div>
         <div>$ ls</div>
+        <div> key (referred in your program) &#8594; target bundle/file</div>
         {depedencies}
         {command}
       </div>
