@@ -16,8 +16,9 @@ var Worksheet = React.createClass({
             editMode: false,  // Whether we're editing the worksheet
             editorEnabled: false, // Whether the editor is actually showing (sometimes lags behind editMode)
             showActionBar: true,  // Whether the action bar is shown
-            focusIndex: -1, // Which worksheet items to be on (-1 is none)
+            focusIndex: -1,  // Which worksheet items to be on (-1 is none)
             subFocusIndex: 0,  // For tables, which row in the table
+            userInfo: null, // User info of the current user. (null is the default)
         };
     },
 
@@ -89,8 +90,21 @@ var Worksheet = React.createClass({
     componentDidMount: function() {
         // Initialize history stack
         window.history.replaceState({uuid: this.state.ws.uuid}, '', window.location.pathname);
-
         $('body').addClass('ws-interface');
+        $.ajax({
+        url: '/api/users/',
+            dataType: 'json',
+            cache: false,
+            type: 'GET',
+            success: function(data) {
+                this.setState({
+                    userInfo: data.user_info
+                });
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
+        });
     },
 
     canEdit: function() {
@@ -417,6 +431,22 @@ var Worksheet = React.createClass({
                     setFocus={this.setFocus}
                 />
             );
+        // chat_box only appears if ENABLE_CHAT flag is on in website-config.json and the current user is NOT root user
+        var chat_box_display = info && info.enable_chat && this.state.userInfo && !this.state.userInfo.is_root_user ? (
+                <WorksheetChatBox
+                    ws={this.state.ws}
+                    focusIndex={this.state.focusIndex}
+                    subFocusIndex={this.state.subFocusIndex}
+                    userInfo={this.state.userInfo}
+                />
+            ): null;
+
+        // chat_portal only appears if ENABLE_CHAT flag is on in website-config.json and the current user is root user
+        var chat_portal = info && info.enable_chat && this.state.userInfo && this.state.userInfo.is_root_user ? (
+                <WorksheetChatPortal
+                    userInfo={this.state.userInfo}
+                />
+            ): null;
 
         var items_display = (
                 <WorksheetItemList
@@ -451,6 +481,8 @@ var Worksheet = React.createClass({
         return (
             <div id="worksheet" className={searchClassName}>
                 {action_bar_display}
+                {chat_box_display}
+                {chat_portal}
                 <div id="worksheet_panel" className="actionbar-focus">
                     {worksheet_side_panel}
                     <div className="ws-container">
