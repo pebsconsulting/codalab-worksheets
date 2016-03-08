@@ -26,11 +26,6 @@ var RunBundleBuilder = React.createClass({
     this.setState({showBuilder: !this.state.showBuilder});
   },
 
-  componentDidUpdate: function() {
-    var clCommandHTML = $('#run-bundle-cl-command')
-    clCommandHTML.scrollTop(clCommandHTML[0].scrollHeight);
-  },
-
   createRunBundle: function(e) {
     e.preventDefault();
     var clCommand = this.getClCommand(this.state.selectedDependencies, this.state.dependencyKeyList, this.state.command, true)
