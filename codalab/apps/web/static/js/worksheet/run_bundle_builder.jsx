@@ -184,9 +184,9 @@ var BundleBrowser = React.createClass({
   },
 
     // To-do: when new bundle is added, refresh the build run bundle page
-  componentWillReceiveProps: function(nextProps) {
-    this.updateBundleInfoList(nextProps);
-  },
+  // componentWillReceiveProps: function(nextProps) {
+  //   this.updateBundleInfoList(nextProps);
+  // },
 
   updateBundleInfoList: function(props) {
     this.state.bundleInfoList = [];
