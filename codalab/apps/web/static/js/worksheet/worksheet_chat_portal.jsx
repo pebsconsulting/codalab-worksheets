@@ -121,7 +121,7 @@ var WorksheetChatPortalInterface = React.createClass({
         {user_list}
         {chat_list}
       </div>
-    )
+    );
   }
 
 });
@@ -198,8 +198,8 @@ var WorksheetChatPortalChat = React.createClass({
   render: function () {
     var time = this.props.chat.time;
     var msg = this.props.chat.message;
-    var date = time.split(' ')[0]
-    var hour = time.split(' ')[1]
+    var date = time.split(' ')[0];
+    var hour = time.split(' ')[1];
     time = date + ', ' + hour;
     var sender_user_id = this.props.chat.sender_user_id;
     if (sender_user_id === this.props.userInfo.system_user_id) {
