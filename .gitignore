@@ -8,7 +8,7 @@
 .idea/
 
 codalab/static
-codalab/config/generateid
+codalab/config/generated
 codalab/apps/web/static/css/imports.css
 
 venv/
