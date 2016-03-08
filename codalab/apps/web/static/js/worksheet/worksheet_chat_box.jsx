@@ -22,7 +22,7 @@ var WorksheetChatBox = React.createClass({
     this.setState({
       worksheetId: nextProps.ws.uuid,
       bundleId: bundleId,
-    })
+    });
   },
 
   componentDidMount: function () {
@@ -59,7 +59,7 @@ var WorksheetChatBox = React.createClass({
         var chats = data.chats;
         var newMsgIndex = this.state.numOfChatHistory;
         for (var i = newMsgIndex; i < chats.length; i++) {
-          var chat = chats[i]
+          var chat = chats[i];
           var sender = '';
           if (chat.sender_user_id === userInfo.user_id) {
             sender = 'You';
@@ -82,7 +82,7 @@ var WorksheetChatBox = React.createClass({
 
   handleMessageSent: function(chatbox, id, user, msg){
     chatbox.boxManager.addMsg(user, msg);
-    this.setState({numOfChatHistory: this.state.numOfChatHistory + 1})
+    this.setState({numOfChatHistory: this.state.numOfChatHistory + 1});
     $.ajax({
       url: '/api/chatbox/',
       data: {
@@ -96,7 +96,7 @@ var WorksheetChatBox = React.createClass({
       success: function (data, status, jqXHR) {
         // auto response
         chatbox.boxManager.addMsg('System', data.chats);
-        this.setState({numOfChatHistory: this.state.numOfChatHistory + 1})
+        this.setState({numOfChatHistory: this.state.numOfChatHistory + 1});
       }.bind(this),
       error: function (xhr, status, error) {
         console.error(this.props.url, status, err.toString());
