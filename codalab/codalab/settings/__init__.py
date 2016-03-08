@@ -47,6 +47,8 @@ class Base(Settings):
         'NEW_RELIC_CONFIG_FILE': '%s/newrelic.ini' % PROJECT_DIR,
     }
 
+    ENABLE_CHAT = config.get('ENABLE_CHAT')
+
     SSL_PORT = config.get('SSL_PORT')
     SSL_CERTIFICATE = config.get('SSL_CERTIFICATE')
     SSL_CERTIFICATE_KEY = config.get('SSL_CERTIFICATE_KEY')

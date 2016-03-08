@@ -26,4 +26,10 @@ urlpatterns += (
     url(r'^bundles/get_uuid/$', views.BundleGetUUIDApi.as_view(), name='api_bundle_get_uuid'),
     url(r'^bundles/upload/$', views.BundleUploadApi.as_view(), name='api_bundle_upload'),
     url(r'^bundles/(?P<uuid>[A-Za-z0-9]+)/$', views.BundleInfoApi.as_view(), name='api_bundle_info'),
+
+    url(r'^chatbox/$', views.ChatBoxApi.as_view(), name='api_chat_box'),
+
+    url(r'^users/$', views.UsersApi.as_view(), name='api_users'),
+
+    url(r'^faq/$', views.FAQApi.as_view(), name='api_faq'),
 )
