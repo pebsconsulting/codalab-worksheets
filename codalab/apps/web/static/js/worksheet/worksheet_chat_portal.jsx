@@ -14,13 +14,13 @@ var WorksheetChatPortal = React.createClass({
 
   render: function () {
     var portalStyle = {
-      display: this.state.showChatPortal ? 'inline' : 'none';
+      display: this.state.showChatPortal ? 'inline' : 'none'
     };
     return (
       <div>
         <div id="chat-portal-switch" onClick = {this.togglePortal}> Show/Hide Chat Portal
         </div>{
-          this.state.showChatPortal ? <WorksheetChatPortalInterface userInfo={this.props.userInfo} /> : null;
+          this.state.showChatPortal ? <WorksheetChatPortalInterface userInfo={this.props.userInfo} /> : null
         }
       </div>
     )
@@ -46,7 +46,7 @@ var WorksheetChatPortalInterface = React.createClass({
       cache: false,
       type: 'GET',
       success: function(data) {
-        this.setState({chats: this.splitChatsToUsers(data.chats)});
+        this.setState({chats: this.groupChatsToUsers(data.chats)});
       }.bind(this),
       error: function(xhr, status, err) {
         console.error(this.props.url, status, err.toString());
@@ -54,7 +54,10 @@ var WorksheetChatPortalInterface = React.createClass({
     });
   },
 
-  splitChatsToUsers: function(chats_list) {
+  // input: chats_list, an array of raw chats with information like recipient_user_id, sender_user_id, message, etc.
+  // output: chats, a map that groups raw chats to each user that the Admin / System has had a conversation with.
+  //         Key is the user id, value is all the chats between the Admin / System and that user.
+  groupChatsToUsers: function(chats_list) {
     var chats = {};
     var chat_list = chats_list;
     for (var i = 0; i < chat_list.length; i++) {
@@ -90,7 +93,7 @@ var WorksheetChatPortalInterface = React.createClass({
         bundleId: DEFAULT_ID,
       },
       success: function(data) {
-        this.setState({chats: this.splitChatsToUsers(data.chats)});
+        this.setState({chats: this.groupChatsToUsers(data.chats)});
       }.bind(this),
       error: function(xhr, status, err) {
         console.error(this.props.url, status, err.toString());
