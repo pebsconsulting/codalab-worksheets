@@ -74,6 +74,7 @@ class Base(Settings):
     BUNDLE_SERVICE_CODE_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'codalab-cli'))
     sys.path.append(BUNDLE_SERVICE_CODE_PATH)
     codalab.__path__ = pkgutil.extend_path(codalab.__path__, codalab.__name__)
+    BUNDLE_SERVICE_VIRTUAL_ENV = os.path.join(BUNDLE_SERVICE_CODE_PATH, 'venv')
 
     LOGS_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'logs'))
 
