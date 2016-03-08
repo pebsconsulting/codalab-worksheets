@@ -115,6 +115,13 @@ var RunBundleBuilder = React.createClass({
     // cl run sort.py:sort.py input:a.txt 'python sort.py < input > output' -n sort-run
   },
 
+
+  componentDidUpdate: function() {
+    var clCommandHTML = $('#run-bundle-cl-command-container')
+    console.log(clCommandHTML[0]);
+    clCommandHTML.scrollLeft(clCommandHTML[0].scrollWidth);
+  },
+
   render: function () {
     var bundles_html = (
       <BundleBrowser
@@ -133,26 +140,27 @@ var RunBundleBuilder = React.createClass({
         createRunBundle={this.createRunBundle}
       />
     );
-
     return (
       <div>
         <div id='run-bundle-builder'>
           <span className='close' onClick={this.toggleBuilder}>×</span>
           <div className='pop-up-title'>Create Run Bundle</div>
           <div className='run-bundle-container'>
-            <div className='run-bundle-text pop-up-text'>Step 1: Specify your depedency. You can use the file browser below to drill down.</div>
+            <div className='run-bundle-text pop-up-text'>Step 1: Specify your dependencies. You can use the file browser below to drill down.</div>
             <div id='bundle-browser'>
               {bundles_html}
             </div>
           </div>
           <div className='run-bundle-container'>
-            <div className='run-bundle-text pop-up-text'>Step 2: Rename your depedency (optional) and run your program. Below is the environment that you will run a program in. Refer to your depedencies by their keys in your program.</div>
+            <div className='run-bundle-text pop-up-text'>Step 2: Run your command. Your dependencies have been put into the same environment for you. </div>
             <div id='run-bundle-terminal'>
               {run_bundle_terminal}
             </div>
           </div>
-          <div className='pop-up-text'>Equivalent web terminal command:
-            <div id='run-bundle-cl-command' className='pop-up-command'>{this.state.clCommand}</div>
+          <div className='pop-up-text'>Equivalent web terminal command:>
+            <div id='run-bundle-cl-command-container'>
+              <div id='run-bundle-cl-command' className='pop-up-command'>{this.state.clCommand}</div>
+            </div>
           </div>
           <div id='run-bundle-button'>
             <button className='pop-up-button' onClick={this.toggleBuilder}>Cancel</button>
@@ -287,7 +295,6 @@ var RunBundleTerminal = React.createClass({
     return (
       <div>
         <div>$ ls</div>
-        <div> key (referred in your program) &#8594; target bundle/file</div>
         {depedencies}
         {command}
       </div>
