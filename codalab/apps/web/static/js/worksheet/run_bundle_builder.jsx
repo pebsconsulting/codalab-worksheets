@@ -27,16 +27,12 @@ var RunBundleBuilder = React.createClass({
   },
 
   createRunBundle: function() {
-    var clCommand = this.getClCommand(this.state.selectedDependencies, this.state.dependencyKeyList, this.state.command, true)
-    // console.log(command)
+    var clCommand = this.getClCommand(this.state.selectedDependencies, this.state.dependencyKeyList, this.state.command, true);
     var response = $('#command_line').terminal().exec(clCommand);
     this.toggleBuilder();
   },
 
   handleDependencySelection: function(bundle_uuid, bundle_name, path, e) {
-    // console.log(bundle_uuid);
-    // console.log(bundle_name);
-    // console.log(path)
     var newDep = {
       'bundle_uuid': bundle_uuid,
       'bundle_name': bundle_name,
@@ -53,7 +49,7 @@ var RunBundleBuilder = React.createClass({
       // remove a dependency
       var removedDepIndex = null;
       selectedDependencies = selectedDependencies.filter(function(ele, i) {
-        depEqual = ele.bundle_uuid === newDep.bundle_uuid && ele.bundle_name === newDep.bundle_name && ele.path === newDep.path
+        depEqual = ele.bundle_uuid === newDep.bundle_uuid && ele.bundle_name === newDep.bundle_name && ele.path === newDep.path;
         if (depEqual)
           removedDepIndex = i;
         return !depEqual;
@@ -61,19 +57,17 @@ var RunBundleBuilder = React.createClass({
       dependencyKeyList.splice(removedDepIndex, 1);      
     }
     var clCommand = this.getClCommand(selectedDependencies, dependencyKeyList, this.state.command, false);
-    console.log(clCommand)
     this.setState({
       selectedDependencies: selectedDependencies,
       dependencyKeyList: dependencyKeyList,
       clCommand: clCommand
     });
-    // console.log(this.state.selectedDependencies);
   },
 
   handleKeyChange: function(index, event) {
     var dependencyKey = event.target.value;
     var dependencyKeyList = this.state.dependencyKeyList.slice();
-    dependencyKeyList[index] = dependencyKey
+    dependencyKeyList[index] = dependencyKey;
     var clCommand = this.getClCommand(this.state.selectedDependencies, dependencyKeyList, this.state.command, false);
     this.setState({
       dependencyKeyList: dependencyKeyList,
@@ -96,24 +90,24 @@ var RunBundleBuilder = React.createClass({
       var key = dependencyKeyList[i];
       var target = selectedDependencies[i];
       if (usingBundleId) {
-        target = target.path === '' ? target.bundle_uuid : target.bundle_uuid + '/' + target.path
+        target = target.path === '' ? target.bundle_uuid : target.bundle_uuid + '/' + target.path;
       } else {
-        target = target.path === '' ? target.bundle_name : target.bundle_name + '/' + target.path
+        target = target.path === '' ? target.bundle_name : target.bundle_name + '/' + target.path;
       }
       clCommand.push(key + ':' + target);
     }
     if (command != null) {
       clCommand.push('\'' + command + '\'')
     }
-      // if (this.state.name != null) {
-      //   command.push('-n')
-      //   command.push(this.state.name)
-      // }
     clCommand = clCommand.join(' ');
     return clCommand
-    // cl run sort.py:sort.py input:a.txt 'python sort.py < input > output' -n sort-run
   },
 
+  componentWillReceiveProps: function(newProps) {
+    if (newProps.escCount != this.props.escCount && this.state.showBuilder) {
+      this.toggleBuilder();
+    }
+  },
 
   componentDidUpdate: function() {
     var clCommandHTML = $('#run-bundle-cl-command-container')
@@ -138,16 +132,20 @@ var RunBundleBuilder = React.createClass({
         createRunBundle={this.createRunBundle}
       />
     );
-    var run_button = <Button 
-      text='Run'
-      type='primary'
-      handleClick={this.createRunBundle}
-    />
-    var cancel_button = <Button 
-      text='Cancel'
-      type='default'
-      handleClick={this.toggleBuilder}
-    />
+    var run_button = (
+      <Button
+        text='Run'
+        type='primary'
+        handleClick={this.createRunBundle}
+      />
+    );
+    var cancel_button = (
+      <Button
+        text='Cancel'
+        type='default'
+        handleClick={this.toggleBuilder}
+      />
+    );
     return (
       <div>
         <div id='run-bundle-builder'>
@@ -199,13 +197,15 @@ var BundleBrowser = React.createClass({
           var url = "/bundles/" + b.uuid;
           var short_uuid = shorten_uuid(b.uuid);
           if (b.info && b.info.type === 'directory') {
-            var fileBrowser = (<FileBrowser
-              bundle_uuid={b.uuid}
-              hasCheckbox={true}
-              handleCheckbox={this.props.handleDependencySelection}
-              bundle_name={b.metadata.name}
-              startCollapsed={true}
-              />);
+            var fileBrowser = (
+              <FileBrowser
+                bundle_uuid={b.uuid}
+                hasCheckbox={true}
+                handleCheckbox={this.props.handleDependencySelection}
+                bundle_name={b.metadata.name}
+                startCollapsed={true}
+              />
+            );
             rows.push(
               <tr><td>{fileBrowser}</td></tr>
               );
@@ -245,17 +245,19 @@ var BundleBrowser = React.createClass({
 });
 
 var RunBundleTerminal = React.createClass({
+  // ENTER clicks Run
   handleKeyUp: function(e) {
     if (e.keyCode === 13) {
-      e.preventDefault()
+      e.preventDefault();
       this.props.createRunBundle();
     }
   },
+
   render: function () {
     var command = (<div className='run-bundle-terminal-item'>
       $ <input type='text' id='run-bundle-terminal-command' className='inline-block run-bundle-terminal-input' value={this.props.command} placeholder="run your program here (e.g 'cat data.txt')" onChange={this.props.handleCommandChange} onKeyUp={this.handleKeyUp}></input>
     </div>
-    )
+    );
     var depedencies = this.props.selectedDependencies.map(function(d, i) {
       var short_uuid = shorten_uuid(d.bundle_uuid);
       var target = d.path === '' ? d.bundle_name : d.bundle_name + '/' + d.path
