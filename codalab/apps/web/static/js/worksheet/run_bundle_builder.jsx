@@ -183,90 +183,52 @@ var RunBundleBuilder = React.createClass({
 
 
 var BundleBrowser = React.createClass({
-  getInitialState: function() {
-    return {
-      bundleIdList: [],
-      bundleInfoList: [],
-    };
-  },
-
-  componentDidMount: function() {
-    this.updateBundleInfoList(this.props);
-  },
-
-    // To-do: when new bundle is added, refresh the build run bundle page
-  // componentWillReceiveProps: function(nextProps) {
-  //   this.updateBundleInfoList(nextProps);
-  // },
-
-  updateBundleInfoList: function(props) {
-    this.state.bundleInfoList = [];
-    var worksheet = props.ws.info;
-    if (worksheet && worksheet.items) {
-      worksheet.items.forEach(function(item) {
-        if (item.bundle_info) {
-          var bundle_infos = item.bundle_info;
-          if (!(bundle_infos instanceof Array)) {
-            bundle_infos = [bundle_infos];
-          }
-          bundle_infos.forEach(function(bundle_info) {
-            $.ajax({
-              type: "GET",
-              url: "/api/bundles/" + bundle_info.uuid,
-              dataType: 'json',
-              cache: false,
-              success: function(data) {
-                var bundleInfoList = this.state.bundleInfoList.slice()
-                bundleInfoList.push(data)
-                this.setState({ bundleInfoList: bundleInfoList })
-              }.bind(this),
-              error: function(xhr, status, err) {
-                console.log(xhr, status, err);
-              }.bind(this)
-            });
-          }.bind(this));
-        }
-      }.bind(this));
-    }
-  },
 
   render: function () {
     var worksheet = this.props.ws.info;
-    if (!worksheet) return <div />;
+    if (!worksheet || !worksheet.items) return <div />;
 
     var rows = [];
-    this.state.bundleInfoList.forEach(function(b) {
-      var url = "/bundles/" + b.uuid;
-      var short_uuid = shorten_uuid(b.uuid);
-
-      if (b.type === 'directory') {
-        var fileBrowser = (<FileBrowser
-          bundle_uuid={b.uuid}
-          hasCheckbox={true}
-          handleCheckbox={this.props.handleDependencySelection}
-          bundle_name={b.metadata.name}
-          startCollapsed={true}
-          />);
-        rows.push(
-          <tr><td>{fileBrowser}</td></tr>
-          );
-      } else {
-        rows.push(
-          <tr>
-            <td>
-              <input
-                type="checkbox"
-                className="run-bundle-check-box"
-                onChange={this.props.handleDependencySelection.bind(this, b.uuid, b.metadata.name, '')}
-              />
-              <a href={url} target="_blank">{b.metadata.name}({short_uuid})</a>
-            </td>
-          </tr>
-          );
+    worksheet.items.forEach(function(item) {
+      if (item.bundle_info) {
+        var bundle_infos = item.bundle_info;
+        if (!(bundle_infos instanceof Array)) {
+          bundle_infos = [bundle_infos];
+        }
+        bundle_infos.forEach(function(b) {
+          var url = "/bundles/" + b.uuid;
+          var short_uuid = shorten_uuid(b.uuid);
+          if (b.info && b.info.type === 'directory') {
+            var fileBrowser = (<FileBrowser
+              bundle_uuid={b.uuid}
+              hasCheckbox={true}
+              handleCheckbox={this.props.handleDependencySelection}
+              bundle_name={b.metadata.name}
+              startCollapsed={true}
+              />);
+            rows.push(
+              <tr><td>{fileBrowser}</td></tr>
+              );
+          } else {
+            rows.push(
+              <tr>
+                <td>
+                  <input
+                    type="checkbox"
+                    className="run-bundle-check-box"
+                    onChange={this.props.handleDependencySelection.bind(this, b.uuid, b.metadata.name, '')}
+                  />
+                  <a href={url} target="_blank">{b.metadata.name}({short_uuid})</a>
+                </td>
+              </tr>
+              );
+          }
+        }.bind(this));
       }
     }.bind(this));
+
     if (rows.length === 0) {
-      return (<div>
+      return (<div className='pop-up-text'>
         You don't have any bundle in this worksheet
       </div>);
     }

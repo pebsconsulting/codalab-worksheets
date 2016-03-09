@@ -78,7 +78,6 @@ class BundleService(object):
 
         bundle_info['metadata'] = metadata
         bundle_info['editable_metadata_fields'] = worksheet_util.get_editable_metadata_fields(cls, metadata)
-
         return bundle_info
 
     def head_target(self, target, max_num_lines=HEAD_MAX_LINES):
@@ -165,7 +164,6 @@ class BundleService(object):
                     return formatting.contents_str(None)
                 else:
                     return map(base64.b64decode, interpreted)
-
             # Currently, only certain fields are base64 encoded.
             for item in worksheet_info['items']:
                 if item['mode'] in ['html', 'contents']:
@@ -175,20 +173,21 @@ class BundleService(object):
                         for k, v in row_map.iteritems():
                             if v is None:
                                  row_map[k] = formatting.contents_str(v)
-                elif 'bundle_info' in item:
+                if 'bundle_info' in item:
                     infos = []
                     if isinstance(item['bundle_info'], list):
                         infos = item['bundle_info']
                     elif isinstance(item['bundle_info'], dict):
                         infos = [item['bundle_info']]
                     for bundle_info in infos:
+                        target_info = self.get_target_info((bundle_info['uuid'], ''))
+                        bundle_info['info'] = target_info
                         try:
                             if isinstance(bundle_info, dict):
                                 worksheet_util.format_metadata(bundle_info.get('metadata'))
                         except Exception, e:
                             print e
                             import ipdb; ipdb.set_trace()
-
         return worksheet_info
 
     def upload_bundle(self, source_file, bundle_type, worksheet_uuid):
@@ -265,6 +264,8 @@ class BundleService(object):
 
     def get_target_info(self, target, depth=1):
         info = _call_with_retries(lambda: self.client.get_target_info(target, depth))
+        if info == None:
+            return None
         contents = info.get('contents')
         # Render the sizes
         if contents:
