@@ -1,19 +1,24 @@
+var SAMPLE_WORKSHEET_TEXT = 'username-sampleworksheet'
 var NewWorksheet = React.createClass({
 
   getInitialState: function() {
     return {
       showNewWorksheet: false,
-      newWorksheetName: 'user-sampleworksheet',
+      newWorksheetName: SAMPLE_WORKSHEET_TEXT,
     };
   },
 
-  componentDidMount: function() {
+  componentWillReceiveProps: function(nextProps) {
+    if (nextProps.userInfo != this.props.userInfo) {
+      console.log(nextProps.userInfo)
+      this.setState({newWorksheetName: SAMPLE_WORKSHEET_TEXT})
+    }
   },
 
   toggleNewWorksheet: function() {
     if (this.state.showNewWorksheet) {
       $('#new-worksheet').css('display', 'none');
-      this.setState({newWorksheetName: 'user-sampleworksheet'});
+      this.setState({newWorksheetName: SAMPLE_WORKSHEET_TEXT});
     } else {
       $('#new-worksheet').css('display', 'block');
       var inputVal = $('#new-worksheet-input').val()
