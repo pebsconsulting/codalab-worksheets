@@ -46,6 +46,9 @@ var NewWorksheet = React.createClass({
     if (e.keyCode === 13) {
       e.preventDefault();
       this.createNewWorksheet()
+    } else if (e.keyCode === 27) {
+      e.preventDefault();
+      this.toggleNewWorksheet();
     }
   },
 
@@ -53,6 +56,20 @@ var NewWorksheet = React.createClass({
     var new_worksheet_name = (
         <input type='text' id='new-worksheet-input' value={this.state.newWorksheetName} onChange={this.handleNameChange} onKeyDown={this.handleKeyDown}></input>
       );
+    var create_button = (
+      <Button
+        text='Create'
+        type='primary'
+        handleClick={this.createNewWorksheet}
+      />
+    );
+    var cancel_button = (
+      <Button
+        text='Cancel'
+        type='default'
+        handleClick={this.toggleNewWorksheet}
+      />
+    );
     return (
       <div>
         <div id='new-worksheet'>
@@ -62,8 +79,8 @@ var NewWorksheet = React.createClass({
             <span className='pop-up-command'>cl new {this.state.newWorksheetName}</span>
           </p>
           <div id='new-worksheet-button'>
-            <button className='pop-up-button' onClick={this.toggleNewWorksheet}>Cancel</button>
-            <button className='pop-up-button' onClick={this.createNewWorksheet}>Create</button>
+            {cancel_button}
+            {create_button}
           </div>
         </div>
         <button onClick={this.toggleNewWorksheet}>Create New Worksheet</button>
