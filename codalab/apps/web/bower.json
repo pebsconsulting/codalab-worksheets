@@ -35,7 +35,8 @@
     "react": "~0.12.2",
     "Readmore.js": "readmore-js#^2.1.0",
     "MathJax": "^2.6.0",
-    "ace-builds": "^1.2.3"
+    "ace-builds": "^1.2.3",
+    "jquery-ui": "^1.11.4"
   },
   "resolutions": {
     "jquery": "~1.10.2"

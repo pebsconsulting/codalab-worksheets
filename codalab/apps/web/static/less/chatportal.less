@@ -1,0 +1,76 @@
+#chat-portal-switch {
+    position: fixed;
+    bottom: 23px;
+    left: 10%;
+    width: 300px;
+    height: 30px;
+    padding: 3px;
+    background:  #CCCCCC;
+    font-size: 12px;
+    cursor: pointer;
+    z-index: 1;
+    text-align: center;
+}
+
+#chat-portal {
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    width: 80%;
+    height: 90%;
+    padding: 2px;
+    background: #FFFFFF;
+    border: 2px solid #EEEEEE;
+    font-size: 12px;
+    z-index: 10;
+}
+
+#chat-portal-user-list {
+    position: relative;
+    float: left;
+    width: 10%;
+    height: 100%;
+    border: 1px solid #EEEEEE;
+    overflow-y: auto;
+}
+
+.chat-portal-user {
+    margin-bottom: 1px;
+    width: 100%;
+}
+
+#chat-portal-chat-list {
+    margin-left: 12%;
+    height: 100%;
+    overflow-y: auto;
+}
+
+#chat-portal-chat-box {
+    border-top: 1px solid #EEEEEE;
+    padding-top: 10px;
+    margin-top: 10px;
+}
+
+.chat-portal-chat-target {
+    color: #739cb9;
+}
+
+.chat-portal-chat-timestamp {
+    float: right;
+    margin-right: 10px;
+    color: #CCCCCC;
+}
+
+#chat-portal-chat-box-input {
+    height: 100px;
+    width: 500px;
+    outline: none
+}
+
+textarea {
+    resize: none;
+}
+
+#chat-portal-chat-box-submit {
+    display: block;
+}
