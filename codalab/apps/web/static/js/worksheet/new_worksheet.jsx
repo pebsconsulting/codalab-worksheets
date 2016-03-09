@@ -13,6 +13,9 @@ var NewWorksheet = React.createClass({
       console.log(nextProps.userInfo)
       this.setState({newWorksheetName: SAMPLE_WORKSHEET_TEXT})
     }
+    if (nextProps.escCount != this.props.escCount && this.state.showNewWorksheet) {
+      this.toggleNewWorksheet();
+    }
   },
 
   toggleNewWorksheet: function() {
@@ -33,15 +36,22 @@ var NewWorksheet = React.createClass({
     this.setState({newWorksheetName: event.target.value});
   },
 
-  createNewWorksheet: function(e) {
+  createNewWorksheet: function() {
     var command = 'cl new ' + this.state.newWorksheetName;
     response = $('#command_line').terminal().exec(command);
     this.toggleNewWorksheet();
   },
 
+  handleKeyDown: function(e) {
+    if (e.keyCode === 13) {
+      e.preventDefault();
+      this.createNewWorksheet()
+    }
+  },
+
   render: function () {
     var new_worksheet_name = (
-        <input type='text' id='new-worksheet-input' value={this.state.newWorksheetName} onChange={this.handleNameChange} ></input>
+        <input type='text' id='new-worksheet-input' value={this.state.newWorksheetName} onChange={this.handleNameChange} onKeyDown={this.handleKeyDown}></input>
       );
     return (
       <div>
