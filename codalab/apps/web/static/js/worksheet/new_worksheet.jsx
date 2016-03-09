@@ -1,4 +1,6 @@
-var SAMPLE_WORKSHEET_TEXT = 'username-sampleworksheet'
+var SAMPLE_WORKSHEET_TEXT = 'username-sampleworksheet';
+var NAME_REGEX = /^[a-zA-Z_][a-zA-Z0-9_\.\-]*$/i;
+
 var NewWorksheet = React.createClass({
 
   getInitialState: function() {
@@ -10,8 +12,7 @@ var NewWorksheet = React.createClass({
 
   componentWillReceiveProps: function(nextProps) {
     if (nextProps.userInfo != this.props.userInfo) {
-      console.log(nextProps.userInfo)
-      this.setState({newWorksheetName: SAMPLE_WORKSHEET_TEXT})
+      this.setState({newWorksheetName: SAMPLE_WORKSHEET_TEXT});
     }
     if (nextProps.escCount != this.props.escCount && this.state.showNewWorksheet) {
       this.toggleNewWorksheet();
@@ -24,20 +25,27 @@ var NewWorksheet = React.createClass({
       this.setState({newWorksheetName: SAMPLE_WORKSHEET_TEXT});
     } else {
       $('#new-worksheet').css('display', 'block');
-      var inputVal = $('#new-worksheet-input').val()
+      var inputVal = $('#new-worksheet-input').val();
       // highlight the second part of the suggested title for the user to change
       $('#new-worksheet-input')[0].setSelectionRange(inputVal.indexOf('-') + 1, inputVal.length);
-      $('#new-worksheet-input').focus()
+      $('#new-worksheet-input').focus();
     }
     this.setState({showNewWorksheet: !this.state.showNewWorksheet});
   },
 
   handleNameChange: function(event) {
-    this.setState({newWorksheetName: event.target.value});
+    var name = event.target.value;
+    if (name.match(NAME_REGEX) != null || name === '') {
+      this.setState({newWorksheetName: event.target.value});
+    }
   },
 
   createNewWorksheet: function() {
-    var command = 'cl new ' + this.state.newWorksheetName;
+    if (this.state.newWorksheetName === '') {
+      $('#new-worksheet-input').focus();
+      return;
+    }
+    var command = 'cl new \"' + this.state.newWorksheetName + '\"';
     response = $('#command_line').terminal().exec(command);
     this.toggleNewWorksheet();
   },
@@ -45,7 +53,7 @@ var NewWorksheet = React.createClass({
   handleKeyDown: function(e) {
     if (e.keyCode === 13) {
       e.preventDefault();
-      this.createNewWorksheet()
+      this.createNewWorksheet();
     } else if (e.keyCode === 27) {
       e.preventDefault();
       this.toggleNewWorksheet();
