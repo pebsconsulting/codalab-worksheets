@@ -249,7 +249,7 @@ var BundleDetailSidePanel = React.createClass({
       //console.log('BundleDetailSidePanel.fetchExtra', bundle_info.uuid);
       $.ajax({
           type: "GET",
-          url: "/api/bundles/" + bundle_info.uuid,
+          url: "/rest/api/bundles/" + bundle_info.uuid + "/",
           dataType: 'json',
           cache: false,
           success: function(data) {
@@ -279,7 +279,7 @@ var BundleDetailSidePanel = React.createClass({
         }
         this.setState({"currentWorkingDirectory": folder_path});
 
-        var url = '/api/bundles/content/' + this.state.uuid + '/' + folder_path;
+        var url = '/rest/api/bundles/content/' + this.state.uuid + '/' + folder_path + '/';
         $.ajax({
             type: 'GET',
             url: url,
@@ -396,7 +396,7 @@ function renderMetadata(bundle_info, bundleMetadataChanged) {
 
 function renderHeader(bundle_info, bundleMetadataChanged) {
   var bundle_url = '/bundles/' + bundle_info.uuid;
-  var bundle_download_url = "/bundles/" + bundle_info.uuid + "/download";
+  var bundle_download_url = "/rest/bundle/" + bundle_info.uuid + "/contents/blob/";
   var bundle_name;
   var bundle_description;
   if (bundle_info.metadata.name) {
@@ -445,7 +445,7 @@ function renderHeader(bundle_info, bundleMetadataChanged) {
 function renderContents(bundle_info) {
   var stdout_html = '';
   if (bundle_info.stdout) {
-    var stdout_url = '/api/bundles/filecontent/' + bundle_info.uuid + '/stdout';
+    var stdout_url = '/rest/bundle/' + bundle_info.uuid + '/contents/blob/stdout';
     stdout_html = (<div>
       <span><a href={stdout_url} target="_blank">stdout</a></span>
       &nbsp;
@@ -458,7 +458,7 @@ function renderContents(bundle_info) {
 
   var stderr_html = '';
   if (bundle_info.stderr) {
-    var stderr_url = '/api/bundles/filecontent/' + bundle_info.uuid + '/stderr';
+    var stderr_url = '/rest/bundle/' + bundle_info.uuid + '/contents/blob/stderr';
     stderr_html = (<div>
       <span><a href={stderr_url} target="_blank">stderr</a></span>
       &nbsp;
@@ -614,7 +614,7 @@ var FileBrowserItem = React.createClass({
           file_location = this.props.index;
         }
 
-        var file_link = '/api/bundles/filecontent/' + this.props.bundle_uuid + '/' + file_location;
+        var file_link = '/rest/bundle/' + this.props.bundle_uuid + '/contents/blob/' + file_location;
         var size = '';
         if (this.props.hasOwnProperty('size_str'))
           size = this.props['size_str'];

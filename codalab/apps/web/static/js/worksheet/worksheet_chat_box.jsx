@@ -48,7 +48,7 @@ var WorksheetChatBox = React.createClass({
     var userInfo = this.props.userInfo;
     if (userInfo === null) return;
     $.ajax({
-      url: '/api/chatbox/',
+      url: '/rest/api/chatbox/',
       dataType: 'json',
       cache: false,
       type: 'GET',
@@ -84,7 +84,7 @@ var WorksheetChatBox = React.createClass({
     chatbox.boxManager.addMsg(user, msg);
     this.setState({numOfChatHistory: this.state.numOfChatHistory + 1});
     $.ajax({
-      url: '/api/chatbox/',
+      url: '/rest/api/chatbox/',
       data: {
         senderUserId: this.props.userId,
         recipientUserId: this.props.userInfo.system_user_id,

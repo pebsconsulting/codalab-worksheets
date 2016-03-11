@@ -39,7 +39,7 @@ var BundleUploader = React.createClass({
     fd.append('bundle_type', 'dataset');
     fd.append('worksheet_uuid', this.props.ws.info.uuid);
     $.ajax({
-      url: '/api/bundles/upload/',
+      url: '/rest/api/bundles/upload/',
       data: fd,
       processData: false,
       contentType: false,

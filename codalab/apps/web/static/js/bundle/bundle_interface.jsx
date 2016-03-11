@@ -51,7 +51,7 @@ var Bundle = React.createClass({
             type: "POST",
             cache: false,
             //  /api/bundles/0x706<...>d5b66e
-            url: "/api" + document.location.pathname,
+            url: "/rest/api" + document.location.pathname,
             contentType:"application/json; charset=utf-8",
             dataType:"json",
             data: JSON.stringify(postdata),
@@ -80,7 +80,7 @@ var Bundle = React.createClass({
         $.ajax({
             type: "GET",
             //  /api/bundles/0x706<...>d5b66e
-            url: "/api" + document.location.pathname,
+            url: "/rest/api" + document.location.pathname,
             dataType: 'json',
             cache: false,
             success: function(data) {
@@ -135,7 +135,7 @@ var Bundle = React.createClass({
         $.ajax({
             type: "GET",
             //  /api/bundles/0x706<...>d5b66e
-            url: document.location.pathname.replace('/bundles/', '/api/bundles/content/') + folder_path + '/', //extra slash at end means root dir
+            url: document.location.pathname.replace('/bundles/', '/rest/api/bundles/content/') + folder_path + '/', //extra slash at end means root dir
             dataType: 'json',
             cache: false,
             success: function(data) {
@@ -155,7 +155,7 @@ var Bundle = React.createClass({
     render: function() {
         var saveButton;
         var metadata = this.state.metadata;
-        var bundle_download_url = "/bundles/" + this.state.uuid + "/download";
+        var bundle_download_url = "/rest/bundle/" + this.state.uuid + "/contents/blob/";
         var bundleAttrs = [];
         var editing = this.state.editing;
         var tableClassName = 'table' + (editing ? ' editing' : '');
@@ -517,7 +517,7 @@ var FileBrowserItem = React.createClass({
             file_location = this.props.index;
         }
 
-        var file_link = document.location.pathname.replace('/bundles/', '/api/bundles/filecontent/') + file_location;
+        var file_link = document.location.pathname.replace('/bundles/', '/rest/bundle/') + 'contents/blob/' + file_location;
         var size = '';
         if(this.props.hasOwnProperty('size')){
             if(this.props.size == 0 || this.props.size === undefined)

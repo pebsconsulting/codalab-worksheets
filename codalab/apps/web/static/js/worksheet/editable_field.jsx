@@ -60,7 +60,7 @@ var WorksheetEditableField = React.createClass({
   },
   render: function () {
     return (
-      <EditableField {...this.props} url="/api/worksheets/command/" buildParams={this.buildParams} />
+      <EditableField {...this.props} url="/rest/api/worksheets/command/" buildParams={this.buildParams} />
     );
   }
 });
@@ -80,7 +80,7 @@ var BundleEditableField = React.createClass({
   },
   render: function () {
     return (
-      <EditableField {...this.props} url={"/api/bundles/" + this.props.uuid + "/"} buildParams={this.buildParams} />
+      <EditableField {...this.props} url={"/rest/api/bundles/" + this.props.uuid + "/"} buildParams={this.buildParams} />
     );
   }
 });
