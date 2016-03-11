@@ -9,6 +9,13 @@
     "cli": {
         "verbose": 1
     },
+    {% if EMAIL_HOST %}
+    "email": {
+      "host": "{{EMAIL_HOST}}",
+      "user": "{{EMAIL_HOST_USER}}",
+      "password": "{{EMAIL_HOST_PASSWORD}}"
+    },
+    {% endif %}
     "server": {
         "host": "localhost",
         "port": 2800,
@@ -18,10 +25,7 @@
         "engine_url": "mysql://{{BUNDLE_DB_USER}}:{{BUNDLE_DB_PASSWORD}}@localhost:3306/{{BUNDLE_DB_NAME}}",
         "verbose": 1,
         "auth": {
-            "class": "OAuthHandler",
-            "address": "{{BUNDLE_AUTH_URL}}",
-            "app_id": "{{BUNDLE_APP_ID}}",
-            "app_key": "{{BUNDLE_APP_KEY}}"
+            "class": "RestOAuthHandler"
         },
         "default_user_info": {
             "time_quota": "7d",
