@@ -86,7 +86,6 @@ var Bundle = React.createClass({
             success: function(data) {
                 if(this.isMounted()){
                     this.setState(data);
-                    this.updateTitle(data);
                 }
                 $("#bundle-message").hide().removeClass('alert-danger alert');
             }.bind(this),
@@ -102,16 +101,6 @@ var Bundle = React.createClass({
         });
 
         this.updateFileBrowser();
-    },
-
-    updateTitle: function(data) {
-      // Doing this dynamically is not ideal, since not all crawlers run
-      // JavaScript. It's better than nothing, though.
-      if (data.metadata.name) {
-        document.title = document.title + ': ' + data.metadata.name;
-        title_meta = $('meta[property="og:title"]')
-        title_meta.attr('content', title_meta.attr('content') + ': ' + data.metadata.name);
-      }
     },
 
     // File browser is updated based on location.hash!

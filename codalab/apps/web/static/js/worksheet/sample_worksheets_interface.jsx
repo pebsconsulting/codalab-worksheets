@@ -1,3 +1,5 @@
+// Box that displays a few sample worksheets on the home page.
+
 var SampleWorksheetsBox = React.createClass({
   getInitialState: function() {
     return {'data': []};

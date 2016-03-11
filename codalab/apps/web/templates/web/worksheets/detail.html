@@ -7,6 +7,10 @@
     <meta property="og:type" content="article">
     <meta property="og:image" content="{{ request.META.HTTP_HOST }}{{STATIC_URL}}img/codalab-logo.png">
 {% endblock %}
+{% block extra_scripts %}
+<!-- Read a script that fills in the worksheet title. Add a timestamp to prevent caching. -->
+<script src="/rest/titlejs/worksheet/{{ uuid }}/?={% now "U" %}"></script>
+{% endblock extra_scripts %}
 {% block subheader %}{% endblock subheader %}
 
 {% block content_wrapper %}

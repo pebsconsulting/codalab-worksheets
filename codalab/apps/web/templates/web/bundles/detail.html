@@ -8,6 +8,10 @@
     <meta property="og:type" content="article">
     <meta property="og:image" content="{{ request.META.HTTP_HOST }}{{STATIC_URL}}img/codalab-logo.png">
 {% endblock %}
+{% block extra_scripts %}
+<!-- Read a script that fills in the bundle title. Add a timestamp to prevent caching. -->
+<script src="/rest/titlejs/bundle/{{ uuid }}/?={% now "U" %}"></script>
+{% endblock extra_scripts %}
 
 {% block content %}
 <div id="bundle-message" class="bundle-detail">
