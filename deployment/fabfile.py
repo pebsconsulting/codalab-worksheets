@@ -248,6 +248,7 @@ def getWebsiteConfig(config):
         'SSL_ALLOWED_HOSTS': ssl_allowed_hosts,
         'email': config.getEmailInfo(),
         'django': config.getDjangoInfo(),
+        'DJANGO_USE_UWSGI': True,
         'database': {
             'ENGINE': config.getDatabaseEngine(),
             'NAME': config.getDatabaseName(),

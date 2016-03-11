@@ -41,6 +41,8 @@ class Base(Settings):
     PORT = os.environ.get('CONFIG_HTTP_PORT', 8000)
     MAINTENANCE_MODE = os.environ.get('MAINTENANCE_MODE', 0)
 
+    DJANGO_USE_UWSGI = config.get('DJANGO_USE_UWSGI')
+
     STARTUP_ENV = {
         'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'],
         'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],
