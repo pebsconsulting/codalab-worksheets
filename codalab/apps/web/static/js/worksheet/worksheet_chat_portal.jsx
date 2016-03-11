@@ -41,7 +41,7 @@ var WorksheetChatPortalInterface = React.createClass({
 
   componentDidMount: function() {
     $.ajax({
-      url: '/api/chatbox/',
+      url: '/rest/api/chatbox/',
       dataType: 'json',
       cache: false,
       type: 'GET',
@@ -83,7 +83,7 @@ var WorksheetChatPortalInterface = React.createClass({
 
   handleAnswerChat: function(recipientUserId, msg) {
     $.ajax({
-      url: '/api/chatbox/',
+      url: '/rest/api/chatbox/',
       dataType: 'json',
       type: 'POST',
       data: {

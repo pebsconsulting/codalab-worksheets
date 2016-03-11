@@ -8,7 +8,7 @@ var FAQ = React.createClass({
 
   componentDidMount: function () {
     $.ajax({
-      url: '/api/faq/',
+      url: '/rest/api/faq/',
       dataType: 'json',
       cache: false,
       type: 'GET',

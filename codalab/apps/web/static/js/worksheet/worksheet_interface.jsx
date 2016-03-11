@@ -92,7 +92,7 @@ var Worksheet = React.createClass({
         window.history.replaceState({uuid: this.state.ws.uuid}, '', window.location.pathname);
         $('body').addClass('ws-interface');
         $.ajax({
-        url: '/api/users/',
+        url: '/rest/api/users/',
             dataType: 'json',
             cache: false,
             type: 'GET',
