@@ -13,5 +13,3 @@ codalab/apps/web/static/css/imports.css
 
 venv/
 
-# Dev database file
-*.sqlite3
