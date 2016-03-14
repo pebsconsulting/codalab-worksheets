@@ -440,7 +440,7 @@ var FileBrowser = React.createClass({
             for (var i = 0; i < this.props.fileBrowserData.contents.length; i++) {
                 item = this.props.fileBrowserData.contents[i];
                 if (item.type != 'directory') {
-                    items.push(<FileBrowserItem key={item.name} index={item.name} type={item.type} size={item.size} updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory}  />);
+                    items.push(<FileBrowserItem key={item.name} index={item.name} type={item.type} size={item.size} link={item.link} updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory}  />);
                 }
             }
 
@@ -503,21 +503,6 @@ var FileBrowserItem = React.createClass({
         this.props.updateFileBrowser(this.props.index);
     },
     render: function() {
-        // Type can be 'file' or 'folder'
-        var icon = "glyphicon-folder-close";
-        if(this.props.type == "file") {
-            icon = "glyphicon-file"
-        }
-        icon += " glyphicon"
-
-        var file_location = '';
-        if(this.props.currentWorkingDirectory) {
-            file_location = this.props.currentWorkingDirectory + '/' + this.props.index;
-        } else {
-            file_location = this.props.index;
-        }
-
-        var file_link = document.location.pathname.replace('/bundles/', '/rest/bundle/') + 'contents/blob/' + file_location;
         var size = '';
         if(this.props.hasOwnProperty('size')){
             if(this.props.size == 0 || this.props.size === undefined)
@@ -529,17 +514,46 @@ var FileBrowserItem = React.createClass({
                 size = (this.props.size / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
             }
         }
+
+        if (this.props.type == 'directory' || this.props.type == '..') {
+            item = (
+              <div className={this.props.type} onClick={this.browseToFolder}>
+                  <span className="glyphicon-folder-open glyphicon" alt="More"></span>
+                  <a target="_blank">{this.props.index}</a>
+                  <span className="pull-right">{size}</span>
+              </div>
+            );
+        } else if (this.props.type == 'file') {
+            var file_location = '';
+            if (this.props.currentWorkingDirectory) {
+                file_location = this.props.currentWorkingDirectory + '/' + this.props.index;
+            } else {
+                file_location = this.props.index;
+            }
+            var file_link = document.location.pathname.replace('/bundles/', '/rest/bundle/') + 'contents/blob/' + file_location;
+            item = (
+              <div className={this.props.type}>
+                  <span className="glyphicon-file glyphicon" alt="More"></span>
+                  <a href={file_link} target="_blank">{this.props.index}</a>
+                  <span className="pull-right">{size}</span>
+              </div>
+            );
+        } else if (this.props.type == 'link') {
+            item = (
+              <div className={this.props.type}>
+                  <span className="glyphicon-file glyphicon" alt="More"></span>
+                  {this.props.index + ' -> ' + this.props.link}
+              </div>
+            );
+        }
+        
         return (
-            <tr>
-                <td>
-                    <div className={this.props.type} onClick={this.props.type != 'file' ? this.browseToFolder : null}>
-                        <span className={icon} alt="More"></span>
-                        <a href={this.props.type == 'file' ? file_link : null} target="_blank">{this.props.index}</a>
-                        <span className="pull-right"> {size} </span>
-                    </div>
-                </td>
-            </tr>
-        );
+          <tr>
+            <td>
+              {item}
+            </td>
+          </tr>
+        )
     }
 });
 
