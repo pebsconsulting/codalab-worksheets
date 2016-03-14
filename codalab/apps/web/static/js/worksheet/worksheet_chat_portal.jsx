@@ -49,7 +49,7 @@ var WorksheetChatPortalInterface = React.createClass({
         this.setState({chats: this.groupChatsToUsers(data.chats)});
       }.bind(this),
       error: function(xhr, status, err) {
-        console.error(this.props.url, status, err.toString());
+        console.error(xhr.responseText);
       }.bind(this)
     });
   },
@@ -96,7 +96,7 @@ var WorksheetChatPortalInterface = React.createClass({
         this.setState({chats: this.groupChatsToUsers(data.chats)});
       }.bind(this),
       error: function(xhr, status, err) {
-        console.error(this.props.url, status, err.toString());
+        console.error(xhr.responseText);
       }.bind(this)
     });
   },

@@ -51,15 +51,7 @@ var BundleUploader = React.createClass({
       }.bind(this),
       error: function (jqHXR, status, error) {
         this.clearUploading(fileEntryKey);
-
-        // Simply display error as an alert box for now.
-        var errorString;
-        if (jqHXR.responseJSON) {
-          errorString = jqHXR.responseJSON['error'];
-        } else {
-          errorString = "Error uploading file.";
-        }
-        alert(errorString);
+        alert(jqHXR.responseText);
       }.bind(this)
     });
   },

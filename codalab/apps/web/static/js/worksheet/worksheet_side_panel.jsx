@@ -260,7 +260,7 @@ var BundleDetailSidePanel = React.createClass({
               }
           }.bind(this),
           error: function(xhr, status, err) {
-            console.log(xhr, status, err);
+            console.log(xhr.responseText);
           }.bind(this)
       });
     },
@@ -290,11 +290,7 @@ var BundleDetailSidePanel = React.createClass({
                   this.setState({'fileBrowserData': data});
             }.bind(this),
             error: function(xhr, status, err) {
-                if (xhr.status != 404) {
-                    $("#bundle-message").html("Bundle was not found.").addClass('alert-danger alert');
-                } else {
-                    $("#bundle-message").html("An error occurred. Please try refreshing the page.").addClass('alert-danger alert');
-                }
+                $("#bundle-message").html(xhr.responseText).addClass('alert-danger alert');
                 $('.bundle-file-view-container').hide();
             }.bind(this)
         });

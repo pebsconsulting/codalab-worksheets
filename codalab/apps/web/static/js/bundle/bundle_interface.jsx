@@ -56,22 +56,14 @@ var Bundle = React.createClass({
             dataType:"json",
             data: JSON.stringify(postdata),
             success: function(data) {
-                console.log('success');
-                console.log(data);
-                if('error' in data){
-                    $("#bundle-message").html(data['error']).addClass('alert-danger alert');
-                    $("#bundle-message").show();
-                }else{
-                    this.setState(data);
-                    this.setState({
-                         editing:false,
-                    });
-                    $("#bundle-message").hide().removeClass('alert-danger alert');
-                }
+                this.setState(data);
+                this.setState({
+                     editing:false,
+                });
+                $("#bundle-message").hide().removeClass('alert-danger alert');
             }.bind(this),
             error: function(xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
-                $("#bundle-message").html('Error loading bundle: ' + err).addClass('alert-danger alert');
+                $("#bundle-message").html(xhr.responseText).addClass('alert-danger alert');
                 $("#bundle-message").show();
             }.bind(this)
         });
@@ -90,12 +82,8 @@ var Bundle = React.createClass({
                 $("#bundle-message").hide().removeClass('alert-danger alert');
             }.bind(this),
             error: function(xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
-                if (xhr.status == 404) {
-                    $("#bundle-message").html("Bundle was not found.").addClass('alert-danger alert');
-                } else {
-                    $("#bundle-message").html('Error loading bundle: ' + err).addClass('alert-danger alert');
-                }
+                $("#bundle-message").html(xhr.responseText).addClass('alert-danger alert');
+                $("#bundle-message").show();
                 $('#bundle-content').hide();
             }.bind(this)
         });
@@ -142,11 +130,8 @@ var Bundle = React.createClass({
                 this.setState({"fileBrowserData": data});
             }.bind(this),
             error: function(xhr, status, err) {
-                if (xhr.status != 404) {
-                    $("#bundle-message").html("Bundle was not found.").addClass('alert-danger alert');
-                } else {
-                    $("#bundle-message").html("An error occurred. Please try refreshing the page.").addClass('alert-danger alert');
-                }
+                $("#bundle-message").html(xhr.responseText).addClass('alert-danger alert');
+                $("#bundle-message").show();
                 $('.bundle-file-view-container').hide();
             }.bind(this)
         });
