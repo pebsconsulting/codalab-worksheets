@@ -1,0 +1,42 @@
+{% extends "web/account/base.html" %}
+
+{% load url from future %}
+{% load i18n %}
+
+{% block head_title %}{% trans "Signup" %}{% endblock %}
+
+{% block content %}
+<h1>{% trans "Sign Up" %}</h1>
+
+<p>Already have an account? Then please <a href="{% url 'account_login' %}">sign in</a>.</p>
+
+<form class="signup" id="signup_form" method="post" action="/rest/account/signup">
+    <!-- TODO(sckoo): {% csrf_token %} temporarily unprotected from csrf attack -->
+    {% if request.GET.error %}
+    <div class="alert alert-error">
+        {{request.GET.error}}
+    </div>
+    {% endif %}
+    <div class="form-group">
+        <label for="id_email">Email:</label>
+        <input id="id_email" class="form-control" name="email" placeholder="Email" type="email" value="{{ request.GET.email }}" required autofocus>
+    </div>
+    <div class="form-group">
+        <label for="id_login">Username:</label>
+        <input id="id_login" class="form-control" name="username" placeholder="Username" type="text" value="{{ request.GET.username}}" required>
+    </div>
+    <div class="form-group">
+        <label for="id_password">Password:</label>
+        <input id="id_password" class="form-control" name="password" placeholder="Password" type="password" required>
+    </div>
+    <div class="form-group">
+        <label for="id_password_confirm">Confirm Password:</label>
+        <input id="id_password_confirm" class="form-control" name="confirm_password" placeholder="Password again" type="password" required>
+    </div>
+    <input type="hidden" name="success_uri" value="{% url 'account_signup_success' %}" />
+    <input type="hidden" name="error_uri" value="{{ request.path }}" />
+    <button type="submit">{% trans "Sign Up" %} &raquo;</button>
+</form>
+
+
+{% endblock %}
