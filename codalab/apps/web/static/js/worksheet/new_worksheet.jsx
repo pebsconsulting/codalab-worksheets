@@ -1,4 +1,4 @@
-var SAMPLE_WORKSHEET_TEXT = 'username-sampleworksheet';
+var SAMPLE_WORKSHEET_TEXT = 'username-worksheetname';
 var NAME_REGEX = /^[a-zA-Z_][a-zA-Z0-9_\.\-]*$/i;
 
 var NewWorksheet = React.createClass({
@@ -52,9 +52,11 @@ var NewWorksheet = React.createClass({
 
   handleKeyDown: function(e) {
     if (e.keyCode === 13) {
+      // enter shortcur
       e.preventDefault();
       this.createNewWorksheet();
     } else if (e.keyCode === 27) {
+      // esc shortcut
       e.preventDefault();
       this.toggleNewWorksheet();
     }
@@ -83,7 +85,7 @@ var NewWorksheet = React.createClass({
         <div id='new-worksheet'>
           <span className='close' onClick={this.toggleNewWorksheet}>×</span>
           <p className='pop-up-title'>New Worksheet</p>{new_worksheet_name}
-          <p id='new-worksheet-message' className='pop-up-text'>Equivalent web terminal command:<br />
+          <p id='new-worksheet-message' className='pop-up-text'>CodaLab>
             <span className='pop-up-command'>cl new {this.state.newWorksheetName}</span>
           </p>
           <div id='new-worksheet-button'>
@@ -91,7 +93,7 @@ var NewWorksheet = React.createClass({
             {create_button}
           </div>
         </div>
-        <button onClick={this.toggleNewWorksheet}>Create New Worksheet</button>
+        <button onClick={this.toggleNewWorksheet}>New Worksheet</button>
       </div>
       );
   }
