@@ -615,7 +615,7 @@ var FileBrowserItem = React.createClass({
           } else {
             file_location = this.props.index;
           }
-          var file_link = '/rest/bundle/' + this.props.bundle_uuid + '/contents/blob/' + file_location;
+          var file_link = '/rest/bundle/' + this.props.bundle_uuid + '/contents/blob/' + encodeURIComponent(file_location);
           item = (
             <div className={this.props.type}>
                 <span className="glyphicon-file glyphicon" alt="More"></span>
