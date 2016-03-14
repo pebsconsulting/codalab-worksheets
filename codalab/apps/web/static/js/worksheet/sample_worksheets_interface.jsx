@@ -13,7 +13,7 @@ var SampleWorksheetsBox = React.createClass({
          this.setState({'data': data});
        }.bind(this),
        error: function(xhr, status, err) {
-         console.log(xhr, status, err);
+         console.log(xhr.responseText);
        }.bind(this)
      });
    },

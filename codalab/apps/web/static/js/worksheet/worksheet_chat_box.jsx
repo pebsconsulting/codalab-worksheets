@@ -75,7 +75,7 @@ var WorksheetChatBox = React.createClass({
         this.setState({numOfChatHistory: chats.length});
       }.bind(this),
       error: function(xhr, status, err) {
-        console.error(this.props.url, status, err.toString());
+        console.error(xhr.responseText);
       }.bind(this)
     });
   },
@@ -99,7 +99,7 @@ var WorksheetChatBox = React.createClass({
         this.setState({numOfChatHistory: this.state.numOfChatHistory + 1});
       }.bind(this),
       error: function (xhr, status, error) {
-        console.error(this.props.url, status, err.toString());
+        console.error(xhr.responseText);
       }.bind(this)
     })
   },

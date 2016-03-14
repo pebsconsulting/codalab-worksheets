@@ -32,7 +32,7 @@ var WorksheetActionBar = React.createClass({
           self.renderHyperlinks(data.structured_result.refs);
         }
       }).fail(function (error) {
-        terminal.error("Unexpected error when executing request.");
+        terminal.error(error.responseText);
       }).always(function () {
         terminal.resume();
         self.props.refreshWorksheet();
@@ -148,10 +148,7 @@ var WorksheetActionBar = React.createClass({
       }
     }).fail(function (jqXHR, status, error) {
       // Some exception occurred outside of the CLI
-      console.error("CLI command request failed:");
-      console.error("Status code:", status);
-      console.error("Error:", error);
-      return error;
+      console.error(jqXHR.responseText);
     });
   },
   completeCommand: function (command) {
@@ -171,7 +168,7 @@ var WorksheetActionBar = React.createClass({
         deferred.resolve(data.completions);
       },
       error: function (jqHXR, status, error) {
-        console.error(error);
+        console.error(jqHXR.responseText);
         deferred.reject();
       }
     });
