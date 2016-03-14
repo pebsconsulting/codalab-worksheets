@@ -18,10 +18,10 @@
                           <a href="/rest/worksheets/?name=dashboard">My Dashboard</a>
                         </span>
                         <span class="user-not-authenticated frontpage-button">
-                          <a href="/rest/account/signup">Sign Up</a>
+                          <a href="/account/signup">Sign Up</a>
                         </span>
                         <span class="user-not-authenticated frontpage-button">
-                          <a href="/rest/account/login?redirect_uri={{request.path|urlencode:""}}">Sign In</a>
+                          <a href="/account/login?next={{request.path|urlencode:""}}">Sign In</a>
                         </span>
                     </div>
                 </div>
