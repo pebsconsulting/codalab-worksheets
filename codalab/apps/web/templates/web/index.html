@@ -11,21 +11,18 @@
                     <img src="{{STATIC_URL}}img/codalab-logo-white.png" alt="CodaLab" class="img-responsive">
                     <h4><b><i>A collaborative platform for reproducible research.</i></b></h4>
                     <div class="frontpage-buttons">
-                      {% if user.is_authenticated %}
-                        <span class="frontpage-button">
-                          <a href="/worksheets/?name=/">My Home</a>
+                        <span class="user-authenticated frontpage-button">
+                          <a href="/rest/worksheets/?name=%2F">My Home</a>
                         </span>
-                        <span class="frontpage-button">
-                          <a href="/worksheets/?name=dashboard">My Dashboard</a>
+                        <span class="user-authenticated frontpage-button">
+                          <a href="/rest/worksheets/?name=dashboard">My Dashboard</a>
                         </span>
-                      {% else %}
-                        <span class="frontpage-button">
-                          <a href="/accounts/signup">Sign Up</a>
+                        <span class="user-not-authenticated frontpage-button">
+                          <a href="/rest/account/signup">Sign Up</a>
                         </span>
-                        <span class="frontpage-button">
-                          <a href="/accounts/login">Sign In</a>
+                        <span class="user-not-authenticated frontpage-button">
+                          <a href="/rest/account/login?redirect_uri={{request.path|urlencode:""}}">Sign In</a>
                         </span>
-                      {% endif %}
                     </div>
                 </div>
             </div>
@@ -45,7 +42,7 @@
             so you can be a more efficient researcher.
             <p>
             To get started, read more about the <a target="_blank" href="https://github.com/codalab/codalab-worksheets/wiki">mission</a>,
-            <a href="/accounts/signup">sign up</a> for an account,
+            <a href="/rest/account/signup">sign up</a> for an account,
             and go through the <a target="_blank" href="https://github.com/codalab/codalab-worksheets/wiki/User_CodaLab-Worksheets-Tutorial">tutorial</a> to try it out!
             </p>
           </div>
@@ -99,22 +96,15 @@
 
         <div class="row">
           <div class="col-sm-10 col-sm-offset-1">
-            <table class="frontpage-worksheets-list">
-              <tr><td>
-                <div class="frontpage-worksheets-list-header">
-                  Example Worksheets
-                </div> 
-              </td></tr>
-              {% for worksheet in worksheets %}
-                <tr><td>
-                  <div class="frontpage-worksheets-list-item">
-                    <a target="_blank" href="{% url 'ws_view' worksheet.0 %}">{{worksheet.1}}</a> by {{ worksheet.3 }}
-                  </div>
-                </td></tr>
-              {% endfor %}
-            </table>
+            <div id="sample_worksheets"></div>
           </div>
         </div>
 
     </div>
 {% endblock content %}
+
+{% block jsincludes %}
+    <script src="{{ STATIC_URL }}bower_components/react/react.min.js"></script>
+    <script src="{{ STATIC_URL }}dist/sample_worksheets_interface.js"></script>
+{% endblock jsincludes %}
+

@@ -8,7 +8,7 @@ var FAQ = React.createClass({
 
   componentDidMount: function () {
     $.ajax({
-      url: '/api/faq/',
+      url: '/rest/api/faq/',
       dataType: 'json',
       cache: false,
       type: 'GET',
@@ -16,7 +16,7 @@ var FAQ = React.createClass({
         this.setState({faqBody: data['faq']});
       }.bind(this),
       error: function(xhr, status, err) {
-        console.error(this.props.url, status, err.toString());
+        console.error(xhr.responseText);
       }.bind(this)
     });
   },

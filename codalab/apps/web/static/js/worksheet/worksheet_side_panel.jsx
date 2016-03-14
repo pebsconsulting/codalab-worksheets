@@ -254,7 +254,7 @@ var BundleDetailSidePanel = React.createClass({
       //console.log('BundleDetailSidePanel.fetchExtra', bundle_info.uuid);
       $.ajax({
           type: "GET",
-          url: "/api/bundles/" + bundle_info.uuid,
+          url: "/rest/api/bundles/" + bundle_info.uuid + "/",
           dataType: 'json',
           cache: false,
           success: function(data) {
@@ -265,7 +265,7 @@ var BundleDetailSidePanel = React.createClass({
               }
           }.bind(this),
           error: function(xhr, status, err) {
-            console.log(xhr, status, err);
+            console.log(xhr.responseText);
           }.bind(this)
       });
     },
@@ -284,7 +284,7 @@ var BundleDetailSidePanel = React.createClass({
         }
         this.setState({"currentWorkingDirectory": folder_path});
 
-        var url = '/api/bundles/content/' + this.state.uuid + '/' + folder_path;
+        var url = '/rest/api/bundles/content/' + this.state.uuid + '/' + folder_path + '/';
         $.ajax({
             type: 'GET',
             url: url,
@@ -295,11 +295,7 @@ var BundleDetailSidePanel = React.createClass({
                   this.setState({'fileBrowserData': data});
             }.bind(this),
             error: function(xhr, status, err) {
-                if (xhr.status != 404) {
-                    $("#bundle-message").html("Bundle was not found.").addClass('alert-danger alert');
-                } else {
-                    $("#bundle-message").html("An error occurred. Please try refreshing the page.").addClass('alert-danger alert');
-                }
+                $("#bundle-message").html(xhr.responseText).addClass('alert-danger alert');
                 $('.bundle-file-view-container').hide();
             }.bind(this)
         });
@@ -401,7 +397,7 @@ function renderMetadata(bundle_info, bundleMetadataChanged) {
 
 function renderHeader(bundle_info, bundleMetadataChanged) {
   var bundle_url = '/bundles/' + bundle_info.uuid;
-  var bundle_download_url = "/bundles/" + bundle_info.uuid + "/download";
+  var bundle_download_url = "/rest/bundle/" + bundle_info.uuid + "/contents/blob/";
   var bundle_name;
   var bundle_description;
   if (bundle_info.metadata.name) {
@@ -450,7 +446,7 @@ function renderHeader(bundle_info, bundleMetadataChanged) {
 function renderContents(bundle_info) {
   var stdout_html = '';
   if (bundle_info.stdout) {
-    var stdout_url = '/api/bundles/filecontent/' + bundle_info.uuid + '/stdout';
+    var stdout_url = '/rest/bundle/' + bundle_info.uuid + '/contents/blob/stdout';
     stdout_html = (<div>
       <span><a href={stdout_url} target="_blank">stdout</a></span>
       &nbsp;
@@ -463,7 +459,7 @@ function renderContents(bundle_info) {
 
   var stderr_html = '';
   if (bundle_info.stderr) {
-    var stderr_url = '/api/bundles/filecontent/' + bundle_info.uuid + '/stderr';
+    var stderr_url = '/rest/bundle/' + bundle_info.uuid + '/contents/blob/stderr';
     stderr_html = (<div>
       <span><a href={stderr_url} target="_blank">stderr</a></span>
       &nbsp;
@@ -475,7 +471,7 @@ function renderContents(bundle_info) {
   }
 
   var contents_html = '';
-  if (bundle_info.type == 'file') {
+  if (bundle_info.file_contents) {
     contents_html = (<div>
       <div className="collapsible-header"><span><p>contents &#x25BE;</p></span></div>
       <div className="collapsible-content bundle-meta">
@@ -548,8 +544,8 @@ var FileBrowser = React.createClass({
 
           // Show files
           entities.forEach(function(item) {
-            if (item.type == 'file')
-              items.push(<FileBrowserItem bundle_uuid={self.props.bundle_uuid} key={item.name} index={item.name} type={item.type} size={item.size} size_str={item.size_str} updateFileBrowser={self.props.updateFileBrowser} currentWorkingDirectory={self.props.currentWorkingDirectory} />);
+            if (item.type != 'directory')
+              items.push(<FileBrowserItem bundle_uuid={self.props.bundle_uuid} key={item.name} index={item.name} type={item.type} size={item.size} size_str={item.size_str} link={item.link} updateFileBrowser={self.props.updateFileBrowser} currentWorkingDirectory={self.props.currentWorkingDirectory} />);
           });
 
           file_browser = (
@@ -605,34 +601,48 @@ var FileBrowserItem = React.createClass({
         this.props.updateFileBrowser(this.props.index);
     },
     render: function() {
-        // Type can be 'file' or 'folder'
-        var icon = "glyphicon-folder-open";
-        if (this.props.type == "file") {
-          icon = "glyphicon-file";
-        }
-        icon += " glyphicon";
-
-        var file_location = '';
-        if (this.props.currentWorkingDirectory) {
-          file_location = this.props.currentWorkingDirectory + '/' + this.props.index;
-        } else {
-          file_location = this.props.index;
-        }
-
-        var file_link = '/api/bundles/filecontent/' + this.props.bundle_uuid + '/' + file_location;
         var size = '';
         if (this.props.hasOwnProperty('size_str'))
           size = this.props['size_str'];
+
+        if (this.props.type == 'directory' || this.props.type == '..') {
+          item = (
+            <div className={this.props.type} onClick={this.browseToFolder}>
+                <span className="glyphicon-folder-open glyphicon" alt="More"></span>
+                <a target="_blank">{this.props.index}</a>
+                <span className="pull-right">{size}</span>
+            </div>
+          );
+        } else if (this.props.type == 'file') {
+          var file_location = '';
+          if (this.props.currentWorkingDirectory) {
+            file_location = this.props.currentWorkingDirectory + '/' + this.props.index;
+          } else {
+            file_location = this.props.index;
+          }
+          var file_link = '/rest/bundle/' + this.props.bundle_uuid + '/contents/blob/' + file_location;
+          item = (
+            <div className={this.props.type}>
+                <span className="glyphicon-file glyphicon" alt="More"></span>
+                <a href={file_link} target="_blank">{this.props.index}</a>
+                <span className="pull-right">{size}</span>
+            </div>
+          );
+        } else if (this.props.type == 'link') {
+          item = (
+            <div className={this.props.type}>
+                <span className="glyphicon-file glyphicon"></span>
+                {this.props.index + ' -> ' + this.props.link}
+            </div>
+          );
+        }
+        
         return (
-            <tr>
-                <td>
-                    <div className={this.props.type} onClick={this.props.type != 'file' ? this.browseToFolder : null}>
-                        <span className={icon} alt="More"></span>
-                        <a href={this.props.type == 'file' ? file_link : null} target="_blank" className='sidepanel-file-viewer-contents'>{this.props.index}</a>
-                        <span className="pull-right">{size}</span>
-                    </div>
-                </td>
-            </tr>
-        );
+          <tr>
+            <td>
+              {item}
+            </td>
+          </tr>
+        )
     }
 });

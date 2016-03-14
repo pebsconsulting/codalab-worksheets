@@ -133,30 +133,6 @@ class DeploymentConfig(object):
         """Gets the value of the Django secret key."""
         return self._svc['django']
 
-    def getDatabaseEngine(self):
-        """Gets the database engine type."""
-        return self._svc['database']['engine']
-
-    def getDatabaseName(self):
-        """Gets the Django site database name."""
-        return self._svc['database']['name']
-
-    def getDatabaseUser(self):
-        """Gets the database username."""
-        return self._svc['database']['user']
-
-    def getDatabasePassword(self):
-        """Gets the password for the database user."""
-        return self._svc['database']['password']
-
-    def getDatabaseHost(self):
-        """Gets the database host."""
-        return self._svc['database']['host']
-
-    def getDatabasePort(self):
-        """Gets the database port."""
-        return self._svc['database']['port']
-
     def getDatabaseAdminPassword(self):
         """Gets the password for the database admin."""
         return self._svc['database']['admin_password']
@@ -246,25 +222,13 @@ def getWebsiteConfig(config):
         'SSL_CERTIFICATE': config.getSslCertificateInstalledPath(),
         'SSL_CERTIFICATE_KEY': config.getSslCertificateKeyInstalledPath(),
         'SSL_ALLOWED_HOSTS': ssl_allowed_hosts,
-        'email': config.getEmailInfo(),
         'django': config.getDjangoInfo(),
-        'database': {
-            'ENGINE': config.getDatabaseEngine(),
-            'NAME': config.getDatabaseName(),
-            'USER': config.getDatabaseUser(),
-            'PASSWORD': config.getDatabasePassword(),
-            'HOST': config.getDatabaseHost(),
-            'PORT': config.getDatabasePort(),
-            'OPTIONS': {
-                'init_command': 'SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED',
-                'read_timeout': 5,
-            }
-        },
-        # For generating OAuth key (not ideal) - consider generating the config file directly.
+        'DJANGO_USE_UWSGI': True,
+        # For generating the bundle_server_config.json file.
+        'email': config.getEmailInfo(),
         'BUNDLE_DB_NAME': config.getBundleServiceDatabaseName(),
         'BUNDLE_DB_USER': config.getBundleServiceDatabaseUser(),
         'BUNDLE_DB_PASSWORD': config.getBundleServiceDatabasePassword(),
-        'BUNDLE_AUTH_URL': bundle_auth_url,
         # New relic
         'NEW_RELIC_KEY': config.getNewRelicKey(),
     }
@@ -367,7 +331,6 @@ def install_mysql(choice='all'):
 
     choice: Indicates which assets to create/install:
         'mysql'      -> just install MySQL; don't create the databases
-        'website_db' -> just create the website database
         'bundles_db' -> just create the bundle service database
         'all' or ''  -> install everything
     """
@@ -377,12 +340,10 @@ def install_mysql(choice='all'):
 
     if choice == 'mysql':
         choices = {'mysql'}
-    elif choice == 'website_db':
-        choices = {'website_db'}
     elif choice == 'bundles_db':
         choices = {'bundles_db'}
     elif choice == 'all':
-        choices = {'mysql', 'website_db', 'bundles_db'}
+        choices = {'mysql', 'bundles_db'}
     else:
         raise ValueError("Invalid choice: %s. Valid choices are: 'build', 'web' or 'all'." % (choice))
 
@@ -392,15 +353,6 @@ def install_mysql(choice='all'):
     if 'mysql' in choices:
         sudo('DEBIAN_FRONTEND=noninteractive apt-get install -y mysql-server')
         sudo('mysqladmin -u root password {0}'.format(dba_password))
-
-    if 'website_db' in choices:
-        db_name = configuration.getDatabaseName()
-        db_user = configuration.getDatabaseUser()
-        db_password = configuration.getDatabasePassword()
-        cmds = ["create database {0};".format(db_name),
-                "create user '{0}'@'localhost' IDENTIFIED BY '{1}';".format(db_user, db_password),
-                "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'localhost' WITH GRANT OPTION;".format(db_name, db_user)]
-        run('mysql --user=root --password={0} --execute="{1}"'.format(dba_password, " ".join(cmds)))
 
     if 'bundles_db' in choices:
         db_name = configuration.getBundleServiceDatabaseName()
@@ -506,21 +458,20 @@ def _deploy():
     with env_prefix, env_shell, cd(env.deploy_codalab_worksheets_dir), cd('codalab'):
         # Generate configuration files (bundle_server_config, nginx, etc.)
         run('python manage.py config_gen')
-        # Migrate database
-        run('python manage.py syncdb --migrate')
         # Create static pages
         run('python manage.py collectstatic --noinput')
-        # For sending email, have the right domain name.
-        run('python manage.py set_site %s' % cfg.getSslRewriteHosts()[0])
-        # Create a superuser for OAuth
-        run('python manage.py create_codalab_user %s' % cfg.getDatabaseAdminPassword())
-        # Allow bundle service to connect to website for OAuth
-        run('mkdir -p ~/.codalab && python manage.py set_oauth_key ./config/generated/bundle_server_config.json > ~/.codalab/config.json')
-        # Put nginx and supervisor configuration files in place
+        # Put configuration files in place
+        run('mkdir -p ~/.codalab')
+        run('ln -sf `pwd`/config/generated/bundle_server_config.json ~/.codalab/config.json')
         sudo('ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
         sudo('ln -sf `pwd`/config/generated/supervisor.conf /etc/supervisor/conf.d/codalab.conf')
         # Setup new relic
         run('newrelic-admin generate-config %s newrelic.ini' % cfg.getNewRelicKey())
+
+    # Set up the bundles database.
+    with cd(env.deploy_codalab_cli_dir):
+        run('scripts/create-default-clients.py')
+        run('scripts/create-root-user.py %s' % cfg.getDatabaseAdminPassword())
 
     # Build and install steps for JavaScript application
     with cd(env.deploy_codalab_worksheets_dir), cd('codalab/apps/web'):
