@@ -65,7 +65,7 @@ var BundleUploader = React.createClass({
   render: function () {
     var upload_button = (
       <Button
-        text='Upload Bundle'
+        text='Upload'
         type='primary'
         handleClick={this.openFileDialog}
         className="active"
