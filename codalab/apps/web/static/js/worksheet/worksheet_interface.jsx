@@ -459,6 +459,7 @@ var Worksheet = React.createClass({
                     uploadBundle={this.uploadBundle}
                     bundleMetadataChanged={this.refreshWorksheet}
                     escCount={this.state.escCount}
+                    userInfo={this.state.userInfo}
                 />
             );
 

@@ -1,4 +1,4 @@
-var SAMPLE_WORKSHEET_TEXT = 'username-worksheetname';
+var SAMPLE_WORKSHEET_TEXT = '-worksheetname';
 var NAME_REGEX = /^[a-zA-Z_][a-zA-Z0-9_\.\-]*$/i;
 
 var NewWorksheet = React.createClass({
@@ -6,14 +6,15 @@ var NewWorksheet = React.createClass({
   getInitialState: function() {
     return {
       showNewWorksheet: false,
-      newWorksheetName: SAMPLE_WORKSHEET_TEXT,
+      newWorksheetName: '',
     };
   },
 
+  componentDidMount: function() {
+    this.setState({newWorksheetName: this.props.userInfo.user_name + SAMPLE_WORKSHEET_TEXT});
+  },
+
   componentWillReceiveProps: function(nextProps) {
-    if (nextProps.userInfo != this.props.userInfo) {
-      this.setState({newWorksheetName: SAMPLE_WORKSHEET_TEXT});
-    }
     if (nextProps.escCount != this.props.escCount && this.state.showNewWorksheet) {
       this.toggleNewWorksheet();
     }
@@ -22,7 +23,7 @@ var NewWorksheet = React.createClass({
   toggleNewWorksheet: function() {
     if (this.state.showNewWorksheet) {
       $('#new-worksheet').css('display', 'none');
-      this.setState({newWorksheetName: SAMPLE_WORKSHEET_TEXT});
+      this.setState({newWorksheetName: this.props.userInfo.user_name + SAMPLE_WORKSHEET_TEXT});
     } else {
       $('#new-worksheet').css('display', 'block');
       var inputVal = $('#new-worksheet-input').val();
@@ -85,7 +86,7 @@ var NewWorksheet = React.createClass({
         <div id='new-worksheet'>
           <span className='close' onClick={this.toggleNewWorksheet}>×</span>
           <p className='pop-up-title'>New Worksheet</p>{new_worksheet_name}
-          <p id='new-worksheet-message' className='pop-up-text'>CodaLab>
+          <p id='new-worksheet-message' className='pop-up-text'>CodaLab>&nbsp;
             <span className='pop-up-command'>cl new {this.state.newWorksheetName}</span>
           </p>
           <div id='new-worksheet-button'>
