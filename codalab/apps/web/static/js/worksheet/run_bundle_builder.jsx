@@ -152,7 +152,7 @@ var RunBundleBuilder = React.createClass({
 
     var run_bundle_button = (
       <Button
-        text='New Run'
+        text='New Run Bundle'
         type='primary'
         handleClick={this.toggleBuilder}
         flexibleSize={true}
