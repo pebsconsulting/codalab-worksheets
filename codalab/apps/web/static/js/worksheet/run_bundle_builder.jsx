@@ -196,7 +196,7 @@ var BundleBrowser = React.createClass({
         bundle_infos.forEach(function(b) {
           var url = "/bundles/" + b.uuid;
           var short_uuid = shorten_uuid(b.uuid);
-          if (b.info && b.info.type === 'directory') {
+          if (b.target_info && b.target_info.type === 'directory') {
             var fileBrowser = (
               <FileBrowser
                 bundle_uuid={b.uuid}
