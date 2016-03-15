@@ -5,20 +5,11 @@
 
 {% block head_title %}Sign In{% endblock head_title %}
 {% block page_title %}Sign In{% endblock page_title %}
-{% block extra_head %}
-    <script>
-        $(document).ready(function() {
-            if (!("autofocus" in document.createElegitment("input"))) {
-                $("#id_login").focus();
-            }
-        });
-    </script>
-{% endblock %}
+
 {% block content %}
 <div class="row">
     <div class="col-md-6">
         <form class="login" method="POST" action="/rest/account/login">
-            <!-- TODO(sckoo): {% csrf_token %} temporarily unprotected from csrf attack-->
             {% if request.GET.error %}
                 <div class="alert alert-error">
                     {{request.GET.error}}
@@ -33,23 +24,15 @@
                 <label for="id_password">Password:</label>
                 <input id="id_password" class="form-control" name="password" placeholder="Password" type="password">
             </div>
-            <!-- Default is not to store a long-lived cookie. Implementing security for this will take more effort
-            and is left for a future patch.
-            http://stackoverflow.com/questions/244882/what-is-the-best-way-to-implement-remember-me-for-a-website
-            <div class="checkbox">
-                <label for="id_remember">
-                    <input id="id_remember" name="remember" type="checkbox">
-                    Remember Me
-                </label>
-            </div>
-            -->
             <input type="hidden" name="success_uri" value="{{ request.GET.next }}" />
             <input type="hidden" name="error_uri" value="{{ request.path }}" />
             <button class="btn btn-primary margin-top" type="submit">{% trans "Sign In" %}</button>
         </form>
         <p>
         <p><a href="{% url 'account_signup' %}">Don't have an account? Sign up!</a></p>
-        <!--<p><a href="../password/reset/">Forgot your password?</a></p> disabled until reimplemented-->
+        <!-- TODO(sckoo): reimplement password reset
+        <p><a href="../password/reset/">Forgot your password?</a></p>
+        -->
         <a href="" onclick="alert('Please attempt logging in again to resend confirmation email.'); return false;">Resend confirmation email</a>
     </div>
 </div>
