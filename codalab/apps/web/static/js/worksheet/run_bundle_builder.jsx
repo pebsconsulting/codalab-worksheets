@@ -98,7 +98,6 @@ var RunBundleBuilder = React.createClass({
     }
     if (command != null) {
       command = command.replace(/"/g, '\\\"');
-      command = command.replace(/'/g, '\\\'');
       clCommand.push("\"" + command + "\"");
     }
     clCommand = clCommand.join(' ');
