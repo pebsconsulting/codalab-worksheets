@@ -12,6 +12,7 @@ var Worksheet = React.createClass({
         return {
             ws: new WorksheetContent(this.props.uuid),
             version: 0,  // Increment when we refresh
+            escCount: 0, // Increment when the user presses esc keyboard shortcut, a hack to allow esc shortcut to work
             activeComponent: 'list',  // Where the focus is (action, list, or side_panel)
             editMode: false,  // Whether we're editing the worksheet
             editorEnabled: false, // Whether the editor is actually showing (sometimes lags behind editMode)
@@ -138,6 +139,7 @@ var Worksheet = React.createClass({
         $('#ws_search').removeAttr('style');
     },
     setupEventHandlers: function() {
+        var self = this;
         // Load worksheet from history when back/forward buttons are used.
         window.onpopstate = function(event) {
             if (event.state == null) return;
@@ -168,6 +170,7 @@ var Worksheet = React.createClass({
             if ($('#glossaryModal').hasClass('in')) {
                 $('#glossaryModal').modal('hide');
             }
+            self.setState({escCount: self.state.escCount + 1});
         });
 
         Mousetrap.bind(['shift+r'], function(e) {
@@ -455,6 +458,8 @@ var Worksheet = React.createClass({
                     subFocusIndex={this.state.subFocusIndex}
                     uploadBundle={this.uploadBundle}
                     bundleMetadataChanged={this.refreshWorksheet}
+                    escCount={this.state.escCount}
+                    userInfo={this.state.userInfo}
                 />
             );
 

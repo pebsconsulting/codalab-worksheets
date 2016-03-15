@@ -113,6 +113,11 @@ var WorksheetSidePanel = React.createClass({
           refreshWorksheet={this.props.bundleMetadataChanged}
         />;
 
+        var new_worksheet = this.props.userInfo ? <NewWorksheet
+          escCount={this.props.escCount}
+          userInfo={this.props.userInfo}
+        />: null;
+
         var focus = this.getFocus();
         var side_panel_details = '';
         if (focus) {
@@ -146,6 +151,7 @@ var WorksheetSidePanel = React.createClass({
         return (
           <div className="ws-panel">
               {bundle_uploader}
+              {new_worksheet}
               {side_panel_details}
           </div>
         );
