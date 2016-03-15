@@ -53,7 +53,7 @@ var NewWorksheet = React.createClass({
 
   handleKeyDown: function(e) {
     if (e.keyCode === 13) {
-      // enter shortcur
+      // enter shortcut
       e.preventDefault();
       this.createNewWorksheet();
     } else if (e.keyCode === 27) {
