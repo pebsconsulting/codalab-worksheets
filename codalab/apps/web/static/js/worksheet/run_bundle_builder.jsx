@@ -97,7 +97,9 @@ var RunBundleBuilder = React.createClass({
       clCommand.push(key + ':' + target);
     }
     if (command != null) {
-      clCommand.push('\'' + command + '\'')
+      command = command.replace(/"/g, '\\\"');
+      command = command.replace(/'/g, '\\\'');
+      clCommand.push("\"" + command + "\"");
     }
     clCommand = clCommand.join(' ');
     return clCommand
@@ -152,21 +154,19 @@ var RunBundleBuilder = React.createClass({
           <span className='close' onClick={this.toggleBuilder}>×</span>
           <div className='pop-up-title'>Create Run Bundle</div>
           <div className='run-bundle-container'>
-            <div className='run-bundle-text pop-up-text'>Select any dependencies (either bundles or the files/directories inside).</div>
+            <div className='run-bundle-text pop-up-text'>Step 1: Select any dependencies (either bundles or the files/directories inside).</div>
             <div id='bundle-browser'>
               {bundles_html}
             </div>
           </div>
           <div className='run-bundle-container'>
-            <div className='run-bundle-text pop-up-text'>Enter a shell command, which will be run in a directory with the dependencies (rename if desired).</div>
+            <div className='run-bundle-text pop-up-text'>Step 2: Enter a shell command, which will be run in a directory with the dependencies (rename if desired).</div>
             <div id='run-bundle-terminal'>
               {run_bundle_terminal}
             </div>
           </div>
-          <div className='pop-up-text'>CodaLab>
-            <div id='run-bundle-cl-command-container'>
-              <div id='run-bundle-cl-command' className='pop-up-command'>{this.state.clCommand}</div>
-            </div>
+          <div id='run-bundle-cl-command-container'>CodaLab>&nbsp;
+            <span id='run-bundle-cl-command' className='pop-up-command'>{this.state.clCommand}</span>
           </div>
           <div id='run-bundle-button'>
             {cancel_button}
