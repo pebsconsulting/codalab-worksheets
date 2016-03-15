@@ -133,6 +133,7 @@ var RunBundleBuilder = React.createClass({
         createRunBundle={this.createRunBundle}
       />
     );
+
     var run_button = (
       <Button
         text='Run'
@@ -140,6 +141,7 @@ var RunBundleBuilder = React.createClass({
         handleClick={this.createRunBundle}
       />
     );
+
     var cancel_button = (
       <Button
         text='Cancel'
@@ -147,8 +149,18 @@ var RunBundleBuilder = React.createClass({
         handleClick={this.toggleBuilder}
       />
     );
+
+    var run_bundle_button = (
+      <Button
+        text='New Run'
+        type='primary'
+        handleClick={this.toggleBuilder}
+        flexibleSize={true}
+      />
+    );
+
     return (
-      <div>
+      <div className='inline-block'>
         <div id='run-bundle-builder'>
           <span className='close' onClick={this.toggleBuilder}>×</span>
           <div className='pop-up-title'>Create Run Bundle</div>
@@ -172,7 +184,7 @@ var RunBundleBuilder = React.createClass({
             {run_button}
           </div>
         </div>
-        <button onClick={this.toggleBuilder}>Create Run Bundle</button>
+        {run_bundle_button}
       </div>
       );
   }

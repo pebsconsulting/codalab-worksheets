@@ -66,6 +66,7 @@ var NewWorksheet = React.createClass({
     var new_worksheet_name = (
         <input type='text' id='new-worksheet-input' value={this.state.newWorksheetName} onChange={this.handleNameChange} onKeyDown={this.handleKeyDown}></input>
       );
+
     var create_button = (
       <Button
         text='Create'
@@ -73,6 +74,7 @@ var NewWorksheet = React.createClass({
         handleClick={this.createNewWorksheet}
       />
     );
+
     var cancel_button = (
       <Button
         text='Cancel'
@@ -80,8 +82,19 @@ var NewWorksheet = React.createClass({
         handleClick={this.toggleNewWorksheet}
       />
     );
+
+    var new_worksheet_button = (
+      <Button
+        text='New Worksheet'
+        type='primary'
+        width={120}
+        handleClick={this.toggleNewWorksheet}
+        flexibleSize={true}
+      />
+    );
+
     return (
-      <div>
+      <div className='inline-block'>
         <div id='new-worksheet'>
           <span className='close' onClick={this.toggleNewWorksheet}>×</span>
           <p className='pop-up-title'>New Worksheet</p>{new_worksheet_name}
@@ -93,7 +106,7 @@ var NewWorksheet = React.createClass({
             {create_button}
           </div>
         </div>
-        <button onClick={this.toggleNewWorksheet}>New Worksheet</button>
+        {new_worksheet_button}
       </div>
       );
   }
