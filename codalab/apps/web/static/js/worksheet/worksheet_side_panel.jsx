@@ -22,8 +22,8 @@ var WorksheetSidePanel = React.createClass({
           $header = $(this);
           $content = $header.next();
           $content.slideToggle(150, function () {
-            $header.text(function () {
-              return $content.is(":visible") ? ($header.text()).replace(/\u25B8/, '\u25BE') : ($header.text()).replace(/\u25BE/, '\u25B8');
+            $header.html(function () {
+              return $content.is(":visible") ? ($header.html()).replace(/\u25B8/, '\u25BE') : ($header.html()).replace(/\u25BE/, '\u25B8');
             });
           });
         });
@@ -113,6 +113,11 @@ var WorksheetSidePanel = React.createClass({
           refreshWorksheet={this.props.bundleMetadataChanged}
         />;
 
+        var run_bundle_builder = <RunBundleBuilder
+          ws={this.props.ws}
+          escCount={this.props.escCount}
+        />;
+
         var new_worksheet = this.props.userInfo ? <NewWorksheet
           escCount={this.props.escCount}
           userInfo={this.props.userInfo}
@@ -151,6 +156,7 @@ var WorksheetSidePanel = React.createClass({
         return (
           <div className="ws-panel">
               {bundle_uploader}
+              {run_bundle_builder}
               {new_worksheet}
               {side_panel_details}
           </div>
@@ -241,14 +247,9 @@ var WorksheetDetailSidePanel = React.createClass({
 // - bundle_info: contains information about the bundle to render
 var BundleDetailSidePanel = React.createClass({
     getInitialState: function() {
-        var bundle_info = this.props.bundle_info;
-
-        // State associated with file browser
-        bundle_info.fileBrowserData = {};
-        bundle_info.currentWorkingDirectory = '';
-
-        return bundle_info;
+      return this.props.bundle_info;
     },
+
     fetchExtra: function() {
       // Fetch detailed information about this bundle.
       var bundle_info = this.state;
@@ -262,44 +263,14 @@ var BundleDetailSidePanel = React.createClass({
               //console.log("BundleDetailSidePanel.fetchExtra success: " + bundle_info.uuid);
               if (this.isMounted()) {
                   this.setState(data);
-                  this.updateFileBrowser('');
+                  if (this.refs.hasOwnProperty('file_browser'))
+                    this.refs.file_browser.updateFileBrowser('');
               }
           }.bind(this),
           error: function(xhr, status, err) {
             console.log(xhr.responseText);
           }.bind(this)
       });
-    },
-
-    updateFileBrowser: function(folder_path) {
-        if (folder_path == '..') {  // Go to parent directory
-            folder_path = this.state.currentWorkingDirectory.substring(0, this.state.currentWorkingDirectory.lastIndexOf('/'));
-        }
-        else if (this.state.currentWorkingDirectory != '') {
-            if (folder_path != '') {
-                folder_path = this.state.currentWorkingDirectory + "/" + folder_path;
-            }
-            else {
-                folder_path = this.state.currentWorkingDirectory;
-            }
-        }
-        this.setState({"currentWorkingDirectory": folder_path});
-
-        var url = '/rest/api/bundles/content/' + this.state.uuid + '/' + folder_path + '/';
-        $.ajax({
-            type: 'GET',
-            url: url,
-            dataType: 'json',
-            cache: false,
-            success: function(data) {
-                if (this.isMounted())
-                  this.setState({'fileBrowserData': data});
-            }.bind(this),
-            error: function(xhr, status, err) {
-                $("#bundle-message").html(xhr.responseText).addClass('alert-danger alert');
-                $('.bundle-file-view-container').hide();
-            }.bind(this)
-        });
     },
 
     render: function() {
@@ -310,9 +281,8 @@ var BundleDetailSidePanel = React.createClass({
       if (bundle_info.type == 'directory') {
         fileBrowser = (<FileBrowser
           bundle_uuid={this.state.uuid}
-          fileBrowserData={this.state.fileBrowserData}
-          updateFileBrowser={this.updateFileBrowser}
-          currentWorkingDirectory={this.state.currentWorkingDirectory}/>);
+          ref={'file_browser'}
+        />);
       }
 
       return (<div id="panel_content">
@@ -520,16 +490,57 @@ function renderHostWorksheets(bundle_info) {
 // FileBrowser
 
 var FileBrowser = React.createClass({
+    getInitialState: function() {
+      return {
+        currentWorkingDirectory: '',
+        fileBrowserData: {},
+      };
+    },
+
+    componentDidMount: function(nextProps) {
+      this.updateFileBrowser('');
+    },
+
+    updateFileBrowser: function(folder_path) {
+      if (folder_path == '..') {  // Go to parent directory
+        folder_path = this.state.currentWorkingDirectory.substring(0, this.state.currentWorkingDirectory.lastIndexOf('/'));
+      }
+      else if (this.state.currentWorkingDirectory != '') {
+        if (folder_path != '') {
+          folder_path = this.state.currentWorkingDirectory + "/" + folder_path;
+        } else {
+          folder_path = this.state.currentWorkingDirectory;
+        }
+      }
+      this.setState({"currentWorkingDirectory": folder_path});
+
+      var url = '/rest/api/bundles/content/' + this.props.bundle_uuid + '/' + folder_path + '/';
+      $.ajax({
+        type: 'GET',
+        url: url,
+        dataType: 'json',
+        cache: false,
+        success: function(data) {
+          if (this.isMounted())
+            this.setState({'fileBrowserData': data});
+          }.bind(this),
+        error: function(xhr, status, err) {
+          $("#bundle-message").html(xhr.responseText).addClass('alert-danger alert');
+          $('.bundle-file-view-container').hide();
+        }.bind(this)
+      });
+    },
+
     render: function() {
         var items = [];
-        if (this.props.fileBrowserData.contents) {
+        if (this.state.fileBrowserData.contents) {
           // Parent directory (..)
-          if (this.props.currentWorkingDirectory) {
-            items.push(<FileBrowserItem key=".." index=".."type=".." updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory} />);
+          if (this.state.currentWorkingDirectory) {
+            items.push(<FileBrowserItem key=".." index=".."type=".." updateFileBrowser={this.updateFileBrowser} currentWorkingDirectory={this.state.currentWorkingDirectory} />);
           }
 
           // Sort by name
-          var entities = this.props.fileBrowserData.contents;
+          var entities = this.state.fileBrowserData.contents;
           entities.sort(function(a, b) {
             if (a.name < b.name) return -1;
             if (a.name > b.name) return +1;
@@ -540,13 +551,36 @@ var FileBrowser = React.createClass({
           // Show directories
           entities.forEach(function(item) {
             if (item.type == 'directory')
-              items.push(<FileBrowserItem key={item.name} index={item.name} type={item.type} updateFileBrowser={self.props.updateFileBrowser} currentWorkingDirectory={self.props.currentWorkingDirectory}  />);
+              items.push(<FileBrowserItem
+                bundle_uuid={self.props.bundle_uuid}
+                bundle_name={self.props.bundle_name}
+                key={item.name}
+                index={item.name}
+                type={item.type}
+                updateFileBrowser={self.updateFileBrowser}
+                currentWorkingDirectory={self.state.currentWorkingDirectory}
+                hasCheckbox={self.props.hasCheckbox}
+                handleCheckbox={self.props.handleCheckbox}
+              />);
           });
 
           // Show files
           entities.forEach(function(item) {
             if (item.type != 'directory')
-              items.push(<FileBrowserItem bundle_uuid={self.props.bundle_uuid} key={item.name} index={item.name} type={item.type} size={item.size} size_str={item.size_str} link={item.link} updateFileBrowser={self.props.updateFileBrowser} currentWorkingDirectory={self.props.currentWorkingDirectory} />);
+              items.push(<FileBrowserItem
+                bundle_uuid={self.props.bundle_uuid}
+                bundle_name={self.props.bundle_name}
+                key={item.name}
+                index={item.name}
+                type={item.type}
+                size={item.size}
+                size_str={item.size_str}
+                link={item.link}
+                updateFileBrowser={self.updateFileBrowser}
+                currentWorkingDirectory={self.state.currentWorkingDirectory}
+                hasCheckbox={self.props.hasCheckbox}
+                handleCheckbox={self.props.handleCheckbox}
+              />);
           });
 
           file_browser = (
@@ -557,14 +591,36 @@ var FileBrowser = React.createClass({
         } else {
           file_browser = (<b>(no files)</b>);
         }
-
         var bread_crumbs = (<FileBrowserBreadCrumbs
-            updateFileBrowser={this.props.updateFileBrowser}
-            currentWorkingDirectory={this.props.currentWorkingDirectory}/>);
-
+            updateFileBrowser={this.updateFileBrowser}
+            currentWorkingDirectory={this.state.currentWorkingDirectory}/>);
+        var content_class_name = this.props.startCollapsed ? "collapsible-content-collapsed" : "collapsible-content";
+        var arrow = this.props.startCollapsed ? <span className='file-browser-arrow'>&#x25B8;</span> : <span className='file-browser-arrow'>&#x25BE;</span>;
+        var header, checkbox;
+        // this.props.hasCheckbox is true in run_bundle_builder for the user to select bundle depedency
+        // In other cases, it is false
+        if (this.props.hasCheckbox) {
+          var url = "/bundles/" + this.props.bundle_uuid;
+          var short_uuid = shorten_uuid(this.props.bundle_uuid);
+          checkbox = (<input
+            type="checkbox"
+            className="run-bundle-check-box"
+            onChange={this.props.handleCheckbox.bind(this, this.props.bundle_uuid, this.props.bundle_name, '')}
+            />);
+          header = (
+            <div className="collapsible-header inline-block">
+              <a href={url} target="_blank">{this.props.bundle_name}({short_uuid})</a>
+              &nbsp;{arrow}
+            </div>);
+          bread_crumbs = null;
+        } else {
+          header = (<div className="collapsible-header"><span><p>contents {arrow}</p></span></div>);
+          checkbox = null
+        }
         return (<div>
-          <div className="collapsible-header"><span><p>contents &#x25BE;</p></span></div>
-          <div className="collapsible-content">
+          {checkbox}
+          {header}
+          <div className={content_class_name}>
             <div className="panel panel-default">
                 {bread_crumbs}
                 <div className="panel-body">
@@ -603,31 +659,37 @@ var FileBrowserItem = React.createClass({
     },
     render: function() {
         var size = '';
+        var file_location = '';
+        if (this.props.currentWorkingDirectory) {
+          file_location = this.props.currentWorkingDirectory + '/' + this.props.index;
+        } else {
+          file_location = this.props.index;
+        }
         if (this.props.hasOwnProperty('size_str'))
           size = this.props['size_str'];
-
+        // this.props.hasCheckbox is true in run_bundle_builder for the user to select bundle depedency
+        // otherwise, it is always false
+        var checkbox = this.props.hasCheckbox ? (<input
+          className="run-bundle-check-box"
+          type="checkbox"
+          onChange={this.props.handleCheckbox.bind(this, this.props.bundle_uuid, this.props.bundle_name, file_location)}
+        />) : null;
         if (this.props.type == 'directory' || this.props.type == '..') {
           item = (
-            <div className={this.props.type} onClick={this.browseToFolder}>
+            <span className={this.props.type} onClick={this.browseToFolder}>
                 <span className="glyphicon-folder-open glyphicon" alt="More"></span>
                 <a target="_blank">{this.props.index}</a>
                 <span className="pull-right">{size}</span>
-            </div>
+            </span>
           );
         } else if (this.props.type == 'file') {
-          var file_location = '';
-          if (this.props.currentWorkingDirectory) {
-            file_location = this.props.currentWorkingDirectory + '/' + this.props.index;
-          } else {
-            file_location = this.props.index;
-          }
           var file_link = '/rest/bundle/' + this.props.bundle_uuid + '/contents/blob/' + encodeURIComponent(file_location);
           item = (
-            <div className={this.props.type}>
+            <span className={this.props.type}>
                 <span className="glyphicon-file glyphicon" alt="More"></span>
                 <a href={file_link} target="_blank">{this.props.index}</a>
                 <span className="pull-right">{size}</span>
-            </div>
+            </span>
           );
         } else if (this.props.type == 'link') {
           item = (
@@ -641,6 +703,7 @@ var FileBrowserItem = React.createClass({
         return (
           <tr>
             <td>
+              {checkbox}
               {item}
             </td>
           </tr>
