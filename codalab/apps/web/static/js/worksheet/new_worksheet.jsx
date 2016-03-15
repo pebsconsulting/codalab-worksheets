@@ -10,13 +10,12 @@ var NewWorksheet = React.createClass({
     };
   },
 
-  componentDidMount: function() {
-    this.setState({newWorksheetName: this.props.userInfo.user_name + SAMPLE_WORKSHEET_TEXT});
-  },
-
   componentWillReceiveProps: function(nextProps) {
     if (nextProps.escCount != this.props.escCount && this.state.showNewWorksheet) {
       this.toggleNewWorksheet();
+    }
+    if (nextProps.userInfo != this.props.userInfo) {
+      this.setState({newWorksheetName: nextProps.userInfo.user_name + SAMPLE_WORKSHEET_TEXT});
     }
   },
 

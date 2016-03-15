@@ -118,10 +118,10 @@ var WorksheetSidePanel = React.createClass({
           escCount={this.props.escCount}
         />;
 
-        var new_worksheet = this.props.userInfo ? <NewWorksheet
+        var new_worksheet = <NewWorksheet
           escCount={this.props.escCount}
           userInfo={this.props.userInfo}
-        />: null;
+        />;
 
         var focus = this.getFocus();
         var side_panel_details = '';
