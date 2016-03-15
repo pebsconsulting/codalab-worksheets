@@ -118,6 +118,11 @@ var WorksheetSidePanel = React.createClass({
           escCount={this.props.escCount}
         />;
 
+        var new_worksheet = this.props.userInfo ? <NewWorksheet
+          escCount={this.props.escCount}
+          userInfo={this.props.userInfo}
+        />: null;
+
         var focus = this.getFocus();
         var side_panel_details = '';
         if (focus) {
@@ -152,6 +157,7 @@ var WorksheetSidePanel = React.createClass({
           <div className="ws-panel">
               {bundle_uploader}
               {run_bundle_builder}
+              {new_worksheet}
               {side_panel_details}
           </div>
         );
@@ -677,7 +683,7 @@ var FileBrowserItem = React.createClass({
             </span>
           );
         } else if (this.props.type == 'file') {
-          var file_link = '/rest/bundle/' + this.props.bundle_uuid + '/contents/blob/' + file_location;
+          var file_link = '/rest/bundle/' + this.props.bundle_uuid + '/contents/blob/' + encodeURIComponent(file_location);
           item = (
             <span className={this.props.type}>
                 <span className="glyphicon-file glyphicon" alt="More"></span>

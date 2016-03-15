@@ -17,6 +17,7 @@ var WorksheetActionBar = React.createClass({
         return;
       }
 
+      var isEnabled = terminal.enabled();
       terminal.pause();
       self.executeCommand(command).then(function (data) {
         if (data.output) {
@@ -35,6 +36,9 @@ var WorksheetActionBar = React.createClass({
         terminal.error(error.responseText);
       }).always(function () {
         terminal.resume();
+        if (!isEnabled) {
+          terminal.disable();
+        }
         self.props.refreshWorksheet();
       });
     }, {

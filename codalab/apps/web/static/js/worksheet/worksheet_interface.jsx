@@ -12,7 +12,7 @@ var Worksheet = React.createClass({
         return {
             ws: new WorksheetContent(this.props.uuid),
             version: 0,  // Increment when we refresh
-            escCount: 0, // Increment when the user presses esc keyboard short cut, a hack to allow esc shortcut to work
+            escCount: 0, // Increment when the user presses esc keyboard shortcut, a hack to allow esc shortcut to work
             activeComponent: 'list',  // Where the focus is (action, list, or side_panel)
             editMode: false,  // Whether we're editing the worksheet
             editorEnabled: false, // Whether the editor is actually showing (sometimes lags behind editMode)
@@ -459,6 +459,7 @@ var Worksheet = React.createClass({
                     uploadBundle={this.uploadBundle}
                     bundleMetadataChanged={this.refreshWorksheet}
                     escCount={this.state.escCount}
+                    userInfo={this.state.userInfo}
                 />
             );
 

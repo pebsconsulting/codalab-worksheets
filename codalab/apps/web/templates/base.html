@@ -102,10 +102,10 @@
                             </ul>
                         </li>
                         <li class="user-not-authenticated">
-                            <a href="/rest/account/signup" target="_self">Sign Up</a>
+                            <a href="{% url 'account_signup' %}" target="_self">Sign Up</a>
                         </li>
                         <li class="user-not-authenticated">
-                            <a href="/rest/account/login?redirect_uri={{request.path|urlencode:""}}" target="_self">Sign In</a>
+                            <a href="{% url 'account_login' %}?next={{request.path|urlencode:""}}" target="_self">Sign In</a>
                         </li>
                     </ul>
                 </div>
