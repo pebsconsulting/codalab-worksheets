@@ -7,11 +7,12 @@
 # PyCharm files
 .idea/
 
+# Local sqlite database
+*.sqlite3
+
 codalab/static
 codalab/config/generated
 codalab/apps/web/static/css/imports.css
 
 venv/
 
-# Dev database file
-*.sqlite3

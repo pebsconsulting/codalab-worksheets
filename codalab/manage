@@ -4,4 +4,5 @@
 #   runserver 0.0.0.0:8000
 #   syncdb --migrate
 # Add --traceback to print out more.
+source ../venv/bin/activate
 exec ../venv/bin/python manage.py "$@"

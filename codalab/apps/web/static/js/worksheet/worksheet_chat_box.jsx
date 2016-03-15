@@ -48,7 +48,7 @@ var WorksheetChatBox = React.createClass({
     var userInfo = this.props.userInfo;
     if (userInfo === null) return;
     $.ajax({
-      url: '/api/chatbox/',
+      url: '/rest/api/chatbox/',
       dataType: 'json',
       cache: false,
       type: 'GET',
@@ -75,7 +75,7 @@ var WorksheetChatBox = React.createClass({
         this.setState({numOfChatHistory: chats.length});
       }.bind(this),
       error: function(xhr, status, err) {
-        console.error(this.props.url, status, err.toString());
+        console.error(xhr.responseText);
       }.bind(this)
     });
   },
@@ -84,7 +84,7 @@ var WorksheetChatBox = React.createClass({
     chatbox.boxManager.addMsg(user, msg);
     this.setState({numOfChatHistory: this.state.numOfChatHistory + 1});
     $.ajax({
-      url: '/api/chatbox/',
+      url: '/rest/api/chatbox/',
       data: {
         senderUserId: this.props.userId,
         recipientUserId: this.props.userInfo.system_user_id,
@@ -99,7 +99,7 @@ var WorksheetChatBox = React.createClass({
         this.setState({numOfChatHistory: this.state.numOfChatHistory + 1});
       }.bind(this),
       error: function (xhr, status, error) {
-        console.error(this.props.url, status, err.toString());
+        console.error(xhr.responseText);
       }.bind(this)
     })
   },

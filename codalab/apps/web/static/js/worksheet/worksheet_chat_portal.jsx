@@ -41,7 +41,7 @@ var WorksheetChatPortalInterface = React.createClass({
 
   componentDidMount: function() {
     $.ajax({
-      url: '/api/chatbox/',
+      url: '/rest/api/chatbox/',
       dataType: 'json',
       cache: false,
       type: 'GET',
@@ -49,7 +49,7 @@ var WorksheetChatPortalInterface = React.createClass({
         this.setState({chats: this.groupChatsToUsers(data.chats)});
       }.bind(this),
       error: function(xhr, status, err) {
-        console.error(this.props.url, status, err.toString());
+        console.error(xhr.responseText);
       }.bind(this)
     });
   },
@@ -83,7 +83,7 @@ var WorksheetChatPortalInterface = React.createClass({
 
   handleAnswerChat: function(recipientUserId, msg) {
     $.ajax({
-      url: '/api/chatbox/',
+      url: '/rest/api/chatbox/',
       dataType: 'json',
       type: 'POST',
       data: {
@@ -96,7 +96,7 @@ var WorksheetChatPortalInterface = React.createClass({
         this.setState({chats: this.groupChatsToUsers(data.chats)});
       }.bind(this),
       error: function(xhr, status, err) {
-        console.error(this.props.url, status, err.toString());
+        console.error(xhr.responseText);
       }.bind(this)
     });
   },

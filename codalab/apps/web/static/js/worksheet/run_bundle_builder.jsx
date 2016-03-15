@@ -152,18 +152,18 @@ var RunBundleBuilder = React.createClass({
           <span className='close' onClick={this.toggleBuilder}>×</span>
           <div className='pop-up-title'>Create Run Bundle</div>
           <div className='run-bundle-container'>
-            <div className='run-bundle-text pop-up-text'>Step 1: Specify your dependencies. You can use the file browser below to drill down.</div>
+            <div className='run-bundle-text pop-up-text'>Select any dependencies (either bundles or the files/directories inside).</div>
             <div id='bundle-browser'>
               {bundles_html}
             </div>
           </div>
           <div className='run-bundle-container'>
-            <div className='run-bundle-text pop-up-text'>Step 2: Run your command. Your dependencies have been put into the same environment for you. </div>
+            <div className='run-bundle-text pop-up-text'>Enter a shell command, which will be run in a directory with the dependencies (rename if desired).</div>
             <div id='run-bundle-terminal'>
               {run_bundle_terminal}
             </div>
           </div>
-          <div className='pop-up-text'>Equivalent web terminal command:>
+          <div className='pop-up-text'>CodaLab>
             <div id='run-bundle-cl-command-container'>
               <div id='run-bundle-cl-command' className='pop-up-command'>{this.state.clCommand}</div>
             </div>
@@ -229,7 +229,7 @@ var BundleBrowser = React.createClass({
 
     if (rows.length === 0) {
       return (<div className='pop-up-text'>
-        You don't have any bundle in this worksheet
+        You don't have any bundles in this worksheet.
       </div>);
     }
     return (

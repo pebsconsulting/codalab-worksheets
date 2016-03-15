@@ -93,7 +93,7 @@ var Worksheet = React.createClass({
         window.history.replaceState({uuid: this.state.ws.uuid}, '', window.location.pathname);
         $('body').addClass('ws-interface');
         $.ajax({
-        url: '/api/users/',
+        url: '/rest/api/users/',
             dataType: 'json',
             cache: false,
             type: 'GET',
@@ -103,7 +103,7 @@ var Worksheet = React.createClass({
                 });
             }.bind(this),
             error: function(xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
+                console.error(xhr.responseText);
             }.bind(this)
         });
     },
@@ -317,16 +317,9 @@ var Worksheet = React.createClass({
                   this.setFocus(items.length - 1, 'end');
             }.bind(this),
             error: function(xhr, status, err) {
-                console.error(this.state.ws.url, status, err);
                 this.setState({updating: false});
 
-                if (xhr.status == 404) {
-                    $("#worksheet-message").html('Worksheet was not found.').addClass('alert-danger alert');
-                } else {
-                    var error_msg = xhr.responseJSON.error;
-                    if (error_msg) err = error_msg;
-                    $("#worksheet-message").html('Worksheet error: ' + err).addClass('alert-danger alert');
-                }
+                $("#worksheet-message").html(xhr.responseText).addClass('alert-danger alert');
                 $('#update_progress').hide();
                 $('#worksheet_container').hide();
             }.bind(this)
@@ -351,26 +344,15 @@ var Worksheet = React.createClass({
         this.state.ws.saveWorksheet({
             success: function(data) {
                 this.setState({updating: false});
-                if ('error' in data) { // TEMP REMOVE FDC
-                    $('#update_progress').hide();
-                    $('#save_error').show();
-                    $("#worksheet-message").html("A save error occurred: <em>" + data.error + "</em> <br /> Please try refreshing the page or saving again").addClass('alert-danger alert').show();
-                    if (from_raw) {
-                        this.toggleEditMode(true);
-                    }
-                }else {
-                    this.refreshWorksheet();
-                }
+                this.refreshWorksheet();
             }.bind(this),
             error: function(xhr, status, err) {
-                console.error(xhr, status, err);
                 this.setState({updating: false});
-                if (xhr.status == 404) {
-                    $("#worksheet-message").html("Worksheet was not found.").addClass('alert-danger alert').show();
-                } else if (xhr.status == 401) {
-                    $("#worksheet-message").html("You do not have permission to edit this worksheet.").addClass('alert-danger alert').show();
-                } else {
-                    $("#worksheet-message").html('Saving failed: ' + err).addClass('alert-danger alert').show();
+                $('#update_progress').hide();
+                $('#save_error').show();
+                $("#worksheet-message").html(xhr.responseText).addClass('alert-danger alert').show();
+                if (from_raw) {
+                    this.toggleEditMode(true);
                 }
             }
         });
