@@ -6,7 +6,7 @@ var WorksheetContent = function() {
     function WorksheetContent(uuid) {
         this.uuid = uuid;
         this.info = null;  // Worksheet info
-        this.url = '/api/worksheets/' + this.uuid + '/';
+        this.url = '/rest/api/worksheets/' + this.uuid + '/';
     }
 
     WorksheetContent.prototype.fetch = function(props) {
@@ -35,6 +35,7 @@ var WorksheetContent = function() {
     };
 
     WorksheetContent.prototype.saveWorksheet = function(props) {
+        if (this.info === undefined) return;
         $('#update_progress').show();
         props = props || {};
         props.success = props.success || function(data){};

@@ -1,0 +1,16 @@
+{% extends 'web/account/base.html' %}
+
+{% load i18n %}
+{% load url from future %}
+
+{% block head_title %}Signup Success{% endblock head_title %}
+{% block page_title %}Signup Success{% endblock page_title %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <h4>Thank you for signing up for a CodaLab account!</h4>
+        <p>A link to verify your account has been sent to {{ request.GET.email }}.</p>
+    </div>
+</div>
+{% endblock %}

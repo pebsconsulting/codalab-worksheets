@@ -1,12 +1,16 @@
 {% extends "base.html" %}
 {% block custom_body_attributes %}{% endblock %}
-{% block head_title %}Worksheet: {{worksheet_title}}{% endblock head_title %}
+{% block head_title %}Worksheet{% endblock head_title %}
 {% block meta %}
-    <meta property="og:title" content="Worksheet: {{worksheet_title}}">
+    <meta property="og:title" content="Worksheet">
     <meta property="og:site_name" content="CodaLab">
     <meta property="og:type" content="article">
     <meta property="og:image" content="{{ request.META.HTTP_HOST }}{{STATIC_URL}}img/codalab-logo.png">
 {% endblock %}
+{% block extra_scripts %}
+<!-- Read a script that fills in the worksheet title. Add a timestamp to prevent caching. -->
+<script src="/rest/titlejs/worksheet/{{ uuid }}/?={% now "U" %}"></script>
+{% endblock extra_scripts %}
 {% block subheader %}{% endblock subheader %}
 
 {% block content_wrapper %}
@@ -115,6 +119,7 @@
     <script src="{{ STATIC_URL }}bower_components/d3/d3.min.js"></script>
     <script src="{{ STATIC_URL }}bower_components/c3/c3.min.js"></script>
 
+
     <script src="{{ STATIC_URL }}bower_components/marked/marked.min.js"></script>
     <script src="{{ STATIC_URL }}js/custom/html4-defs.js"></script>
     <script src="{{ STATIC_URL }}js/custom/html-sanitizer.js"></script>
@@ -122,7 +127,11 @@
     <script src="{{ STATIC_URL }}bower_components/react/react.min.js"></script>
     <script src="{{ STATIC_URL }}bower_components/x-editable/dist/jquery-editable/js/jquery-editable-poshytip.min.js"></script>
     <script src="{{ STATIC_URL }}js/custom/jquery.terminal-0.8.8_custom.min.js"></script>
+    <script src="{{ STATIC_URL }}bower_components/jquery-ui/jquery-ui.min.js"></script>
+    <script src="{{ STATIC_URL }}js/custom/jquery.ui.chatbox.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.12/jquery.mousewheel.js"></script>
+
+    <script src="{{ STATIC_URL }}dist/button.js"></script>
 
     <script src="{{ STATIC_URL }}dist/worksheet_utils.js"></script>
     <script src="{{ STATIC_URL }}dist/worksheet_content.js"></script>
@@ -132,6 +141,11 @@
     {# ------- JSX FILES  ------- #}
     <script src="{{ STATIC_URL }}dist/worksheet_action_bar.js"></script>
     <script src="{{ STATIC_URL }}dist/worksheet_side_panel.js"></script>
+    <script src="{{ STATIC_URL }}dist/new_worksheet.js"></script>
+    <script src="{{ STATIC_URL }}dist/worksheet_chat_box.js"></script>
+    <script src="{{ STATIC_URL }}dist/worksheet_chat_portal.js"></script>
+    <script src="{{ STATIC_URL }}dist/faq.js"></script>
+
     {# bundle type renders/actions #}
     <script src="{{ STATIC_URL }}dist/contents_item_interface.js"></script>
     <script src="{{ STATIC_URL }}dist/html_item_interface.js"></script>
@@ -142,6 +156,7 @@
     <script src="{{ STATIC_URL }}dist/table_item_interface.js"></script>
     <script src="{{ STATIC_URL }}dist/worksheet_item_interface.js"></script>
     <script src="{{ STATIC_URL }}dist/bundle_uploader.js"></script>
+    <script src="{{ STATIC_URL }}dist/run_bundle_builder.js"></script>
     <script src="{{ STATIC_URL }}dist/editable_field.js"></script>
     {# main entry point for the worksheet and its items/bundles #}
     <script src="{{ STATIC_URL }}dist/worksheet_items.js"></script>
