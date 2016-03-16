@@ -12,12 +12,14 @@ var Worksheet = React.createClass({
         return {
             ws: new WorksheetContent(this.props.uuid),
             version: 0,  // Increment when we refresh
+            escCount: 0, // Increment when the user presses esc keyboard shortcut, a hack to allow esc shortcut to work
             activeComponent: 'list',  // Where the focus is (action, list, or side_panel)
             editMode: false,  // Whether we're editing the worksheet
             editorEnabled: false, // Whether the editor is actually showing (sometimes lags behind editMode)
             showActionBar: true,  // Whether the action bar is shown
-            focusIndex: -1, // Which worksheet items to be on (-1 is none)
+            focusIndex: -1,  // Which worksheet items to be on (-1 is none)
             subFocusIndex: 0,  // For tables, which row in the table
+            userInfo: null, // User info of the current user. (null is the default)
         };
     },
 
@@ -89,8 +91,21 @@ var Worksheet = React.createClass({
     componentDidMount: function() {
         // Initialize history stack
         window.history.replaceState({uuid: this.state.ws.uuid}, '', window.location.pathname);
-
         $('body').addClass('ws-interface');
+        $.ajax({
+        url: '/rest/api/users/',
+            dataType: 'json',
+            cache: false,
+            type: 'GET',
+            success: function(data) {
+                this.setState({
+                    userInfo: data.user_info
+                });
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(xhr.responseText);
+            }.bind(this)
+        });
     },
 
     canEdit: function() {
@@ -124,6 +139,7 @@ var Worksheet = React.createClass({
         $('#ws_search').removeAttr('style');
     },
     setupEventHandlers: function() {
+        var self = this;
         // Load worksheet from history when back/forward buttons are used.
         window.onpopstate = function(event) {
             if (event.state == null) return;
@@ -154,6 +170,7 @@ var Worksheet = React.createClass({
             if ($('#glossaryModal').hasClass('in')) {
                 $('#glossaryModal').modal('hide');
             }
+            self.setState({escCount: self.state.escCount + 1});
         });
 
         Mousetrap.bind(['shift+r'], function(e) {
@@ -300,16 +317,9 @@ var Worksheet = React.createClass({
                   this.setFocus(items.length - 1, 'end');
             }.bind(this),
             error: function(xhr, status, err) {
-                console.error(this.state.ws.url, status, err);
                 this.setState({updating: false});
 
-                if (xhr.status == 404) {
-                    $("#worksheet-message").html('Worksheet was not found.').addClass('alert-danger alert');
-                } else {
-                    var error_msg = xhr.responseJSON.error;
-                    if (error_msg) err = error_msg;
-                    $("#worksheet-message").html('Worksheet error: ' + err).addClass('alert-danger alert');
-                }
+                $("#worksheet-message").html(xhr.responseText).addClass('alert-danger alert');
                 $('#update_progress').hide();
                 $('#worksheet_container').hide();
             }.bind(this)
@@ -334,26 +344,15 @@ var Worksheet = React.createClass({
         this.state.ws.saveWorksheet({
             success: function(data) {
                 this.setState({updating: false});
-                if ('error' in data) { // TEMP REMOVE FDC
-                    $('#update_progress').hide();
-                    $('#save_error').show();
-                    $("#worksheet-message").html("A save error occurred: <em>" + data.error + "</em> <br /> Please try refreshing the page or saving again").addClass('alert-danger alert').show();
-                    if (from_raw) {
-                        this.toggleEditMode(true);
-                    }
-                }else {
-                    this.refreshWorksheet();
-                }
+                this.refreshWorksheet();
             }.bind(this),
             error: function(xhr, status, err) {
-                console.error(xhr, status, err);
                 this.setState({updating: false});
-                if (xhr.status == 404) {
-                    $("#worksheet-message").html("Worksheet was not found.").addClass('alert-danger alert').show();
-                } else if (xhr.status == 401) {
-                    $("#worksheet-message").html("You do not have permission to edit this worksheet.").addClass('alert-danger alert').show();
-                } else {
-                    $("#worksheet-message").html('Saving failed: ' + err).addClass('alert-danger alert').show();
+                $('#update_progress').hide();
+                $('#save_error').show();
+                $("#worksheet-message").html(xhr.responseText).addClass('alert-danger alert').show();
+                if (from_raw) {
+                    this.toggleEditMode(true);
                 }
             }
         });
@@ -417,6 +416,22 @@ var Worksheet = React.createClass({
                     setFocus={this.setFocus}
                 />
             );
+        // chat_box only appears if ENABLE_CHAT flag is on in website-config.json and the current user is NOT root user
+        var chat_box_display = info && info.enable_chat && this.state.userInfo && !this.state.userInfo.is_root_user ? (
+                <WorksheetChatBox
+                    ws={this.state.ws}
+                    focusIndex={this.state.focusIndex}
+                    subFocusIndex={this.state.subFocusIndex}
+                    userInfo={this.state.userInfo}
+                />
+            ): null;
+
+        // chat_portal only appears if ENABLE_CHAT flag is on in website-config.json and the current user is root user
+        var chat_portal = info && info.enable_chat && this.state.userInfo && this.state.userInfo.is_root_user ? (
+                <WorksheetChatPortal
+                    userInfo={this.state.userInfo}
+                />
+            ): null;
 
         var items_display = (
                 <WorksheetItemList
@@ -443,6 +458,8 @@ var Worksheet = React.createClass({
                     subFocusIndex={this.state.subFocusIndex}
                     uploadBundle={this.uploadBundle}
                     bundleMetadataChanged={this.refreshWorksheet}
+                    escCount={this.state.escCount}
+                    userInfo={this.state.userInfo}
                 />
             );
 
@@ -451,6 +468,8 @@ var Worksheet = React.createClass({
         return (
             <div id="worksheet" className={searchClassName}>
                 {action_bar_display}
+                {chat_box_display}
+                {chat_portal}
                 <div id="worksheet_panel" className="actionbar-focus">
                     {worksheet_side_panel}
                     <div className="ws-container">

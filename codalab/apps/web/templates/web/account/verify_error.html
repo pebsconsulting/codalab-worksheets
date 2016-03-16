@@ -1,0 +1,15 @@
+{% extends 'web/account/base.html' %}
+
+{% load i18n %}
+{% load url from future %}
+
+{% block head_title %}Account Verification Error{% endblock head_title %}
+{% block page_title %}Account Verification Error{% endblock page_title %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <p>Invalid or expired verification key. Please try again.</p>
+    </div>
+</div>
+{% endblock %}

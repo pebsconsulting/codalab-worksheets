@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Popular arguments
-#   runserver 0.0.0.0:8000
-#   syncdb --migrate
+#   runserver 0.0.0.0:2700
 # Add --traceback to print out more.
+source ../venv/bin/activate
 exec ../venv/bin/python manage.py "$@"

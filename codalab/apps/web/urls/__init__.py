@@ -8,7 +8,7 @@ from .. import views
 
 urlpatterns = patterns('',
     url(r'^$', views.HomePageView.as_view(), name='home'),
-    url(r'^my/', include('apps.web.urls.my')),
     url(r'^worksheets/', include('apps.web.urls.worksheets')),
     url(r'^bundles/', include('apps.web.urls.bundles')),
+    url(r'^account/', include('apps.web.urls.account')),
 )

@@ -39,7 +39,7 @@ var BundleUploader = React.createClass({
     fd.append('bundle_type', 'dataset');
     fd.append('worksheet_uuid', this.props.ws.info.uuid);
     $.ajax({
-      url: '/api/bundles/upload/',
+      url: '/rest/api/bundles/upload/',
       data: fd,
       processData: false,
       contentType: false,
@@ -51,15 +51,7 @@ var BundleUploader = React.createClass({
       }.bind(this),
       error: function (jqHXR, status, error) {
         this.clearUploading(fileEntryKey);
-
-        // Simply display error as an alert box for now.
-        var errorString;
-        if (jqHXR.responseJSON) {
-          errorString = jqHXR.responseJSON['error'];
-        } else {
-          errorString = "Error uploading file.";
-        }
-        alert(errorString);
+        alert(jqHXR.responseText);
       }.bind(this)
     });
   },
@@ -71,13 +63,20 @@ var BundleUploader = React.createClass({
     $(this.refs.fileDialog.getDOMNode()).trigger('click');
   },
   render: function () {
+    var upload_button = (
+      <Button
+        text='Upload'
+        type='primary'
+        handleClick={this.openFileDialog}
+        className="active"
+        id="upload-bundle-button"
+        ref="button"
+        flexibleSize={true}
+      />
+    );
     return (
-      <div>
-
-        <div>
-          <button className="active" id="upload-bundle-button" ref="button" onClick={this.openFileDialog}>Upload bundle</button>
-        </div>
-
+      <div className='inline-block'>
+        {upload_button}
         <div id="bundle-upload-form" tabIndex="-1" aria-hidden="true">
           <form name="uploadForm" encType="multipart/form-data" method="post">
             <input id="uploadInput" type="file" ref="fileDialog" name="file" onChange={this.uploadBundle} />
