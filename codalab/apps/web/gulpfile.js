@@ -6,7 +6,10 @@ var path = require('path');
 
 // Compile JSX for production
 gulp.task('jsx', function() {
-    return gulp.src(['static/js/bundle/*.jsx', 'static/js/worksheet/*.jsx'])
+    return gulp.src(['static/js/bundle/*.jsx',
+                     'static/js/worksheet/*.jsx',
+                     'static/js/widgets/*.jsx',
+                     'static/js/account/*.jsx'])
                .pipe(babel({
                     presets: ['react']
                }))
