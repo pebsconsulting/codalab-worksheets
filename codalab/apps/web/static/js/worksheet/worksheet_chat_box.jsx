@@ -1,4 +1,4 @@
-DEFAULT_ID = '-1'
+window.DEFAULT_ID = '-1';
 
 var WorksheetChatBox = React.createClass({
 
@@ -8,14 +8,14 @@ var WorksheetChatBox = React.createClass({
 
   getInitialState: function() {
     return {
-      worksheetId: DEFAULT_ID,
-      bundleId: DEFAULT_ID,
+      worksheetId: window.DEFAULT_ID,
+      bundleId: window.DEFAULT_ID,
       numOfChatHistory: 0,
     }
   },
 
   componentWillReceiveProps: function(nextProps) {
-    var bundleId = DEFAULT_ID;
+    var bundleId = window.DEFAULT_ID;
     if (this.isFocusBundle(nextProps.focusIndex, nextProps.subFocusIndex)) {
       bundleId = nextProps.ws.info.items[nextProps.focusIndex].bundle_info[nextProps.subFocusIndex].uuid;
     }

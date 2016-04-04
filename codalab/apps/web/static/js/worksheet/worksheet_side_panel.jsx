@@ -533,6 +533,7 @@ var FileBrowser = React.createClass({
 
     render: function() {
         var items = [];
+        var file_browser;
         if (this.state.fileBrowserData.contents) {
           // Parent directory (..)
           if (this.state.currentWorkingDirectory) {
@@ -674,6 +675,7 @@ var FileBrowserItem = React.createClass({
           type="checkbox"
           onChange={this.props.handleCheckbox.bind(this, this.props.bundle_uuid, this.props.bundle_name, file_location)}
         />) : null;
+        var item;
         if (this.props.type == 'directory' || this.props.type == '..') {
           item = (
             <span className={this.props.type} onClick={this.browseToFolder}>
