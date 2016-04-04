@@ -470,7 +470,6 @@ def _deploy():
 
     # Set up the bundles database.
     with cd(env.deploy_codalab_cli_dir):
-        run('scripts/create-default-clients.py')
         run('scripts/create-root-user.py %s' % cfg.getDatabaseAdminPassword())
 
     # Build and install steps for JavaScript application
