@@ -19,6 +19,7 @@ var Worksheet = React.createClass({
             showActionBar: true,  // Whether the action bar is shown
             focusIndex: -1,  // Which worksheet items to be on (-1 is none)
             subFocusIndex: 0,  // For tables, which row in the table
+            numOfBundles: -1, // Number of bundles in this worksheet (-1 is just the initial value)
             userInfo: null, // User info of the current user. (null is the default)
         };
     },
@@ -55,7 +56,7 @@ var Worksheet = React.createClass({
         // Resolve to last row of table
         if (subIndex == 'end')
           subIndex = (this._numTableRows(info.items[index]) || 1) - 1;
-          
+
         // Change the focus - triggers updating of all descendants.
         this.setState({focusIndex: index, subFocusIndex: subIndex});
         this.scrollToItem(index, subIndex);
@@ -303,6 +304,16 @@ var Worksheet = React.createClass({
         $('#command_line').terminal().focus();
     },
 
+    getNumOfBundles: function(items) {
+        var count = 0;
+        items.forEach(function(item) {
+            if (item.mode === 'table' && item.bundle_info) {
+                count += item.bundle_info.length;
+            }
+        })
+        return count;
+    },
+
     refreshWorksheet: function() {
         $('#update_progress').show();
         this.setState({updating: true});
@@ -310,15 +321,17 @@ var Worksheet = React.createClass({
             success: function(data) {
                 $('#update_progress, #worksheet-message').hide();
                 $('#worksheet_content').show();
-                this.setState({updating: false, version: this.state.version + 1});
-                // Fix out of bounds.
                 var items = this.state.ws.info.items;
-                if (this.state.focusIndex >= items.length)
-                  this.setFocus(items.length - 1, 'end');
+                var numOfBundles = this.getNumOfBundles(items);
+                console.log(numOfBundles);
+                var hasNewBundle = this.state.numOfBundles !== -1 && numOfBundles > this.state.numOfBundles;
+                this.setState({updating: false, version: this.state.version + 1, numOfBundles: numOfBundles});
+                // Fix out of bounds OR focus on the newly added bundle.
+                if (this.state.focusIndex >= items.length || hasNewBundle)
+                    this.setFocus(items.length - 1, 'end');
             }.bind(this),
             error: function(xhr, status, err) {
                 this.setState({updating: false});
-
                 $("#worksheet-message").html(xhr.responseText).addClass('alert-danger alert');
                 $('#update_progress').hide();
                 $('#worksheet_container').hide();
