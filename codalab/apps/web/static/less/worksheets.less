@@ -28,7 +28,7 @@
    }
 }
 html, body, #worksheet_container {height:100%;}
-#worksheet-message { 
+#worksheet-message {
    position:absolute;
    left:20px;
    top:100px;
@@ -119,7 +119,6 @@ html, body, #worksheet_container {height:100%;}
       &.actionbar-focus {
          padding-top:@actionbar-focus-height !important;
       }
-      
    }
    .ws-container {
       position: absolute;
@@ -136,6 +135,7 @@ html, body, #worksheet_container {height:100%;}
       right:0;
       height:100%;
       overflow:auto;
+      white-space: nowrap;
       padding: 10px @grid-gutter-width/3;
       background:@panel-bg;
       font-size:14px;
