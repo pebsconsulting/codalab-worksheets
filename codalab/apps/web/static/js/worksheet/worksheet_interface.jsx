@@ -307,7 +307,7 @@ var Worksheet = React.createClass({
     getNumOfBundles: function(items) {
         var count = 0;
         items.forEach(function(item) {
-            if (item.mode === 'table' && item.bundle_info) {
+            if (item.bundle_info) {
                 count += item.bundle_info.length;
             }
         })
@@ -323,11 +323,10 @@ var Worksheet = React.createClass({
                 $('#worksheet_content').show();
                 var items = this.state.ws.info.items;
                 var numOfBundles = this.getNumOfBundles(items);
-                console.log(numOfBundles);
-                var hasNewBundle = this.state.numOfBundles !== -1 && numOfBundles > this.state.numOfBundles;
+                var numOfBundlesChange = this.state.numOfBundles !== -1 && numOfBundles !== this.state.numOfBundles;
                 this.setState({updating: false, version: this.state.version + 1, numOfBundles: numOfBundles});
                 // Fix out of bounds OR focus on the newly added bundle.
-                if (this.state.focusIndex >= items.length || hasNewBundle)
+                if (this.state.focusIndex >= items.length || numOfBundlesChange)
                     this.setFocus(items.length - 1, 'end');
             }.bind(this),
             error: function(xhr, status, err) {
