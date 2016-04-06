@@ -155,9 +155,11 @@ var WorksheetSidePanel = React.createClass({
 
         return (
           <div className="ws-panel">
+            <div className='ws-button-group'>
               {bundle_uploader}
               {run_bundle_builder}
               {new_worksheet}
+            </div>
               {side_panel_details}
           </div>
         );
