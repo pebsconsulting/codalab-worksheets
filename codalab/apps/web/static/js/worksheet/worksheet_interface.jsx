@@ -57,8 +57,8 @@ var Worksheet = React.createClass({
         if (subIndex == 'end')
           subIndex = (this._numTableRows(info.items[index]) || 1) - 1;
         if (index !== -1) {
-            // focusedBundleIs is a list of uuids of all bundles after the selected bundle (itself included)
-            var focusedBundleIdList = []
+            // focusedBundleIdList is a list of uuids of all bundles after the selected bundle (itself included)
+            var focusedBundleIdList = [];
             for (var i = index; i < info.items.length; i++) {
                 var j = i === index ? subIndex : 0;
                 for (;j <= (this._numTableRows(info.items[i]) || 1) - 1; j++) {
@@ -353,8 +353,8 @@ var Worksheet = React.createClass({
                     // If the number of bundles decreases, then focus should be on the same bundle as before
                     // unless that bundle doesn't exist anymore, in which case we select the closest bundle that does exist,
                     // where closest means 'next' by default or 'last' if there is no next bundle.
-                    var focus = this.getFocusAfterBundleRemoved(items)
-                    this.setFocus(focus[0], focus[1])
+                    var focus = this.getFocusAfterBundleRemoved(items);
+                    this.setFocus(focus[0], focus[1]);
                 }
                 this.setState({updating: false, version: this.state.version + 1, numOfBundles: numOfBundles});
             }.bind(this),
