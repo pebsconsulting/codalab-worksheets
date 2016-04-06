@@ -9,15 +9,9 @@ gulp.task('jsx', function() {
   return gulp.src([
       'static/js/bundle/*.jsx',
       'static/js/worksheet/*.jsx',
-      'static/js/widgets/*.jsx',
       'static/js/account/*.jsx'
     ])
-    .pipe(babel({
-      presets: [
-        'react',
-        'es2015'
-      ]
-    }))
+    .pipe(babel({presets: ['react']}))
     .pipe(gulp.dest('static/dist'));
 });
 
