@@ -17,7 +17,6 @@ var Bundle = React.createClass({
             "metadata": {},
             "files": {},
             "fileBrowserData": "",
-            "currentWorkingDirectory": "",
             "editing": false,
             "edit_permission": false,
             "permission": 0,
@@ -87,52 +86,20 @@ var Bundle = React.createClass({
                 $('#bundle-content').hide();
             }.bind(this)
         });
-
-        this.updateFileBrowser();
-    },
-
-    // File browser is updated based on location.hash!
-    updateFileBrowser: function(specific_folder_path, reset_cwd) {
-        var folder_path = specific_folder_path || '';
-
-        // Special case '..' we go up a directory
-        if(folder_path == '..') {
-            // Remove the last directory
-            dirs = this.state.currentWorkingDirectory.split('/');
-            dirs.pop();
-            folder_path = dirs.join('/');
-            // Remove last '/'
-            if(folder_path.substr(-1) == '/') {
-                return folder_path.substr(0, folder_path.length - 1);
-            }
-
-            reset_cwd = true;
-        }
-
-        if(reset_cwd) {
-            this.setState({"currentWorkingDirectory": folder_path});
-        } else {
-            if (this.state.currentWorkingDirectory != '') {
-                folder_path = this.state.currentWorkingDirectory + "/" + folder_path;
-                this.setState({"currentWorkingDirectory": folder_path});
-            } else {
-                this.setState({"currentWorkingDirectory": folder_path});
-            }
-        }
-
         $.ajax({
             type: "GET",
             //  /api/bundles/0x706<...>d5b66e
-            url: document.location.pathname.replace('/bundles/', '/rest/api/bundles/content/') + folder_path + '/', //extra slash at end means root dir
+            url: document.location.pathname.replace('/bundles/', '/rest/api/bundles/content/') + '/', //extra slash at end means root dir
             dataType: 'json',
             cache: false,
             success: function(data) {
+                console.log(data)
                 this.setState({"fileBrowserData": data});
             }.bind(this),
             error: function(xhr, status, err) {
-                $("#bundle-message").html(xhr.responseText).addClass('alert-danger alert');
-                $("#bundle-message").show();
+                this.setState({"fileBrowserData": ""});
                 $('.bundle-file-view-container').hide();
+
             }.bind(this)
         });
     },
@@ -227,12 +194,10 @@ var Bundle = React.createClass({
             );
         }
         /// ------------------------------------------------------------------
-        var fileBrowser = (
+        var fileBrowser = this.state.uuid ? (
                 <FileBrowser
-                    fileBrowserData={this.state.fileBrowserData}
-                    updateFileBrowser={this.updateFileBrowser}
-                    currentWorkingDirectory={this.state.currentWorkingDirectory} />
-            );
+                    bundle_uuid={this.state.uuid} />
+            ) : null;
 
         /// ------------------------------------------------------------------
         var edit = ''
@@ -402,144 +367,5 @@ var BundleAttr = React.createClass({
     }
 });
 
-var FileBrowser = React.createClass({
-    render: function() {
-        var items = [];
-        var item; // so we have 1, see later
-        var files;
-        if(this.props.fileBrowserData.contents) {
-            // .. special item, only on inside dirs (current directory not '')
-            if(this.props.currentWorkingDirectory) {
-                items.push(<FileBrowserItem key=".." index=".."type=".." updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory} />);
-            }
-
-            // One loop for folders so they are on the top of the list
-            for (var i = 0; i < this.props.fileBrowserData.contents.length; i++) {
-                item = this.props.fileBrowserData.contents[i];
-                if (item.type == 'directory') {
-                    items.push(<FileBrowserItem key={item.name} index={item.name} type={item.type} updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory}  />);
-                }
-            }
-
-            // Next loop for files
-            for (var i = 0; i < this.props.fileBrowserData.contents.length; i++) {
-                item = this.props.fileBrowserData.contents[i];
-                if (item.type != 'directory') {
-                    items.push(<FileBrowserItem key={item.name} index={item.name} type={item.type} size={item.size} link={item.link} updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory}  />);
-                }
-            }
-
-            file_browser = (
-                <table className="file-browser-table">
-                    <tbody>
-                        {items}
-                    </tbody>
-                </table>
-                );
-        } else {
-            file_browser = (<b>No files found</b>);
-        }
-
-        var bread_crumbs = (<FileBrowserBreadCrumbs updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory} />);
-        return (
-            <div>
-                <h3>File Browser</h3>
-                <div className="panel panel-default">
-                    {bread_crumbs.props.currentWorkingDirectory.length ? bread_crumbs : null}
-                    <div className="panel-body">
-                        {file_browser}
-                    </div>
-                </div>
-            </div>
-            );
-    }
-});
-
-
-
-var FileBrowserBreadCrumbs = React.createClass({
-    breadCrumbClicked: function(path) {
-        this.props.updateFileBrowser(path, true);
-        console.log("breadcrumb -> "+path);
-    },
-    render: function() {
-        var links = [];
-        var splitDirs = this.props.currentWorkingDirectory.split('/');
-        var currentDirectory = '';
-
-        // Generate list of breadcrumbs separated by ' / '
-        for(var i=0; i < splitDirs.length; i++) {
-            if(i == 0) {
-                currentDirectory += splitDirs[i];
-            } else {
-                currentDirectory += "/" + splitDirs[i];
-            }
-            links.push(<span key={splitDirs[i]} index={splitDirs[i]} onClick={this.breadCrumbClicked.bind(null, currentDirectory)}> / {splitDirs[i]}</span>);
-        }
-
-        return (
-            <div className="panel-heading">{links}</div>
-        );
-    }
-});
-
-var FileBrowserItem = React.createClass({
-    browseToFolder: function(type) {
-        this.props.updateFileBrowser(this.props.index);
-    },
-    render: function() {
-        var size = '';
-        if(this.props.hasOwnProperty('size')){
-            if(this.props.size == 0 || this.props.size === undefined)
-                size = "0 bytes"
-            else{ // we have a real size create a nice human readable version
-                var k = 1000;
-                var sizes = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-                var i = Math.floor(Math.log(this.props.size) / Math.log(k));
-                size = (this.props.size / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
-            }
-        }
-
-        if (this.props.type == 'directory' || this.props.type == '..') {
-            item = (
-              <div className={this.props.type} onClick={this.browseToFolder}>
-                  <span className="glyphicon-folder-open glyphicon" alt="More"></span>
-                  <a target="_blank">{this.props.index}</a>
-                  <span className="pull-right">{size}</span>
-              </div>
-            );
-        } else if (this.props.type == 'file') {
-            var file_location = '';
-            if (this.props.currentWorkingDirectory) {
-                file_location = this.props.currentWorkingDirectory + '/' + this.props.index;
-            } else {
-                file_location = this.props.index;
-            }
-            var file_link = document.location.pathname.replace('/bundles/', '/rest/bundle/') + 'contents/blob/' + encodeURIComponent(file_location);
-            item = (
-              <div className={this.props.type}>
-                  <span className="glyphicon-file glyphicon" alt="More"></span>
-                  <a href={file_link} target="_blank">{this.props.index}</a>
-                  <span className="pull-right">{size}</span>
-              </div>
-            );
-        } else if (this.props.type == 'link') {
-            item = (
-              <div className={this.props.type}>
-                  <span className="glyphicon-file glyphicon" alt="More"></span>
-                  {this.props.index + ' -> ' + this.props.link}
-              </div>
-            );
-        }
-        
-        return (
-          <tr>
-            <td>
-              {item}
-            </td>
-          </tr>
-        )
-    }
-});
 
 React.render(<Bundle />, document.getElementById('bundle-content'));
