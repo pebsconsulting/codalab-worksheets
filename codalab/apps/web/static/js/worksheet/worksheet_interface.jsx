@@ -53,11 +53,8 @@ var Worksheet = React.createClass({
         var info = this.state.ws.info;
         if (index < -1 || index >= info.items.length)
           return;  // Out of bounds (note index = -1 is okay)
-        // Resolve to last row of table
-        console.log(index, subIndex)
         if (index === 'end') {
             index = -1;
-            console.log(index);
             for (var i = info.items.length - 1; i >= 0; i--) {
                 if (info.items[i].bundle_info) {
                     index = i;
