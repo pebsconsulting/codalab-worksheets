@@ -22,6 +22,7 @@ var RunBundleBuilder = React.createClass({
       });
     } else {
       $('#run-bundle-builder').css('display', 'block');
+      $('#run-bundle-terminal-command').focus();
     }
     this.setState({showBuilder: !this.state.showBuilder});
   },
@@ -131,6 +132,7 @@ var RunBundleBuilder = React.createClass({
         handleKeyChange={this.handleKeyChange}
         handleCommandChange={this.handleCommandChange}
         createRunBundle={this.createRunBundle}
+        toggleBuilder={this.toggleBuilder}
       />
     );
 
@@ -256,17 +258,20 @@ var BundleBrowser = React.createClass({
 });
 
 var RunBundleTerminal = React.createClass({
-  // ENTER clicks Run
   handleKeyUp: function(e) {
     if (e.keyCode === 13) {
+      // ENTER clicks Run
       e.preventDefault();
       this.props.createRunBundle();
+    } else if (e.keyCode === 27) {
+      // ESC closes the window
+      this.props.toggleBuilder();
     }
   },
 
   render: function () {
     var command = (<div className='run-bundle-terminal-item'>
-      $ <input type='text' id='run-bundle-terminal-command' className='inline-block run-bundle-terminal-input' value={this.props.command} placeholder="run your program here (e.g 'cat data.txt')" onChange={this.props.handleCommandChange} onKeyUp={this.handleKeyUp}></input>
+      $ <input type='text' id='run-bundle-terminal-command' className='inline-block run-bundle-terminal-input' value={this.props.command} placeholder="date; echo hello" onChange={this.props.handleCommandChange} onKeyUp={this.handleKeyUp}></input>
     </div>
     );
     var depedencies = this.props.selectedDependencies.map(function(d, i) {

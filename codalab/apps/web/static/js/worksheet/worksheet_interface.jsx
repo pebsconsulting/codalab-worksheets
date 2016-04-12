@@ -54,16 +54,31 @@ var Worksheet = React.createClass({
         if (index < -1 || index >= info.items.length)
           return;  // Out of bounds (note index = -1 is okay)
         // Resolve to last row of table
-        if (subIndex == 'end')
+        console.log(index, subIndex)
+        if (index === 'end') {
+            index = -1;
+            console.log(index);
+            for (var i = info.items.length - 1; i >= 0; i--) {
+                if (info.items[i].bundle_info) {
+                    index = i;
+                    break;
+                }
+            }
+        }
+        if (subIndex === 'end')
           subIndex = (this._numTableRows(info.items[index]) || 1) - 1;
         if (index !== -1) {
             // focusedBundleIdList is a list of uuids of all bundles after the selected bundle (itself included)
             var focusedBundleIdList = [];
             for (var i = index; i < info.items.length; i++) {
-                var j = i === index ? subIndex : 0;
-                for (;j <= (this._numTableRows(info.items[i]) || 1) - 1; j++) {
-                    if (info.items[i].bundle_info)
-                        focusedBundleIdList.push(info.items[i].bundle_info[j].uuid);
+                var bundle_info = info.items[i].bundle_info;
+                if (bundle_info) {
+                    if (!Array.isArray(bundle_info))
+                        bundle_info = [bundle_info];
+                    var j = i === index ? subIndex : 0;
+                    for (;j <= (this._numTableRows(info.items[i]) || 1) - 1; j++) {
+                        focusedBundleIdList.push(bundle_info[j].uuid);
+                    }
                 }
             }
         }
@@ -317,8 +332,11 @@ var Worksheet = React.createClass({
     getNumOfBundles: function(items) {
         var count = 0;
         items.forEach(function(item) {
-            if (item.bundle_info) {
-                count += item.bundle_info.length;
+            var bundle_info = item.bundle_info;
+            if (bundle_info) {
+                if (!Array.isArray(bundle_info))
+                    bundle_info = [bundle_info];
+                count += bundle_info.length;
             }
         })
         return count;
@@ -327,14 +345,19 @@ var Worksheet = React.createClass({
     getFocusAfterBundleRemoved: function(items) {
         for (var i = 0; i < this.state.focusedBundleIdList.length; i++) {
             for (var index = 0; index < items.length; index++) {
-                for (var subIndex = 0; subIndex <= (this._numTableRows(items[index]) || 1) - 1; subIndex++) {
-                    if (items[index].bundle_info && items[index].bundle_info[subIndex].uuid == this.state.focusedBundleIdList[i])
-                        return [index, subIndex];
+                var bundle_info = items[index].bundle_info;
+                if (bundle_info) {
+                    if (!Array.isArray(bundle_info))
+                        bundle_info = [bundle_info];
+                    for (var subIndex = 0; subIndex <= (this._numTableRows(items[index]) || 1) - 1; subIndex++) {
+                        if (bundle_info[subIndex].uuid == this.state.focusedBundleIdList[i])
+                            return [index, subIndex];
+                    }
                 }
             }
         }
         // there is no next bundle, use the last bundle
-        return [items.length - 1, 'end']
+        return ['end', 'end']
     },
 
     refreshWorksheet: function() {
