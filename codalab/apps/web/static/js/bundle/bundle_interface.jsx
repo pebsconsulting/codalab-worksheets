@@ -93,13 +93,11 @@ var Bundle = React.createClass({
             dataType: 'json',
             cache: false,
             success: function(data) {
-                console.log(data)
                 this.setState({"fileBrowserData": data});
             }.bind(this),
             error: function(xhr, status, err) {
                 this.setState({"fileBrowserData": ""});
                 $('.bundle-file-view-container').hide();
-
             }.bind(this)
         });
     },
