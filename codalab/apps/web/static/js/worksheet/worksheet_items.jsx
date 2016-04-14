@@ -59,6 +59,32 @@ var WorksheetItemList = React.createClass({
         }.bind(this), 'keydown');
     },
 
+    handleContextMenuSelection: function(uuid, target_type, option) {
+      console.log(uuid, target_type, option)
+      if (target_type === 'bundle') {
+        if (option === 'remove') option = 'rm';
+      } else if (target_type === 'worksheet') {
+        if (option === 'remove') {
+          option = 'wrm';
+        } else if (option === 'force remove') {
+          option = 'wrm --force';
+        }
+      }
+      var command = 'cl ' + option + ' ' + uuid;
+      $('#command_line').terminal().exec(command);
+    },
+
+    handleContextMenu: function(uuid, target_type, e) {
+      e.preventDefault();
+      var options = []
+      if (target_type === 'bundle') {
+        options = ['remove', 'detach', 'kill', 'mimic'];
+      } else if (target_type === 'worksheet') {
+        options = ['remove', 'force remove'];
+      }
+      ContextMenuMixin.openContextMenu(options, this.handleContextMenuSelection.bind(undefined, uuid, target_type))
+    },
+
     render: function() {
         this.capture_keys(); // each item capture keys are handled dynamically after this call
 
@@ -80,6 +106,7 @@ var WorksheetItemList = React.createClass({
                   setFocus: this.props.setFocus,
                   focusActionBar: this.props.focusActionBar,
                   openWorksheet: this.props.openWorksheet,
+                  handleContextMenu: this.handleContextMenu
                 };
                 addWorksheetItems(props, worksheet_items);
             }.bind(this));

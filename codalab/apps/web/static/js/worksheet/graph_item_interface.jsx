@@ -9,6 +9,11 @@ var GraphItem = React.createClass({
       this.props.setFocus(this.props.focusIndex, 0);
     },
 
+    handleContextMenu: function(event) {
+      this.props.setFocus(this.props.focusIndex, 0);
+      this.props.handleContextMenu(this.props.item.bundle_info.uuid, 'bundle', event);
+    },
+
     _xi: function() {
       var props = this.props.item.properties;
       return props.x ? parseInt(props.x) : 0;
@@ -104,7 +109,7 @@ var GraphItem = React.createClass({
 
         var className = 'type-image' + (this.props.focused ? ' focused' : '');
         return (
-            <div className="ws-item" onClick={this.handleClick}>
+            <div className="ws-item" onClick={this.handleClick} onContextMenu={this.handleContextMenu}>
                 <div className={className}>
                     <div id={this._chartId()} />
                 </div>

@@ -94,6 +94,7 @@ var TableItem = React.createClass({
                      canEdit={canEdit}
                      updateRowIndex={self.updateRowIndex}
                      columnWithHyperlinks={column_with_hyperlinks}
+                     handleContextMenu={self.props.handleContextMenu}
                    />;
         });
         return (
@@ -121,8 +122,14 @@ var TableRow = React.createClass({
     getInitialState: function() {
         return { };
     },
+
     handleClick: function() {
         this.props.updateRowIndex(this.props.rowIndex);
+    },
+
+    handleContextMenu: function(event) {
+      this.props.updateRowIndex(this.props.rowIndex);
+      this.props.handleContextMenu(this.props.bundleInfo.uuid, 'bundle', event);
     },
 
     render: function() {
@@ -160,7 +167,7 @@ var TableRow = React.createClass({
         });
 
         return (
-            <tr className={focusedClass} onClick={this.handleClick}>
+            <tr className={focusedClass} onClick={this.handleClick} onContextMenu={this.handleContextMenu}>
                 {row_cells}
             </tr>
         );

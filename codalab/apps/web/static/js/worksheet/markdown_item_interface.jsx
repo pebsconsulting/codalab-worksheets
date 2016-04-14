@@ -49,7 +49,7 @@ var MarkdownItem = React.createClass({
         // http://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
         var className = 'type-markup ' + (this.props.focused ? ' focused' : '');
         return (
-            <div className="ws-item" onClick={this.handleClick}>
+            <div className="ws-item" onClick={this.handleClick} >
                 <div className={className} dangerouslySetInnerHTML={{__html: contents}} />
             </div>
         );

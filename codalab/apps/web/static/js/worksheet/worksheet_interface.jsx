@@ -449,6 +449,10 @@ var Worksheet = React.createClass({
                 />
             );
 
+        var context_menu_display = (
+            <ContextMenu />
+        );
+
         var worksheet_side_panel = (
                 <WorksheetSidePanel
                     ref={"side_panel"}
@@ -465,11 +469,13 @@ var Worksheet = React.createClass({
 
         var worksheet_display = this.state.editMode ? raw_display : items_display;
         var editButtons = this.state.editMode ? editModeFeatures: editFeatures;
+
         return (
             <div id="worksheet" className={searchClassName}>
                 {action_bar_display}
                 {chat_box_display}
                 {chat_portal}
+                {context_menu_display}
                 <div id="worksheet_panel" className="actionbar-focus">
                     {worksheet_side_panel}
                     <div className="ws-container">

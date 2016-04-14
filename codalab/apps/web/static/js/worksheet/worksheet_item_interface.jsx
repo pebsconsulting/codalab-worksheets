@@ -93,6 +93,7 @@ var WorksheetItem = React.createClass({
                      uuid={row_item.interpreted.uuid}
                      canEdit={canEdit}
                      updateRowIndex={self.updateRowIndex}
+                     handleContextMenu={self.props.handleContextMenu}
                    />;
         });
         return (
@@ -121,6 +122,11 @@ var TableWorksheetRow = React.createClass({
       this.props.updateRowIndex(this.props.rowIndex, false);
     },
 
+    handleContextMenu: function(event) {
+      this.props.updateRowIndex(this.props.rowIndex, false);
+      this.props.handleContextMenu(this.props.uuid, 'worksheet', event);
+    },
+
     handleTextClick: function(event) {
       var newWindow = true;
       // TODO: same window is broken, so always open in new window
@@ -146,8 +152,8 @@ var TableWorksheetRow = React.createClass({
         var className = /*'type-worksheet' + */(this.props.focused ? ' focused' : '');
         return (
             <tr className={className}><td>
-              <div onClick={this.handleRowClick}>
-                <a href="javascript:void(0)" onClick={this.handleTextClick}>
+              <div onClick={this.handleRowClick} onContextMenu={this.handleContextMenu}>
+                <a href="javascript:void(0)" onClick={this.handleTextClick} >
                     {worksheet_display}
                 </a>
               </div>
