@@ -93,7 +93,6 @@ var WorksheetItem = React.createClass({
                      uuid={row_item.interpreted.uuid}
                      canEdit={canEdit}
                      updateRowIndex={self.updateRowIndex}
-                     handleContextMenu={self.props.handleContextMenu}
                    />;
         });
         return (
