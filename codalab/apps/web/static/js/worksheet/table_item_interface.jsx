@@ -129,7 +129,7 @@ var TableRow = React.createClass({
 
     handleContextMenu: function(event) {
       this.props.updateRowIndex(this.props.rowIndex);
-      this.props.handleContextMenu(this.props.bundleInfo.uuid, 'bundle', event);
+      this.props.handleContextMenu(this.props.bundleInfo.uuid, event);
     },
 
     render: function() {

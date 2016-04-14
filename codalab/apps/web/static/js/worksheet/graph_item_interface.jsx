@@ -11,7 +11,7 @@ var GraphItem = React.createClass({
 
     handleContextMenu: function(event) {
       this.props.setFocus(this.props.focusIndex, 0);
-      this.props.handleContextMenu(this.props.item.bundle_info.uuid, 'bundle', event);
+      this.props.handleContextMenu(this.props.item.bundle_info.uuid, event);
     },
 
     _xi: function() {

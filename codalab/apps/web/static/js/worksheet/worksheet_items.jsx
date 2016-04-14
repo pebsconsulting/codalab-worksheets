@@ -59,30 +59,15 @@ var WorksheetItemList = React.createClass({
         }.bind(this), 'keydown');
     },
 
-    handleContextMenuSelection: function(uuid, target_type, option) {
-      console.log(uuid, target_type, option)
-      if (target_type === 'bundle') {
-        if (option === 'remove') option = 'rm';
-      } else if (target_type === 'worksheet') {
-        if (option === 'remove') {
-          option = 'wrm';
-        } else if (option === 'force remove') {
-          option = 'wrm --force';
-        }
-      }
+    handleContextMenuSelection: function(uuid, option) {
+      if (option === 'remove') option = 'rm';
       var command = 'cl ' + option + ' ' + uuid;
       $('#command_line').terminal().exec(command);
     },
 
-    handleContextMenu: function(uuid, target_type, e) {
+    handleContextMenu: function(uuid, e) {
       e.preventDefault();
-      var options = []
-      if (target_type === 'bundle') {
-        options = ['remove', 'detach', 'kill', 'mimic'];
-      } else if (target_type === 'worksheet') {
-        options = ['remove', 'force remove'];
-      }
-      ContextMenuMixin.openContextMenu(options, this.handleContextMenuSelection.bind(undefined, uuid, target_type))
+      ContextMenuMixin.openContextMenu(['remove', 'detach', 'kill', 'mimic'], this.handleContextMenuSelection.bind(undefined, uuid))
     },
 
     render: function() {
