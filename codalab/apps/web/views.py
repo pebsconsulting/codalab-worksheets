@@ -59,6 +59,34 @@ class VerifyErrorView(TemplateView):
     template_name = 'web/account/verify_error.html'
 
 
+class ResetView(TemplateView):
+    """
+    Request password reset.
+    """
+    template_name = 'web/account/reset.html'
+
+
+class ResetSentView(TemplateView):
+    """
+    Password reset sent message.
+    """
+    template_name = 'web/account/reset_sent.html'
+
+
+class ResetVerifiedView(TemplateView):
+    """
+    Password reset form after reset code is verified.
+    """
+    template_name = 'web/account/reset_verified.html'
+
+
+class ResetCompleteView(TemplateView):
+    """
+    Password reset complete message.
+    """
+    template_name = 'web/account/reset_complete.html'
+
+
 class ProfileView(TemplateView):
     """
     Account profile edit page.

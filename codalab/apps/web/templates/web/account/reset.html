@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% load url from future %}
+
+{% block head_title %}Password Reset{% endblock head_title %}
+{% block page_title %}Password Reset{% endblock page_title %}
+
+{% block content %}
+<p class="user-authenticated">You're already logged in!</p>
+<p class="user-not-authenticated">Forgot your password? Enter your e-mail address below, and we'll send you an e-mail allowing you to reset it.</p>
+<div class="user-not-authenticated row">
+    <div class="col-md-6">
+        {% if request.GET.error %}
+        <div class="alert alert-error">
+            {{request.GET.error}}
+        </div>
+        {% endif %}
+        <form method="POST" action="/rest/account/reset" class="password_reset">
+            <div class="form-group">
+                <div class="form-group">
+                    <label for="id_email">Email:</label>
+                    <input id="id_email" class="form-control" name="email" placeholder="Email address" type="email" autofocus required>
+                </div>
+            </div>
+            <input class="btn btn-primary margin-top" type="submit" value="Request Password Reset" %}" />
+        </form>
+    </div>
+</div>
+{% endblock %}
