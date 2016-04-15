@@ -85,3 +85,10 @@ class ResetCompleteView(TemplateView):
     Password reset complete message.
     """
     template_name = 'web/account/reset_complete.html'
+
+
+class ProfileView(TemplateView):
+    """
+    Account profile edit page.
+    """
+    template_name = 'web/account/profile.html'

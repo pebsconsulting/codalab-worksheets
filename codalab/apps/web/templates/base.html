@@ -52,11 +52,6 @@
 
     {% block extra_scripts %}
     {% endblock extra_scripts %}
-
-
-    <script type="text/javascript">
-
-    </script>
 </head>
 
 <body {% block custom_body_attributes %}{% endblock %}>
@@ -98,6 +93,7 @@
                                 <img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini-avatar"> <span class="user-name"></span> <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu" role="menu">
+                                <li><a href="{% url 'account_profile' %}" target="_self">My Account</a></li>
                                 <li><a href="/rest/account/logout?redirect_uri={{request.path|urlencode:""}}" target="_self">Sign Out</a></li>
                             </ul>
                         </li>

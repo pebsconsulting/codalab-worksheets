@@ -12,4 +12,5 @@ urlpatterns = patterns(
     url(r'reset/sent$', views.ResetSentView.as_view(), name="account_reset_sent"),
     url(r'reset/verified$', views.ResetVerifiedView.as_view(), name="account_reset_verified"),
     url(r'reset/complete$', views.ResetCompleteView.as_view(), name="account_reset_complete"),
+    url(r'profile$', views.ProfileView.as_view(), name="account_profile"),
 )
