@@ -57,3 +57,10 @@ class VerifyErrorView(TemplateView):
     Verify error text.
     """
     template_name = 'web/account/verify_error.html'
+
+
+class ProfileView(TemplateView):
+    """
+    Account profile edit page.
+    """
+    template_name = 'web/account/profile.html'

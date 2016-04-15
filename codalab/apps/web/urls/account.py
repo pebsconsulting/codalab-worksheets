@@ -8,4 +8,5 @@ urlpatterns = patterns(
     url(r'signup/success$', views.SignupSuccessView.as_view(), name="account_signup_success"),
     url(r'verify/success$', views.VerifySuccessView.as_view(), name="account_verify_success"),
     url(r'verify/error$', views.VerifyErrorView.as_view(), name="account_verify_error"),
+    url(r'profile$', views.ProfileView.as_view(), name="account_profile"),
 )
