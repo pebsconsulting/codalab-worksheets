@@ -5,6 +5,13 @@ var AccountProfile = React.createClass({
       errors: {}
     };
   },
+  processData: function(response) {
+    // Shim in links to change email and password
+    var user = response.data;
+    user.attributes.email = <span>{user.attributes.email} <a href="/account/changeemail">(change)</a></span>;
+    user.attributes.password = <span>******** <a href="/rest/account/reset">(change)</a></span>;
+    return user;
+  },
   componentDidMount: function() {
     $.ajax({
       method: 'GET',
@@ -13,7 +20,7 @@ var AccountProfile = React.createClass({
       context: this
     }).done(function(response) {
       this.setState({
-        user: response.data
+        user: this.processData(response)
       });
     }).fail(function(xhr, status, err) {
       this.setState({
@@ -46,7 +53,7 @@ var AccountProfile = React.createClass({
       var errors = $.extend({}, this.state.errors);
       delete errors[key];
       this.setState({
-        user: response.data,
+        user: this.processData(response),
         errors: errors
       });
     }).fail(function(xhr, status, err) {
@@ -67,6 +74,7 @@ var AccountProfile = React.createClass({
     return <form className="account-profile-form">
       <AccountProfileField {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Username" fieldKey="user_name" />
       <AccountProfileField {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Email" fieldKey="email" readOnly />
+      <AccountProfileField {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Password" fieldKey="password" readOnly />
       <AccountProfileField {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="First Name" fieldKey="first_name" />
       <AccountProfileField {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Last Name" fieldKey="last_name" />
       <AccountProfileField {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Affiliation" fieldKey="affiliation" />
