@@ -1,5 +1,4 @@
 Django==1.5.9
-alembic==0.6.7
 anyjson==0.3.3
 argparse
 azure==0.7.1
@@ -31,7 +30,6 @@ six==1.10.0
 South==1.0.2
 watchdog==0.8.1
 wsgiref==0.1.2
-django-simple-captcha==0.4.5
 django-bootstrap-form==3.2
 newrelic==2.54.0.41
 python-memcached==1.57
@@ -42,6 +40,7 @@ pycrypto==2.6
 
 # For deployment
 Fabric==1.10.2
+paramiko==1.16.0
 
 # For tests
 selenium==2.48.0

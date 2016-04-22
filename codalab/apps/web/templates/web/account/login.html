@@ -1,4 +1,4 @@
-{% extends 'web/account/base.html' %}
+{% extends "base.html" %}
 
 {% load i18n %}
 {% load url from future %}
@@ -7,7 +7,8 @@
 {% block page_title %}Sign In{% endblock page_title %}
 
 {% block content %}
-<div class="row">
+<p class="user-authenticated">You're already logged in!</p>
+<div class="row user-not-authenticated">
     <div class="col-md-6">
         <form class="login" method="POST" action="/rest/account/login">
             {% if request.GET.error %}
@@ -15,7 +16,6 @@
                     {{request.GET.error}}
                 </div>
             {% endif %}
-
             <div class="form-group">
                 <label for="id_login">Login:</label>
                 <input id="id_login" class="form-control" name="username" placeholder="Username or e-mail" type="text" autofocus>
@@ -30,10 +30,8 @@
         </form>
         <p>
         <p><a href="{% url 'account_signup' %}">Don't have an account? Sign up!</a></p>
-        <!-- TODO(sckoo): reimplement password reset
-        <p><a href="../password/reset/">Forgot your password?</a></p>
-        -->
-        <a href="" onclick="alert('Please attempt logging in again to resend confirmation email.'); return false;">Resend confirmation email</a>
+        <p><a href="{% url 'account_reset' %}">Forgot your password?</a></p>
+        <a href="" onclick="alert('Please log in and navigate to your dashboard to resend confirmation email.'); return false;">Resend confirmation email</a>
     </div>
 </div>
 {% endblock %}

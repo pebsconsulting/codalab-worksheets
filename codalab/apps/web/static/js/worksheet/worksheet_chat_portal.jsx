@@ -1,4 +1,4 @@
-DEFAULT_ID = '-1';
+window.DEFAULT_ID = '-1';
 
 var WorksheetChatPortal = React.createClass({
 
@@ -89,8 +89,8 @@ var WorksheetChatPortalInterface = React.createClass({
       data: {
         recipientUserId: recipientUserId,
         message: msg,
-        worksheetId: DEFAULT_ID,
-        bundleId: DEFAULT_ID,
+        worksheetId: window.DEFAULT_ID,
+        bundleId: window.DEFAULT_ID,
       },
       success: function(data) {
         this.setState({chats: this.groupChatsToUsers(data.chats)});
