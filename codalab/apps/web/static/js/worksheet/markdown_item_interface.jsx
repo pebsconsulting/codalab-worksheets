@@ -67,7 +67,7 @@ var MarkdownItem = React.createClass({
             //   0123456 [indices]
             //   $$x^2$$ [text]
             //   start = 0, inStart = 2, inEnd = 5, end = 7
-            start = text.indexOf("$", curr);
+            var start = text.indexOf("$", curr);
             if (start === -1) break;  // No more math blocks
             var inStart = (text[start + 1] == '$' ? start + 2 : start + 1);
             var inEnd = text.indexOf('$', inStart);
