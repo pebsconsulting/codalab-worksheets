@@ -40,6 +40,7 @@ pycrypto==2.6
 
 # For deployment
 Fabric==1.10.2
+paramiko==1.16.0
 
 # For tests
 selenium==2.48.0
