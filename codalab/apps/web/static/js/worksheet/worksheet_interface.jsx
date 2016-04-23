@@ -46,7 +46,7 @@ var Worksheet = React.createClass({
       }
     },
 
-    setFocus: function(index, subIndex) {
+    setFocus: function(index, subIndex, shouldScroll=true) {
         //console.log('setFocus', index, subIndex);
         var info = this.state.ws.info;
         if (index < -1 || index >= info.items.length)
@@ -58,7 +58,7 @@ var Worksheet = React.createClass({
           
         // Change the focus - triggers updating of all descendants.
         this.setState({focusIndex: index, subFocusIndex: subIndex});
-        this.scrollToItem(index, subIndex);
+        if(shouldScroll) this.scrollToItem(index, subIndex);
     },
 
     scrollToItem: function(index, subIndex) {

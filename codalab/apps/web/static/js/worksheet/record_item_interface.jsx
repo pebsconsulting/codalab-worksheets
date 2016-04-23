@@ -10,11 +10,6 @@ var RecordItem = React.createClass({
         this.props.setFocus(this.props.focusIndex, 0);
     },
 
-    handleContextMenu: function(event) {
-      this.props.setFocus(this.props.focusIndex, 0);
-      this.props.handleContextMenu(this.props.item.bundle_info.uuid, event);
-    },
-
     shouldComponentUpdate: function(nextProps, nextState) {
       return worksheetItemPropsChanged(this.props, nextProps);
     },
@@ -22,6 +17,7 @@ var RecordItem = React.createClass({
     render: function() {
         var item = this.props.item;
         var className = 'table table-record' + (this.props.focused ? ' focused' : '');
+        var bundleInfo = this.props.item.bundle_info;
         var header = item.interpreted[0];
         var k = header[0];
         var v = header[1];
@@ -39,7 +35,7 @@ var RecordItem = React.createClass({
             )
         });
         return (
-            <div className="ws-item" onClick={this.handleClick} onContextMenu={this.handleContextMenu}>
+            <div className="ws-item" onClick={this.handleClick} onContextMenu={this.props.handleContextMenu.bind(null, bundleInfo.uuid, this.props.focusIndex, 0, bundleInfo.bundle_type === 'run')}>
                 <div className="type-record">
                     <table className={className}>
                         <tbody>

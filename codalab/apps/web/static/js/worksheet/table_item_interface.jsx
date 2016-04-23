@@ -86,6 +86,7 @@ var TableItem = React.createClass({
                      item={row_item}
                      rowIndex={row_index}
                      focused={row_focused}
+                     focusIndex={self.props.focusIndex}
                      url={url}
                      bundleInfo={bundle_info[row_index]}
                      uuid={bundle_info[row_index].uuid}
@@ -127,11 +128,6 @@ var TableRow = React.createClass({
         this.props.updateRowIndex(this.props.rowIndex);
     },
 
-    handleContextMenu: function(event) {
-      this.props.updateRowIndex(this.props.rowIndex);
-      this.props.handleContextMenu(this.props.bundleInfo.uuid, event);
-    },
-
     render: function() {
         var focusedClass = this.props.focused ? 'focused' : '';
         var row_items = this.props.item;
@@ -167,7 +163,7 @@ var TableRow = React.createClass({
         });
 
         return (
-            <tr className={focusedClass} onClick={this.handleClick} onContextMenu={this.handleContextMenu}>
+            <tr className={focusedClass} onClick={this.handleClick} onContextMenu={this.props.handleContextMenu.bind(null, this.props.bundleInfo.uuid, this.props.focusIndex, this.props.rowIndex, this.props.bundleInfo.bundle_type === 'run')}>
                 {row_cells}
             </tr>
         );

@@ -60,14 +60,16 @@ var WorksheetItemList = React.createClass({
     },
 
     handleContextMenuSelection: function(uuid, option) {
-      if (option === 'remove') option = 'rm';
       var command = 'cl ' + option + ' ' + uuid;
+      if (option === 'add bundle') command += ' /';
       $('#command_line').terminal().exec(command);
     },
 
-    handleContextMenu: function(uuid, e) {
+    handleContextMenu: function(uuid, focusIndex, subFocusIndex, isRunBundle, e) {
       e.preventDefault();
-      ContextMenuMixin.openContextMenu(['remove', 'detach', 'kill', 'mimic'], this.handleContextMenuSelection.bind(undefined, uuid))
+      this.props.setFocus(focusIndex, subFocusIndex, false);
+      var bundleType = isRunBundle ? 'run' : 'bundle';
+      ContextMenuMixin.openContextMenu(bundleType, this.handleContextMenuSelection.bind(undefined, uuid))
     },
 
     render: function() {
