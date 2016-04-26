@@ -20,7 +20,7 @@ var Worksheet = React.createClass({
             focusIndex: -1,  // Which worksheet items to be on (-1 is none)
             subFocusIndex: 0,  // For tables, which row in the table
             numOfBundles: -1, // Number of bundles in this worksheet (-1 is just the initial value)
-            focusedBundleIdList: [], // Uuid of the focused bundle and that of all bundles after it
+            focusedBundleUuidList: [], // Uuid of the focused bundle and that of all bundles after it
             userInfo: null, // User info of the current user. (null is the default)
         };
     },
@@ -65,22 +65,20 @@ var Worksheet = React.createClass({
         if (subIndex === 'end')
           subIndex = (this._numTableRows(info.items[index]) || 1) - 1;
         if (index !== -1) {
-            // focusedBundleIdList is a list of uuids of all bundles after the selected bundle (itself included)
-            var focusedBundleIdList = [];
+            // focusedBundleUuidList is a list of uuids of all bundles after the selected bundle (itself included)
+            var focusedBundleUuidList = [];
             for (var i = index; i < info.items.length; i++) {
-                var bundle_info = info.items[i].bundle_info;
+                var bundle_info = this.factorBundleInfo(info.items[i].bundle_info);
                 if (bundle_info) {
-                    if (!Array.isArray(bundle_info))
-                        bundle_info = [bundle_info];
                     var j = i === index ? subIndex : 0;
-                    for (;j <= (this._numTableRows(info.items[i]) || 1) - 1; j++) {
-                        focusedBundleIdList.push(bundle_info[j].uuid);
+                    for (; j < (this._numTableRows(info.items[i]) || 1); j++) {
+                        focusedBundleUuidList.push(bundle_info[j].uuid);
                     }
                 }
             }
         }
         // Change the focus - triggers updating of all descendants.
-        this.setState({focusIndex: index, subFocusIndex: subIndex, focusedBundleIdList: focusedBundleIdList});
+        this.setState({focusIndex: index, subFocusIndex: subIndex, focusedBundleUuidList: focusedBundleUuidList});
         this.scrollToItem(index, subIndex);
     },
 
@@ -320,41 +318,46 @@ var Worksheet = React.createClass({
     toggleActionBar: function() {
         this.setState({showActionBar: !this.state.showActionBar});
     },
+
     focusActionBar: function() {
         this.setState({activeComponent: 'action'});
         this.setState({showActionBar: true});
         $('#command_line').terminal().focus();
     },
 
+    factorBundleInfo: function(bundle_info) {
+      if (!bundle_info) return null;
+      if (!Array.isArray(bundle_info)) {
+        bundle_info = [bundle_info];
+      }
+      return bundle_info;
+    },
+
     getNumOfBundles: function(items) {
         var count = 0;
-        items.forEach(function(item) {
-            var bundle_info = item.bundle_info;
+        for (var i = 0; i < items.length; i++) {
+            var bundle_info = this.factorBundleInfo(items[i].bundle_info);
             if (bundle_info) {
-                if (!Array.isArray(bundle_info))
-                    bundle_info = [bundle_info];
                 count += bundle_info.length;
             }
-        })
+        }
         return count;
     },
 
     getFocusAfterBundleRemoved: function(items) {
-        for (var i = 0; i < this.state.focusedBundleIdList.length; i++) {
+        for (var i = 0; i < this.state.focusedBundleUuidList.length; i++) {
             for (var index = 0; index < items.length; index++) {
-                var bundle_info = items[index].bundle_info;
+                var bundle_info = this.factorBundleInfo(items[index].bundle_info);
                 if (bundle_info) {
-                    if (!Array.isArray(bundle_info))
-                        bundle_info = [bundle_info];
                     for (var subIndex = 0; subIndex <= (this._numTableRows(items[index]) || 1) - 1; subIndex++) {
-                        if (bundle_info[subIndex].uuid == this.state.focusedBundleIdList[i])
+                        if (bundle_info[subIndex].uuid == this.state.focusedBundleUuidList[i])
                             return [index, subIndex];
                     }
                 }
             }
         }
         // there is no next bundle, use the last bundle
-        return ['end', 'end']
+        return ['end', 'end'];
     },
 
     refreshWorksheet: function() {
