@@ -51,8 +51,7 @@ var Worksheet = React.createClass({
     setFocus: function(index, subIndex) {
         //console.log('setFocus', index, subIndex);
         var info = this.state.ws.info;
-        if (index < -1 || index >= info.items.length)
-          return;  // Out of bounds (note index = -1 is okay)
+        // resolve to the last item that contains bundle(s)
         if (index === 'end') {
             index = -1;
             for (var i = info.items.length - 1; i >= 0; i--) {
@@ -62,13 +61,22 @@ var Worksheet = React.createClass({
                 }
             }
         }
-        if (subIndex === 'end')
-          subIndex = (this._numTableRows(info.items[index]) || 1) - 1;
+        // resolve to the last row of the selected item
+        if (subIndex === 'end') {
+            subIndex = (this._numTableRows(info.items[index]) || 1) - 1;
+        }
+        if (index < -1 || index >= info.items.length || subIndex < 0 || subIndex >= (this._numTableRows(info.items[index]) || 1)) {
+          console.log('out of bound')
+          return;  // Out of bounds (note index = -1 is okay)
+        }
         if (index !== -1) {
+            // index !== -1 means something is selected.
             // focusedBundleUuidList is a list of uuids of all bundles after the selected bundle (itself included)
+            // Say the selected bundle has focusIndex 1 and subFocusIndex 2, then focusedBundleUuidList will include the uuids of
+            // all the bundles that have focusIndex 1 and subFocusIndex >= 2, and also all the bundles that have focusIndex > 1
             var focusedBundleUuidList = [];
             for (var i = index; i < info.items.length; i++) {
-                var bundle_info = this.factorBundleInfo(info.items[i].bundle_info);
+                var bundle_info = this.ensureIsArray(info.items[i].bundle_info);
                 if (bundle_info) {
                     var j = i === index ? subIndex : 0;
                     for (; j < (this._numTableRows(info.items[i]) || 1); j++) {
@@ -325,7 +333,7 @@ var Worksheet = React.createClass({
         $('#command_line').terminal().focus();
     },
 
-    factorBundleInfo: function(bundle_info) {
+    ensureIsArray: function(bundle_info) {
       if (!bundle_info) return null;
       if (!Array.isArray(bundle_info)) {
         bundle_info = [bundle_info];
@@ -336,7 +344,7 @@ var Worksheet = React.createClass({
     getNumOfBundles: function(items) {
         var count = 0;
         for (var i = 0; i < items.length; i++) {
-            var bundle_info = this.factorBundleInfo(items[i].bundle_info);
+            var bundle_info = this.ensureIsArray(items[i].bundle_info);
             if (bundle_info) {
                 count += bundle_info.length;
             }
@@ -347,9 +355,9 @@ var Worksheet = React.createClass({
     getFocusAfterBundleRemoved: function(items) {
         for (var i = 0; i < this.state.focusedBundleUuidList.length; i++) {
             for (var index = 0; index < items.length; index++) {
-                var bundle_info = this.factorBundleInfo(items[index].bundle_info);
+                var bundle_info = this.ensureIsArray(items[index].bundle_info);
                 if (bundle_info) {
-                    for (var subIndex = 0; subIndex <= (this._numTableRows(items[index]) || 1) - 1; subIndex++) {
+                    for (var subIndex = 0; subIndex < (this._numTableRows(items[index]) || 1); subIndex++) {
                         if (bundle_info[subIndex].uuid == this.state.focusedBundleUuidList[i])
                             return [index, subIndex];
                     }
@@ -371,6 +379,7 @@ var Worksheet = React.createClass({
                 var numOfBundles = this.getNumOfBundles(items);
                 if (this.state.numOfBundles !== -1 && numOfBundles > this.state.numOfBundles) {
                     // If the number of bundles increases then the focus should be on the new bundles.
+                    // this.setFocus('end', 'end');
                     this.setFocus(items.length - 1, 'end');
                 } else if (numOfBundles < this.state.numOfBundles) {
                     // If the number of bundles decreases, then focus should be on the same bundle as before
