@@ -65,7 +65,7 @@ var Worksheet = React.createClass({
         if (subIndex === 'end') {
             subIndex = (this._numTableRows(info.items[index]) || 1) - 1;
         }
-        if (index < -1 || index >= info.items.length || subIndex < 0 || subIndex >= (this._numTableRows(info.items[index]) || 1)) {
+        if (index < -1 || index >= info.items.length || subIndex < -1 || subIndex >= (this._numTableRows(info.items[index]) || 1)) {
           console.log('out of bound')
           return;  // Out of bounds (note index = -1 is okay)
         }
