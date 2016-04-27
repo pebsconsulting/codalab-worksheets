@@ -55,7 +55,7 @@ var Worksheet = React.createClass({
         // Resolve to last row of table
         if (subIndex == 'end')
           subIndex = (this._numTableRows(info.items[index]) || 1) - 1;
-
+          
         // Change the focus - triggers updating of all descendants.
         this.setState({focusIndex: index, subFocusIndex: subIndex});
         this.scrollToItem(index, subIndex);
