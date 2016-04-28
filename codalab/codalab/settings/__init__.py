@@ -194,12 +194,13 @@ class Base(Settings):
 
         # This is used to manage the HTML page hierarchy for the competition
         'mptt',
+        
+        # This is usef for generating config files.
+        'django_config_gen',
 
         # TODO: Document the need for these
-        'django_config_gen',
         'compressor',
         'django_js_reverse',
-        'captcha',
         'bootstrapform',
 
         # Django Nose !!Important!! This needs to come after South.
