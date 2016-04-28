@@ -4,6 +4,40 @@
 //                        ref="bundle_info_side_panel"
 //                        bundleMetadataChanged={this.props.bundleMetadataChanged}
 //                      />;
+var BundleWrapper = React.createClass({
+    getInitialState: function(){
+      return {
+        bundle_info: null
+      };
+    },
+    componentWillMount: function() {
+      $.ajax({
+        type: "GET",
+        //  /api/bundles/0x706<...>d5b66e
+        url: "/rest/api" + document.location.pathname,
+        dataType: 'json',
+        cache: false,
+        success: function(data) {
+            if(this.isMounted()){
+              console.log('get bundle info')
+                this.setState({bundle_info: data});
+            }
+            $("#bundle-message").hide().removeClass('alert-danger alert');
+        }.bind(this),
+        error: function(xhr, status, err) {
+            $("#bundle-message").html(xhr.responseText).addClass('alert-danger alert');
+            $("#bundle-message").show();
+            $('#bundle-content').hide();
+        }.bind(this)
+    });
+  },
+
+  render: function() {
+    return this.state.bundle_info ? <Bundle
+      bundle_info={this.state.bundle_info}
+    />: null;
+  }
+})
 
 var Bundle = React.createClass({
     getInitialState: function() {
@@ -11,6 +45,7 @@ var Bundle = React.createClass({
     },
 
     fetchExtra: function() {
+      console.log('fetch extra')
       // Fetch detailed information about this bundle.
       var bundle_info = this.state;
       //console.log('BundleDetailSidePanel.fetchExtra', bundle_info.uuid);
@@ -610,4 +645,4 @@ function renderHostWorksheets(bundle_info) {
 // });
 
 
-React.render(<Bundle />, document.getElementById('bundle-content'));
+React.render(<BundleWrapper />, document.getElementById('bundle-content'));
