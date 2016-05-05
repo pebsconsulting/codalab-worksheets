@@ -755,7 +755,7 @@
         self.addClass('cmd');
         self.append('<span class="prompt"></span><span></span>' +
                     '<span class="cursor">&nbsp;</span><span></span>');
-        var clip = $('<textarea><textarea/>').addClass('clipboard').appendTo(self);
+        var clip = $('<textarea>').addClass('clipboard').appendTo(self);
         var contentEditable = $('<div contentEditable></div>')
         $(document.body).append(contentEditable);
         if (options.width) {
@@ -1093,6 +1093,7 @@
         // :: Paste content to terminal using hidden textarea
         // -----------------------------------------------------------------------
         function paste() {
+          console.log(clip.val())
             self.insert(clip.val());
             clip.blur().val('');
         }
