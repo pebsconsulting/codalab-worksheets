@@ -113,10 +113,21 @@ var Worksheet = React.createClass({
         this.throttledScrollToItem(index, subIndex);
     },
 
-
     componentWillMount: function() {
-        this.state.ws.fetch({async: false});
+        this.state.ws.fetch({
+          success: function(data) {
+              $('#worksheet-message').hide();
+              $('#worksheet_content').show();
+              this.setState({updating: false, version: this.state.version + 1});
+              // Fix out of bounds.
+          }.bind(this),
+          error: function(xhr, status, err) {
+              $("#worksheet-message").html(xhr.responseText).addClass('alert-danger alert');
+              $('#worksheet_container').hide();
+          }.bind(this)
+        });
     },
+
     componentDidMount: function() {
         // Initialize history stack
         window.history.replaceState({uuid: this.state.ws.uuid}, '', window.location.pathname);
