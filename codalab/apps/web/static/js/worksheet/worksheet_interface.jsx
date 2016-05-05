@@ -379,8 +379,7 @@ var Worksheet = React.createClass({
                 var numOfBundles = this.getNumOfBundles(items);
                 if (this.state.numOfBundles !== -1 && numOfBundles > this.state.numOfBundles) {
                     // If the number of bundles increases then the focus should be on the new bundles.
-                    // this.setFocus('end', 'end');
-                    this.setFocus(items.length - 1, 'end');
+                    this.setFocus('end', 'end');
                 } else if (numOfBundles < this.state.numOfBundles) {
                     // If the number of bundles decreases, then focus should be on the same bundle as before
                     // unless that bundle doesn't exist anymore, in which case we select the closest bundle that does exist,
