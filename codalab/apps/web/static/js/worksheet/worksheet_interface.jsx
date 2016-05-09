@@ -531,6 +531,7 @@ var Worksheet = React.createClass({
                     refreshWorksheet={this.refreshWorksheet}
                     openWorksheet={this.openWorksheet}
                     focusActionBar={this.focusActionBar}
+                    ensureIsArray={this.ensureIsArray}
                 />
             );
 
