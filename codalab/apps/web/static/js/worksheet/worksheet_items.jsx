@@ -65,6 +65,23 @@ var WorksheetItemList = React.createClass({
       $('#command_line').terminal().exec(command);
     },
 
+    // bundleUuidToIndex: function(uuid) {
+    //   // bundle uuid -> an array of [index, subIndex]
+    //   // 0x47bda9 -> [[0, 1], [2, 3]], which means bundle 0x47bda9 appears twice in the current worksheet
+    //   var uuidToIndex = {};
+    //   var info = this.props.ws.info;
+    //   if (info && info.items.length > 0) {
+    //     info.items.forEach(function(item) {
+    //       if (item.bundle_info && item.bundle_info.uuid) {
+    //         var uuid = item.bundle_info.uuid;
+    //         if (!(uuid in uuidToIndex))
+    //           uuidToIndex[uuid] = [[]]
+    //         uuidToIndex[uuid].
+    //       }
+    //     });
+    //   }
+    // },
+
     handleContextMenu: function(uuid, focusIndex, subFocusIndex, isRunBundle, e) {
       e.preventDefault();
       this.props.setFocus(focusIndex, subFocusIndex, false);
