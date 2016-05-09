@@ -19,6 +19,8 @@ var Worksheet = React.createClass({
             showActionBar: true,  // Whether the action bar is shown
             focusIndex: -1,  // Which worksheet items to be on (-1 is none)
             subFocusIndex: 0,  // For tables, which row in the table
+            numOfBundles: -1, // Number of bundles in this worksheet (-1 is just the initial value)
+            focusedBundleUuidList: [], // Uuid of the focused bundle and that of all bundles after it
             userInfo: null, // User info of the current user. (null is the default)
         };
     },
@@ -46,19 +48,47 @@ var Worksheet = React.createClass({
       }
     },
 
-    setFocus: function(index, subIndex, shouldScroll=true) {
+    setFocus: function(index, subIndex, shouldScroll) {
+        if (shouldScroll === undefined) shouldScroll = true;
         //console.log('setFocus', index, subIndex);
         var info = this.state.ws.info;
-        if (index < -1 || index >= info.items.length)
+        // resolve to the last item that contains bundle(s)
+        if (index === 'end') {
+            index = -1;
+            for (var i = info.items.length - 1; i >= 0; i--) {
+                if (info.items[i].bundle_info) {
+                    index = i;
+                    break;
+                }
+            }
+        }
+        // resolve to the last row of the selected item
+        if (subIndex === 'end') {
+            subIndex = (this._numTableRows(info.items[index]) || 1) - 1;
+        }
+        if (index < -1 || index >= info.items.length || subIndex < -1 || subIndex >= (this._numTableRows(info.items[index]) || 1)) {
+          console.log('out of bound')
           return;  // Out of bounds (note index = -1 is okay)
-
-        // Resolve to last row of table
-        if (subIndex == 'end')
-          subIndex = (this._numTableRows(info.items[index]) || 1) - 1;
-
+        }
+        if (index !== -1) {
+            // index !== -1 means something is selected.
+            // focusedBundleUuidList is a list of uuids of all bundles after the selected bundle (itself included)
+            // Say the selected bundle has focusIndex 1 and subFocusIndex 2, then focusedBundleUuidList will include the uuids of
+            // all the bundles that have focusIndex 1 and subFocusIndex >= 2, and also all the bundles that have focusIndex > 1
+            var focusedBundleUuidList = [];
+            for (var i = index; i < info.items.length; i++) {
+                var bundle_info = this.ensureIsArray(info.items[i].bundle_info);
+                if (bundle_info) {
+                    var j = i === index ? subIndex : 0;
+                    for (; j < (this._numTableRows(info.items[i]) || 1); j++) {
+                        focusedBundleUuidList.push(bundle_info[j].uuid);
+                    }
+                }
+            }
+        }
         // Change the focus - triggers updating of all descendants.
-        this.setState({focusIndex: index, subFocusIndex: subIndex});
-        if(shouldScroll) this.scrollToItem(index, subIndex);
+        this.setState({focusIndex: index, subFocusIndex: subIndex, focusedBundleUuidList: focusedBundleUuidList});
+        if (shouldScroll) this.scrollToItem(index, subIndex);
     },
 
     scrollToItem: function(index, subIndex) {
@@ -84,10 +114,21 @@ var Worksheet = React.createClass({
         this.throttledScrollToItem(index, subIndex);
     },
 
-
     componentWillMount: function() {
-        this.state.ws.fetch({async: false});
+        this.state.ws.fetch({
+          success: function(data) {
+              $('#worksheet-message').hide();
+              $('#worksheet_content').show();
+              this.setState({updating: false, version: this.state.version + 1});
+              // Fix out of bounds.
+          }.bind(this),
+          error: function(xhr, status, err) {
+              $("#worksheet-message").html(xhr.responseText).addClass('alert-danger alert');
+              $('#worksheet_container').hide();
+          }.bind(this)
+        });
     },
+
     componentDidMount: function() {
         // Initialize history stack
         window.history.replaceState({uuid: this.state.ws.uuid}, '', window.location.pathname);
@@ -298,10 +339,46 @@ var Worksheet = React.createClass({
     toggleActionBar: function() {
         this.setState({showActionBar: !this.state.showActionBar});
     },
+
     focusActionBar: function() {
         this.setState({activeComponent: 'action'});
         this.setState({showActionBar: true});
         $('#command_line').terminal().focus();
+    },
+
+    ensureIsArray: function(bundle_info) {
+      if (!bundle_info) return null;
+      if (!Array.isArray(bundle_info)) {
+        bundle_info = [bundle_info];
+      }
+      return bundle_info;
+    },
+
+    getNumOfBundles: function(items) {
+        var count = 0;
+        for (var i = 0; i < items.length; i++) {
+            var bundle_info = this.ensureIsArray(items[i].bundle_info);
+            if (bundle_info) {
+                count += bundle_info.length;
+            }
+        }
+        return count;
+    },
+
+    getFocusAfterBundleRemoved: function(items) {
+        for (var i = 0; i < this.state.focusedBundleUuidList.length; i++) {
+            for (var index = 0; index < items.length; index++) {
+                var bundle_info = this.ensureIsArray(items[index].bundle_info);
+                if (bundle_info) {
+                    for (var subIndex = 0; subIndex < (this._numTableRows(items[index]) || 1); subIndex++) {
+                        if (bundle_info[subIndex].uuid == this.state.focusedBundleUuidList[i])
+                            return [index, subIndex];
+                    }
+                }
+            }
+        }
+        // there is no next bundle, use the last bundle
+        return ['end', 'end'];
     },
 
     refreshWorksheet: function() {
@@ -311,15 +388,22 @@ var Worksheet = React.createClass({
             success: function(data) {
                 $('#update_progress, #worksheet-message').hide();
                 $('#worksheet_content').show();
-                this.setState({updating: false, version: this.state.version + 1});
-                // Fix out of bounds.
                 var items = this.state.ws.info.items;
-                if (this.state.focusIndex >= items.length)
-                  this.setFocus(items.length - 1, 'end');
+                var numOfBundles = this.getNumOfBundles(items);
+                if (this.state.numOfBundles !== -1 && numOfBundles > this.state.numOfBundles) {
+                    // If the number of bundles increases then the focus should be on the new bundles.
+                    this.setFocus('end', 'end');
+                } else if (numOfBundles < this.state.numOfBundles) {
+                    // If the number of bundles decreases, then focus should be on the same bundle as before
+                    // unless that bundle doesn't exist anymore, in which case we select the closest bundle that does exist,
+                    // where closest means 'next' by default or 'last' if there is no next bundle.
+                    var focus = this.getFocusAfterBundleRemoved(items);
+                    this.setFocus(focus[0], focus[1]);
+                }
+                this.setState({updating: false, version: this.state.version + 1, numOfBundles: numOfBundles});
             }.bind(this),
             error: function(xhr, status, err) {
                 this.setState({updating: false});
-
                 $("#worksheet-message").html(xhr.responseText).addClass('alert-danger alert');
                 $('#update_progress').hide();
                 $('#worksheet_container').hide();
