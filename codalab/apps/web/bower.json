@@ -37,7 +37,7 @@
     "MathJax": "^2.6.0",
     "ace-builds": "^1.2.3",
     "jquery-ui": "^1.11.4",
-    "eventemitter": "latest"
+    "eventEmitter": "^4.3.0"
   },
   "resolutions": {
     "jquery": "~1.10.2"

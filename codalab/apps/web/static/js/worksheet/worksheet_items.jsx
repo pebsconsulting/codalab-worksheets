@@ -84,7 +84,6 @@ var WorksheetItemList = React.createClass({
       if (option === 'add bundle') command += ' /';
       if (option === 'detach') {
         var uuidToIndex = this.bundleUuidToIndex();
-        console.log(uuidToIndex);
         if (uuidToIndex[uuid].length > 1) {
           // if a bundle appears more than once in the current worksheet
           for (var i = uuidToIndex[uuid].length - 1; i >= 0; i--) {
@@ -103,7 +102,7 @@ var WorksheetItemList = React.createClass({
       e.preventDefault();
       this.props.setFocus(focusIndex, subFocusIndex, false);
       var bundleType = isRunBundle ? 'run' : 'bundle';
-      ContextMenuMixin.openContextMenu(bundleType, this.handleContextMenuSelection.bind(undefined, uuid, focusIndex, subFocusIndex))
+      ContextMenuMixin.openContextMenu(bundleType, this.handleContextMenuSelection.bind(undefined, uuid, focusIndex, subFocusIndex));
     },
 
     render: function() {
