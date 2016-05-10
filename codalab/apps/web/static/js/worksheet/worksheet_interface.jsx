@@ -414,10 +414,10 @@ var Worksheet = React.createClass({
       var ws = _.clone(this.state.ws);
       var info = ws.info;
       if (info && info.items) {
+        // console.log(info.items)
         var items = info.items;
         for (var i = 0; i < items.length; i++) {
           var item = items[i];
-          // to-do, also update item.interpreted
           var bundle_info = item.bundle_info;
           if (bundle_info) {
             if (!Array.isArray(bundle_info)) bundle_info = [bundle_info];
@@ -427,6 +427,9 @@ var Worksheet = React.createClass({
                 // console.log('update my bundle');
                 // console.log(updatedBundle.state);
                 ws.info.items[i].bundle_info[j].state = updatedBundle.state;
+                if ("state" in item.interpreted[1][j]) {
+                  item.interpreted[1][j].state = updatedBundle.state
+                }
               }
             }
           }
