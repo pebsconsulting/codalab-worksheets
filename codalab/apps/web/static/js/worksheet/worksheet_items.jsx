@@ -8,7 +8,9 @@ the bundle service.
 
 var WorksheetItemList = React.createClass({
     getInitialState: function() {
-        return {};
+        return {
+          intervalRefs: {}
+        };
     },
     throttledScrollToItem: undefined, // for use later
 
@@ -55,6 +57,60 @@ var WorksheetItemList = React.createClass({
             this.props.setFocus(this.props.ws.info.items.length - 1, 'end');
             $('html, body').animate({scrollTop: $(document).height()}, 'fast');
         }.bind(this), 'keydown');
+    },
+
+    checkRunBundle: function(nextProps) {
+      var info = nextProps.ws.info;
+      if (info && info.items.length > 0) {
+        // console.log(nextProps.ws.info.items);
+        var items = info.items;
+        var self = this;
+        var intervalRefs = _.clone(this.state.intervalRefs);
+        for (var i = 0; i < items.length; i++) {
+          var bundle_info = items[i].bundle_info;
+          if (bundle_info) {
+            if (!Array.isArray(bundle_info)) bundle_info = [bundle_info];
+            for (var j = 0; j < bundle_info.length; j++) {
+              var bundle = bundle_info[j];
+              if (bundle.bundle_type === 'run') {
+                // console.log(bundle.uuid);
+                // console.log(bundle.state);
+                if (bundle.state === 'ready' || bundle.state === 'failed') {
+                  if (bundle.uuid in intervalRefs) {
+                    console.log('delete interval')
+                    clearInterval(intervalRefs[bundle.uuid]);
+                    delete intervalRefs[bundle.uuid]
+                  }
+                } else {
+                  if (!(bundle.uuid in intervalRefs)) {
+                    console.log('add interval')
+                    intervalRefs[bundle.uuid] = setInterval(function(){
+                      $.ajax({
+                        type: "GET",
+                        url: "/rest/api/bundles/" + bundle.uuid + "/",
+                        dataType: 'json',
+                        cache: false,
+                        success: function(bundle) {
+                          self.props.refreshBundle(bundle.uuid, bundle);
+                        }.bind(this),
+                        error: function(xhr, status, err) {
+                          $("#worksheet-message").html(xhr.responseText).addClass('alert-danger alert');
+                          $('#worksheet_container').hide();
+                        }.bind(this)
+                      });
+                    }, 3000);
+                  }
+                }
+              }
+            }
+          }
+        }
+        this.setState({intervalRefs: intervalRefs});
+      }
+    },
+
+    componentWillReceiveProps: function(nextProps) {
+      this.checkRunBundle(nextProps);
     },
 
     render: function() {

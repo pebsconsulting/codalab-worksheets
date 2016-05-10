@@ -531,7 +531,7 @@ var FileBrowserItem = React.createClass({
               </div>
             );
         }
-        
+
         return (
           <tr>
             <td>

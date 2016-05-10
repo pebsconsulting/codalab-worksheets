@@ -409,6 +409,32 @@ var Worksheet = React.createClass({
         });
     },
 
+    refreshBundle: function(uuid, updatedBundle) {
+      console.log('REFRESH BUNDLE');
+      var ws = _.clone(this.state.ws);
+      var info = ws.info;
+      if (info && info.items) {
+        var items = info.items;
+        for (var i = 0; i < items.length; i++) {
+          var item = items[i];
+          // to-do, also update item.interpreted
+          var bundle_info = item.bundle_info;
+          if (bundle_info) {
+            if (!Array.isArray(bundle_info)) bundle_info = [bundle_info];
+            for (var j = 0; j < bundle_info.length; j++) {
+              var bundle = bundle_info[j];
+              if (bundle.uuid === uuid) {
+                // console.log('update my bundle');
+                // console.log(updatedBundle.state);
+                ws.info.items[i].bundle_info[j].state = updatedBundle.state;
+              }
+            }
+          }
+        }
+      }
+      this.setState({ws: ws});
+    },
+
     openWorksheet: function(uuid) {
       // Change to a different worksheet. This does not call refreshWorksheet().
       this.setState({ws: new WorksheetContent(uuid)});
@@ -527,6 +553,7 @@ var Worksheet = React.createClass({
                     subFocusIndex={this.state.subFocusIndex}
                     setFocus={this.setFocus}
                     refreshWorksheet={this.refreshWorksheet}
+                    refreshBundle={this.refreshBundle}
                     openWorksheet={this.openWorksheet}
                     focusActionBar={this.focusActionBar}
                 />
