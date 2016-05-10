@@ -46,7 +46,6 @@ var NewWorksheet = React.createClass({
       return;
     }
     var command = 'cl new \"' + this.state.newWorksheetName + '\"';
-    response = $('#command_line').terminal().exec(command);
     this.toggleNewWorksheet();
   },
 

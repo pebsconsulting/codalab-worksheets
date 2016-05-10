@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% load url from future %}
+
+{% block head_title %}Change Password{% endblock head_title %}
+{% block page_title %}Change Password{% endblock page_title %}
+
+{% block content %}
+{% if request.GET.code_valid == 'False' %}
+<p class="alert alert-error">
+    The password reset link was invalid, possibly because it has already been used.
+    Please request a <a href="{% url 'account_reset' %}">new password reset</a>.
+</p>
+{% else %}
+<div class="row">
+    <div class="col-sm-6">
+        {% if request.GET.error %}
+        <div class="alert alert-error">
+            {{request.GET.error}}
+        </div>
+        {% endif %}
+        <form method="POST" action="/rest/account/reset/finalize">
+            <div class="form-group">
+                <label for="id_password1">New Password:</label>
+                <input id="id_password1" name="password" placeholder="Password" type="password" class="form-control" autofocus>
+            </div>
+            <div class="form-group">
+                <label for="id_password2">Confirm New Password:</label>
+                <input id="id_password2" name="confirm_password" placeholder="Password" type="password" class="form-control">
+            </div>
+            <input name="code" type="hidden" value="{{ request.GET.code }}">
+            <input type="submit" class="btn btn-primary margin-top" name="action" value="Set New Password"/>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
