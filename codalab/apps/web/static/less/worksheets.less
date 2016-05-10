@@ -186,6 +186,13 @@ html, body, #worksheet_container {height:100%;}
          hr {
             margin: 12px 0;
          }
+
+         .bundle-header {
+           display: flex;
+         }
+         .bundle-name {
+           flex: 1;
+         }
          .bundle-links {
             position:relative;
             .bundle-link {
@@ -195,9 +202,7 @@ html, body, #worksheet_container {height:100%;}
                padding-right:40px;
             }
             .bundle-download {
-               position:absolute;
-               right:0;
-               z-index:1;
+               margin-top:15px;
             }
          }
          .bundle-meta {
@@ -623,94 +628,6 @@ html, body, #worksheet_container {height:100%;}
       color:red;
       vertical-align:-3px;
       margin-right:2px;
-   }
-}
-
-// Bundle Detail
-#bundle-content {
-   padding-top:15px;
-   .bundle-tile {
-      .bundle-header {
-         border-bottom:1px solid @gray-light;
-         padding-bottom:12px;
-         margin-bottom:24px;
-         line-height:@font-size-h3;
-         h2 {
-            margin:0;
-            background-position-y:8px;
-         }
-         .bundle-download,
-         .bundle-uuid {
-            float:right;
-            margin:10px 0 0 12px
-         }
-         .bundle-uuid {
-            .small;
-            .text-muted
-         }
-      }
-      h3 {
-         margin-top:20px;
-         .btn {
-            margin-left:6px;
-         }
-      }
-      table {
-         .table;
-         .table-bordered;
-         .table-striped;
-         margin-bottom:0;
-      }
-      .state-table {
-         .table-responsive;
-         margin-top:12px;
-         code {
-            font-size:80%;
-            color:@gray-dark;
-            background-color:transparent;
-         }
-      }
-      .metadata-table {
-         .table-responsive;
-         margin-bottom:24px;
-         table {
-            input.form-control {
-               margin-bottom:0;
-               padding:4px 8px;
-               height:auto;
-            }
-            &.editing {
-               tr td,
-               tr th {
-                  vertical-align: middle;
-                  line-height:inherit;
-               }
-            }
-         }
-      }
-      .dependencies-table {
-         .table-responsive;
-         margin-bottom:24px;
-      }
-      .bundle-file-view-container {
-         border-top:1px solid @gray-light;
-         margin-bottom:24px;
-         .panel-heading {
-            span {
-               cursor:pointer;
-               color:@link-color;
-            }
-         }
-      }
-      .stdout-container, .stderr-container {
-         border-top:1px solid @gray-light;
-         pre {
-            overflow: auto;
-            word-wrap: normal;
-            white-space: pre;
-            font-size: 80%;
-         }
-      }
    }
 }
 

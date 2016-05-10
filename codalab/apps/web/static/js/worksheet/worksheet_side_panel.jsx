@@ -18,26 +18,6 @@ var WorksheetSidePanel = React.createClass({
         $(window).resize(function(e) {
             self.resetPanel();
         });
-        $(document.body).on('click', '.collapsible-header' ,function(){
-          $header = $(this);
-          $content = $header.next();
-          $content.slideToggle(150, function () {
-            $header.html(function () {
-              return $content.is(":visible") ? ($header.html()).replace(/\u25B8/, '\u25BE') : ($header.html()).replace(/\u25BE/, '\u25B8');
-            });
-          });
-        });
-    },
-
-    componentDidUpdate: function() {
-        var __innerFetchExtra = function() {
-          //console.log('__innerFetchExtra');
-          if (this.refs.hasOwnProperty('bundle_info_side_panel'))
-            this.refs.bundle_info_side_panel.fetchExtra();
-        }
-        if (this.debouncedFetchExtra === undefined)
-            this.debouncedFetchExtra = _.debounce(__innerFetchExtra, 200).bind(this);
-        this.debouncedFetchExtra();
     },
 
     getFocus: function() {
@@ -133,7 +113,6 @@ var WorksheetSidePanel = React.createClass({
             side_panel_details = <WorksheetDetailSidePanel
                                    key={'ws' + this.props.focusIndex}
                                    worksheet_info={worksheet_info}
-                                   ref="worksheet_info_side_panel"
                                  />;
           } else if (this.isFocusMarkup(focus)) {
             // Show nothing (maybe later show markdown just for fun?)
@@ -143,8 +122,7 @@ var WorksheetSidePanel = React.createClass({
             if (bundle_info) {
               side_panel_details = <Bundle
                                      key={'table' + this.props.focusIndex + ',' + this.props.subFocusIndex}
-                                     bundle_info={bundle_info}
-                                     ref="bundle_info_side_panel"
+                                     bundle_uuid={bundle_info.uuid}
                                      bundleMetadataChanged={this.props.bundleMetadataChanged}
                                    />;
             }

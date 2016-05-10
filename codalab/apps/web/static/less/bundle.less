@@ -1,0 +1,92 @@
+// Bundle Detail
+#bundle-content {
+   .bundle-header {
+      display: flex;
+      border-bottom:1px solid @gray-light;
+      padding-bottom:6px;
+      margin-bottom:12px;
+      line-height:@font-size-h3;
+      h2 {
+         margin:0;
+         background-position-y:8px;
+      }
+      .bundle-name {
+        flex: 1;
+      }
+      .bundle-download {
+        width: 52px;
+        height: 45px;
+        padding-top: 12px;
+        margin-top: 10px;
+      }
+   }
+   .bundle-description {
+      font-size:90%;
+      margin:15px 0px 15px 0px;
+   }
+   .bundle-meta {
+     margin-bottom: 30px;
+   }
+   h3 {
+      margin-top:20px;
+      .btn {
+         margin-left:6px;
+      }
+   }
+   table {
+      .table;
+      .table-bordered;
+      .table-striped;
+      margin-bottom:0;
+   }
+   .state-table {
+      .table-responsive;
+      margin-top:12px;
+      code {
+         font-size:80%;
+         color:@gray-dark;
+         background-color:transparent;
+      }
+   }
+   .metadata-table {
+      .table-responsive;
+      margin-bottom:24px;
+      table {
+         input.form-control {
+            margin-bottom:0;
+            padding:4px 8px;
+            height:auto;
+         }
+         &.editing {
+            tr td,
+            tr th {
+               vertical-align: middle;
+               line-height:inherit;
+            }
+         }
+      }
+   }
+   .dependencies-table {
+      .table-responsive;
+      margin-bottom:24px;
+   }
+   .bundle-file-view-container {
+      border-top:1px solid @gray-light;
+      margin-bottom:24px;
+      .panel-heading {
+         span {
+            cursor:pointer;
+            color:@link-color;
+         }
+      }
+   }
+   .stdout-container, .stderr-container {
+      border-top:1px solid @gray-light;
+      pre {
+         overflow: auto;
+         word-wrap: normal;
+         white-space: pre;
+         font-size: 80%;
+      }
+   }
+}
