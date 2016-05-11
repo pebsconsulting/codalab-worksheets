@@ -9,7 +9,7 @@ the bundle service.
 var WorksheetItemList = React.createClass({
     getInitialState: function() {
         return {
-          intervalRefs: {}
+          updatingBundles: {}
         };
     },
     throttledScrollToItem: undefined, // for use later
@@ -65,7 +65,7 @@ var WorksheetItemList = React.createClass({
         // console.log(nextProps.ws.info.items);
         var items = info.items;
         var self = this;
-        var intervalRefs = _.clone(this.state.intervalRefs);
+        var updatingBundles = _.clone(this.state.updatingBundles);
         for (var i = 0; i < items.length; i++) {
           var bundle_info = items[i].bundle_info;
           if (bundle_info) {
@@ -75,37 +75,47 @@ var WorksheetItemList = React.createClass({
               if (bundle.bundle_type === 'run') {
                 // console.log(bundle.uuid);
                 // console.log(bundle.state);
-                if (bundle.state === 'ready' || bundle.state === 'failed') {
-                  if (bundle.uuid in intervalRefs) {
-                    console.log('delete interval')
-                    clearInterval(intervalRefs[bundle.uuid]);
-                    delete intervalRefs[bundle.uuid]
-                  }
-                } else {
-                  if (!(bundle.uuid in intervalRefs)) {
-                    console.log('add interval')
-                    intervalRefs[bundle.uuid] = setInterval(function(){
+                if (bundle.state !== 'ready' && bundle.state !== 'failed') {
+                  if (!(bundle.uuid in updatingBundles)) {
+                    updatingBundles[bundle.uuid] = true;
+                    (function updateRunBundle() {
+                      var startTime = new Date().getTime();
                       $.ajax({
                         type: "GET",
                         url: "/rest/api/bundles/" + bundle.uuid + "/",
                         dataType: 'json',
                         cache: false,
-                        success: function(bundle) {
-                          self.props.refreshBundle(bundle.uuid, bundle);
+                        success: function(data) {
+                          console.log('success');
+                          self.props.refreshBundle(bundle.uuid, data);
                         }.bind(this),
                         error: function(xhr, status, err) {
                           $("#worksheet-message").html(xhr.responseText).addClass('alert-danger alert');
                           $('#worksheet_container').hide();
-                        }.bind(this)
+                        }.bind(this),
+                        complete: function(jqXHR, status) {
+                          // Schedule the next request when the current one is complete
+                          if (status === 'success') {
+                            var bundleState = JSON.parse(jqXHR.responseText).state;
+                            if (bundleState === 'ready' || bundleState === 'failed')
+                              return;
+                          }
+                          var endTime = new Date().getTime();
+                          console.log(endTime - startTime);
+                          var delayTime = Math.max(3000, (endTime - startTime) * 5);
+                          // delayTime is at least five times the amount of time it takes for the request to complete
+                          setTimeout(updateRunBundle, delayTime);
+                          startTime = endTime;
+                        }
                       });
-                    }, 3000);
+                    })();
                   }
                 }
               }
             }
           }
         }
-        this.setState({intervalRefs: intervalRefs});
+        this.setState({updatingBundles: updatingBundles});
       }
     },
 
@@ -120,6 +130,7 @@ var WorksheetItemList = React.createClass({
         var items_display;
         var info = this.props.ws.info;
         if (info && info.items.length > 0) {
+          // console.log('render worksheet item list')
             var worksheet_items = [];
             info.items.forEach(function(item, index) {
                 var focused = (index == this.props.focusIndex);

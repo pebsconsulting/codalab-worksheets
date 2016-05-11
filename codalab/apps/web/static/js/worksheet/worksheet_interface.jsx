@@ -424,18 +424,19 @@ var Worksheet = React.createClass({
             for (var j = 0; j < bundle_info.length; j++) {
               var bundle = bundle_info[j];
               if (bundle.uuid === uuid) {
-                // console.log('update my bundle');
-                // console.log(updatedBundle.state);
                 ws.info.items[i].bundle_info[j].state = updatedBundle.state;
                 if ("state" in item.interpreted[1][j]) {
-                  item.interpreted[1][j].state = updatedBundle.state
+                  // console.log('update state');
+                  // console.log(item.interpreted[1][j].state);
+                  // console.log(updatedBundle.state);
+                  item.interpreted[1][j].state = updatedBundle.state;
                 }
               }
             }
           }
         }
       }
-      this.setState({ws: ws});
+      this.setState({ws: ws, version: this.state.version + 1});
     },
 
     openWorksheet: function(uuid) {
