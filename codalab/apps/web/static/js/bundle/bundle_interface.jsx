@@ -140,7 +140,7 @@ var Bundle = React.createClass({
     render: function() {
         var saveButton;
         var metadata = this.state.metadata;
-        var bundle_download_url = "/rest/bundle/" + this.state.uuid + "/contents/blob/";
+        var bundle_download_url = "/rest/bundles/" + this.state.uuid + "/contents/blob/";
         var bundleAttrs = [];
         var editing = this.state.editing;
         var tableClassName = 'table' + (editing ? ' editing' : '');
@@ -515,7 +515,7 @@ var FileBrowserItem = React.createClass({
             } else {
                 file_location = this.props.index;
             }
-            var file_link = document.location.pathname.replace('/bundles/', '/rest/bundle/') + 'contents/blob/' + encodeURIComponent(file_location);
+            var file_link = document.location.pathname.replace('/bundles/', '/rest/bundles/') + 'contents/blob/' + encodeURIComponent(file_location);
             item = (
               <div className={this.props.type}>
                   <span className="glyphicon-file glyphicon" alt="More"></span>
