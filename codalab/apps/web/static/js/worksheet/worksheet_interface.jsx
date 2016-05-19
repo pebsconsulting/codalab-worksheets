@@ -421,6 +421,7 @@ var Worksheet = React.createClass({
             if (!Array.isArray(bundle_info)) bundle_info = [bundle_info];
             for (var j = 0; j < bundle_info.length; j++) {
               var bundle = bundle_info[j];
+              // refresh all the bundles that match this uuid
               if (bundle.uuid === uuid) {
                 bundle_info[j].state = updatedBundle.state;
                 var schemas = item.interpreted_schema[0];

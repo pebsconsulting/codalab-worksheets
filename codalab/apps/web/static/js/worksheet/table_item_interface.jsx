@@ -55,7 +55,6 @@ var TableItem = React.createClass({
     },
 
     render: function() {
-      // console.log('render table item')
         if (this.props.active && this.props.focused)
           this.capture_keys();
 
@@ -77,9 +76,7 @@ var TableItem = React.createClass({
             if (row_items[0][x] && row_items[0][x]['path'])
                 column_with_hyperlinks.push(x);
         });
-        // console.log(row_items);
         var body_rows_html = row_items.map(function(row_item, row_index) {
-            // console.log(row_item)
             var row_ref = 'row' + row_index;
             var row_focused = self.props.focused && (row_index == self.props.subFocusIndex);
             var url = '/bundles/' + bundle_info[row_index].uuid;

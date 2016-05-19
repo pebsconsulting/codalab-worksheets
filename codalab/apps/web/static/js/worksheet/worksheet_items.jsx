@@ -9,7 +9,7 @@ the bundle service.
 var WorksheetItemList = React.createClass({
     getInitialState: function() {
         return {
-          bundlesBeingUpdated: {}
+          bundlesBeingUpdated: {}  // store all the bundles (uuid) that are currently being updated
         };
     },
     throttledScrollToItem: undefined, // for use later
@@ -68,7 +68,6 @@ var WorksheetItemList = React.createClass({
         dataType: 'json',
         cache: false,
         success: function(data) {
-          // this bundle.uuid is wrong
           this.props.refreshBundle(bundleUuid, data);
         }.bind(this),
         error: function(xhr, status, err) {
@@ -82,10 +81,10 @@ var WorksheetItemList = React.createClass({
             if (bundleState === 'ready' || bundleState === 'failed')
               return;
           }
+          // bundleState is not ready or failed, needs to make another ajax request
           var endTime = new Date().getTime();
-          console.log(endTime - startTime);
           var delayTime = Math.max(3000, (endTime - startTime) * 5);
-          // delayTime is at least five times the amount of time it takes for the request to complete
+          // delayTime is at least five times the amount of time it takes for the last request to complete
           setTimeout(function() {
             self.updateRunBundle(bundleUuid);
           }, delayTime);
@@ -97,7 +96,6 @@ var WorksheetItemList = React.createClass({
     checkRunBundle: function(nextProps) {
       var info = nextProps.ws.info;
       if (info && info.items.length > 0) {
-        // console.log(nextProps.ws.info.items);
         var items = info.items;
         var self = this;
         var bundlesBeingUpdated = _.clone(this.state.bundlesBeingUpdated);
@@ -108,8 +106,6 @@ var WorksheetItemList = React.createClass({
             for (var j = 0; j < bundle_info.length; j++) {
               var bundle = bundle_info[j];
               if (bundle.bundle_type === 'run') {
-                // console.log(bundle.uuid);
-                // console.log(bundle.state);
                 if (bundle.state !== 'ready' && bundle.state !== 'failed') {
                   if (!(bundle.uuid in bundlesBeingUpdated)) {
                     bundlesBeingUpdated[bundle.uuid] = true;
