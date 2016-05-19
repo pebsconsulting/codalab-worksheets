@@ -11,9 +11,7 @@ var WorksheetItemList = React.createClass({
         return {};
     },
     throttledScrollToItem: undefined, // for use later
-    componentDidMount: function() {
-        this.props.refreshWorksheet();
-    },
+
     componentDidUpdate: function() {
         var info = this.props.ws.info;
         if (!info || !info.items.length) {
@@ -89,7 +87,6 @@ var WorksheetItemList = React.createClass({
         }
         if (info && info.error)
           items_display = <p className="alert-danger">Error in worksheet: {info.error}</p>;
-
         return <div id="worksheet_items">{items_display}</div>;
     }
 });

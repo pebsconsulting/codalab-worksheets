@@ -64,7 +64,7 @@ class Base(Settings):
     VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV', None)
 
     # Keep in sync with codalab-cli
-    CODALAB_VERSION = '0.1.7'
+    CODALAB_VERSION = '0.1.8'
     
     # Bundle service location, used in config generation.
     BUNDLE_SERVICE_CODE_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'codalab-cli'))
@@ -194,12 +194,13 @@ class Base(Settings):
 
         # This is used to manage the HTML page hierarchy for the competition
         'mptt',
+        
+        # This is usef for generating config files.
+        'django_config_gen',
 
         # TODO: Document the need for these
-        'django_config_gen',
         'compressor',
         'django_js_reverse',
-        'captcha',
         'bootstrapform',
 
         # Django Nose !!Important!! This needs to come after South.

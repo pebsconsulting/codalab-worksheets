@@ -370,7 +370,7 @@ function renderMetadata(bundle_info, bundleMetadataChanged) {
 
 function renderHeader(bundle_info, bundleMetadataChanged) {
   var bundle_url = '/bundles/' + bundle_info.uuid;
-  var bundle_download_url = "/rest/bundle/" + bundle_info.uuid + "/contents/blob/";
+  var bundle_download_url = "/rest/bundles/" + bundle_info.uuid + "/contents/blob/";
   var bundle_name;
   var bundle_description;
   if (bundle_info.metadata.name) {
@@ -419,7 +419,7 @@ function renderHeader(bundle_info, bundleMetadataChanged) {
 function renderContents(bundle_info) {
   var stdout_html = '';
   if (bundle_info.stdout) {
-    var stdout_url = '/rest/bundle/' + bundle_info.uuid + '/contents/blob/stdout';
+    var stdout_url = '/rest/bundles/' + bundle_info.uuid + '/contents/blob/stdout';
     stdout_html = (<div>
       <span><a href={stdout_url} target="_blank">stdout</a></span>
       &nbsp;
@@ -432,7 +432,7 @@ function renderContents(bundle_info) {
 
   var stderr_html = '';
   if (bundle_info.stderr) {
-    var stderr_url = '/rest/bundle/' + bundle_info.uuid + '/contents/blob/stderr';
+    var stderr_url = '/rest/bundles/' + bundle_info.uuid + '/contents/blob/stderr';
     stderr_html = (<div>
       <span><a href={stderr_url} target="_blank">stderr</a></span>
       &nbsp;
@@ -687,7 +687,7 @@ var FileBrowserItem = React.createClass({
             </span>
           );
         } else if (this.props.type == 'file') {
-          var file_link = '/rest/bundle/' + this.props.bundle_uuid + '/contents/blob/' + encodeURIComponent(file_location);
+          var file_link = '/rest/bundles/' + this.props.bundle_uuid + '/contents/blob/' + encodeURIComponent(file_location);
           item = (
             <span className={this.props.type}>
                 <span className="glyphicon-file glyphicon" alt="More"></span>

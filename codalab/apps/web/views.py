@@ -87,6 +87,20 @@ class ResetCompleteView(TemplateView):
     template_name = 'web/account/reset_complete.html'
 
 
+class ChangeEmailView(TemplateView):
+    """
+    Request email change.
+    """
+    template_name = 'web/account/changeemail.html'
+
+
+class ChangeEmailSentView(TemplateView):
+    """
+    Email change verification sent message.
+    """
+    template_name = 'web/account/changeemail_sent.html'
+
+
 class ProfileView(TemplateView):
     """
     Account profile edit page.

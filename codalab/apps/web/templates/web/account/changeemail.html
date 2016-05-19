@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% load url from future %}
+
+{% block head_title %}Change Email Address{% endblock head_title %}
+{% block page_title %}Change Email Address{% endblock page_title %}
+
+{% block content %}
+<p class="user-not-authenticated">
+    Please <a href="{% url 'account_login' %}">sign in</a> first before
+    updating your email address.
+</p>
+<p class="user-authenticated">
+    Use this form to update the email address that you would like CodaLab to
+    use for notifications and identification. Note that this will temporarily
+    deactivate your account (i.e. you will be unable to work on your
+    worksheets) until you verify your account again with a link sent to your
+    new email address.
+</p>
+<div class="user-authenticated row">
+    <div class="col-md-6">
+        {% if request.GET.error %}
+        <div class="alert alert-error">
+            {{request.GET.error}}
+        </div>
+        {% endif %}
+        <form method="POST" action="/rest/account/changeemail">
+            <div class="form-group">
+                <div class="form-group">
+                    <label for="id_email">Email:</label>
+                    <input id="id_email" class="form-control" name="email" placeholder="Email address" type="email" autofocus required>
+                </div>
+            </div>
+            <input class="btn btn-primary margin-top" type="submit" value="Request Email Change" />
+        </form>
+    </div>
+</div>
+{% endblock %}
