@@ -410,11 +410,9 @@ var Worksheet = React.createClass({
     },
 
     refreshBundle: function(uuid, updatedBundle) {
-      console.log('REFRESH BUNDLE');
       var ws = _.clone(this.state.ws);
       var info = ws.info;
       if (info && info.items) {
-        // console.log(info.items)
         var items = info.items;
         for (var i = 0; i < items.length; i++) {
           var item = items[i];
@@ -424,16 +422,16 @@ var Worksheet = React.createClass({
             for (var j = 0; j < bundle_info.length; j++) {
               var bundle = bundle_info[j];
               if (bundle.uuid === uuid) {
-                ws.info.items[i].bundle_info[j].state = updatedBundle.state;
-                if ("state" in item.interpreted[1][j]) {
-                  // console.log('update state');
-                  // console.log(item.interpreted[1][j].state);
-                  // console.log(updatedBundle.state);
-                  console.log(updatedBundle)
-                  // 'interpreted schema'
-                  // if interpreted schema[1] each of them is an Array
-                  // it means you need to access the genpath
-                  // otherwise, just access matadata, e.g. metadata.description
+                bundle_info[j].state = updatedBundle.state;
+                var schemas = item.interpreted_schema[0];
+                var dataSources = item.interpreted_schema[1][0];
+                for (var k = 0; k < schemas.length; k++) {
+                  if (Array.isArray(dataSources[schemas[k]])) {
+                    // rendering a file with genpath
+                    item.interpreted[1][j][schemas[k]] = updatedBundle[dataSources[schemas[k]][1].substring(1)];
+                  }
+                }
+                if ('state' in item.interpreted[1][j]) {
                   item.interpreted[1][j].state = updatedBundle.state;
                 }
               }

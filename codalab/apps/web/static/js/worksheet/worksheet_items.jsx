@@ -125,7 +125,7 @@ var WorksheetItemList = React.createClass({
     },
 
     componentWillReceiveProps: function(nextProps) {
-      // this.checkRunBundle(nextProps);
+      this.checkRunBundle(nextProps);
     },
 
     render: function() {
