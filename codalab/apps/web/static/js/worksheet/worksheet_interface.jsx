@@ -429,6 +429,11 @@ var Worksheet = React.createClass({
                   // console.log('update state');
                   // console.log(item.interpreted[1][j].state);
                   // console.log(updatedBundle.state);
+                  console.log(updatedBundle)
+                  // 'interpreted schema'
+                  // if interpreted schema[1] each of them is an Array
+                  // it means you need to access the genpath
+                  // otherwise, just access matadata, e.g. metadata.description
                   item.interpreted[1][j].state = updatedBundle.state;
                 }
               }

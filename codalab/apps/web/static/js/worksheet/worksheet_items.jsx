@@ -9,7 +9,7 @@ the bundle service.
 var WorksheetItemList = React.createClass({
     getInitialState: function() {
         return {
-          updatingBundles: {}
+          bundlesBeingUpdated: {}
         };
     },
     throttledScrollToItem: undefined, // for use later
@@ -59,13 +59,48 @@ var WorksheetItemList = React.createClass({
         }.bind(this), 'keydown');
     },
 
+    updateRunBundle: function(bundleUuid) {
+      var startTime = new Date().getTime();
+      var self = this;
+      $.ajax({
+        type: "GET",
+        url: "/rest/api/bundles/" + bundleUuid + "/",
+        dataType: 'json',
+        cache: false,
+        success: function(data) {
+          // this bundle.uuid is wrong
+          this.props.refreshBundle(bundleUuid, data);
+        }.bind(this),
+        error: function(xhr, status, err) {
+          $("#worksheet-message").html(xhr.responseText).addClass('alert-danger alert');
+          $('#worksheet_container').hide();
+        }.bind(this),
+        complete: function(jqXHR, status) {
+          // Schedule the next request when the current one is complete
+          if (status === 'success') {
+            var bundleState = JSON.parse(jqXHR.responseText).state;
+            if (bundleState === 'ready' || bundleState === 'failed')
+              return;
+          }
+          var endTime = new Date().getTime();
+          console.log(endTime - startTime);
+          var delayTime = Math.max(3000, (endTime - startTime) * 5);
+          // delayTime is at least five times the amount of time it takes for the request to complete
+          setTimeout(function() {
+            self.updateRunBundle(bundleUuid);
+          }, delayTime);
+          startTime = endTime;
+        }
+      });
+    },
+
     checkRunBundle: function(nextProps) {
       var info = nextProps.ws.info;
       if (info && info.items.length > 0) {
         // console.log(nextProps.ws.info.items);
         var items = info.items;
         var self = this;
-        var updatingBundles = _.clone(this.state.updatingBundles);
+        var bundlesBeingUpdated = _.clone(this.state.bundlesBeingUpdated);
         for (var i = 0; i < items.length; i++) {
           var bundle_info = items[i].bundle_info;
           if (bundle_info) {
@@ -76,51 +111,21 @@ var WorksheetItemList = React.createClass({
                 // console.log(bundle.uuid);
                 // console.log(bundle.state);
                 if (bundle.state !== 'ready' && bundle.state !== 'failed') {
-                  if (!(bundle.uuid in updatingBundles)) {
-                    updatingBundles[bundle.uuid] = true;
-                    (function updateRunBundle() {
-                      var startTime = new Date().getTime();
-                      $.ajax({
-                        type: "GET",
-                        url: "/rest/api/bundles/" + bundle.uuid + "/",
-                        dataType: 'json',
-                        cache: false,
-                        success: function(data) {
-                          console.log('success');
-                          self.props.refreshBundle(bundle.uuid, data);
-                        }.bind(this),
-                        error: function(xhr, status, err) {
-                          $("#worksheet-message").html(xhr.responseText).addClass('alert-danger alert');
-                          $('#worksheet_container').hide();
-                        }.bind(this),
-                        complete: function(jqXHR, status) {
-                          // Schedule the next request when the current one is complete
-                          if (status === 'success') {
-                            var bundleState = JSON.parse(jqXHR.responseText).state;
-                            if (bundleState === 'ready' || bundleState === 'failed')
-                              return;
-                          }
-                          var endTime = new Date().getTime();
-                          console.log(endTime - startTime);
-                          var delayTime = Math.max(3000, (endTime - startTime) * 5);
-                          // delayTime is at least five times the amount of time it takes for the request to complete
-                          setTimeout(updateRunBundle, delayTime);
-                          startTime = endTime;
-                        }
-                      });
-                    })();
+                  if (!(bundle.uuid in bundlesBeingUpdated)) {
+                    bundlesBeingUpdated[bundle.uuid] = true;
+                    this.updateRunBundle(bundle.uuid);
                   }
                 }
               }
             }
           }
         }
-        this.setState({updatingBundles: updatingBundles});
+        this.setState({bundlesBeingUpdated: bundlesBeingUpdated});
       }
     },
 
     componentWillReceiveProps: function(nextProps) {
-      this.checkRunBundle(nextProps);
+      // this.checkRunBundle(nextProps);
     },
 
     render: function() {
