@@ -409,6 +409,7 @@ var Worksheet = React.createClass({
         });
     },
 
+    // Update individual unfinished run bundles to reflect server-side changes such as bundle state, output file, etc.
     refreshBundle: function(uuid, updatedBundle) {
       var ws = _.clone(this.state.ws);
       var info = ws.info;
