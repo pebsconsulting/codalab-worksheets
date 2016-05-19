@@ -59,6 +59,7 @@ var WorksheetItemList = React.createClass({
         }.bind(this), 'keydown');
     },
 
+    // Automatically update run bundle until it is ready or failed
     updateRunBundle: function(bundleUuid) {
       var startTime = new Date().getTime();
       var self = this;
@@ -93,6 +94,7 @@ var WorksheetItemList = React.createClass({
       });
     },
 
+    // Check for unfinished run bundles (not ready or failed), and call updateRunBundle to constantly update them 
     checkRunBundle: function(nextProps) {
       var info = nextProps.ws.info;
       if (info && info.items.length > 0) {
