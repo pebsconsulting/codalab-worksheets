@@ -1,6 +1,17 @@
 var menuEvents = new EventEmitter();
+var ContextMenuEnum = {
+  type: {
+    RUN: 1,
+    BUNDLE: 2
+  },
+  command: {
+    REMOVE_BUNDLE: 1,
+    DETACH_BUNDLE: 2,
+    ADD_BUNDLE_TO_HOMEWORKSHEET: 3,
+    KILL_BUNDLE: 4
+  }
+};
 var ContextMenuMixin = {
-  // ContextMenuMixin.openContextMenu('bundle', this.handleContextMenuSelection.bind(undefined, uuid))
   openContextMenu: function(type, callback){
     menuEvents.emit('open', {
       type: type,
@@ -21,18 +32,19 @@ var updateMouse = function(e){
 var ContextMenu = React.createClass({
   getInitialState: function(){
     var bundleMap = {
-      'rm': 'Remove bundle permanently',
-      'detach': 'Detach from this worksheet',
-      'add bundle': 'Add to my home worksheet'
+      'Remove bundle permanently': [ContextMenuEnum.command.REMOVE_BUNDLE, ['rm']],
+      'Detach from this worksheet': [ContextMenuEnum.command.DETACH_BUNDLE, ['detach']],
+      'Add to my home worksheet': [ContextMenuEnum.command.ADD_BUNDLE_TO_HOMEWORKSHEET, ['add', 'bundle']]
     };
-    var runBundleMap = _.extend({}, bundleMap, {'kill': 'Kill this run bundle'});
+    var runBundleMap = _.extend({}, bundleMap, {'Kill this run bundle': [ContextMenuEnum.command.KILL_BUNDLE, ['kill']]});
+    labelMap = {}
+    labelMap[ContextMenuEnum.type.RUN] = runBundleMap;
+    labelMap[ContextMenuEnum.type.BUNDLE] = bundleMap;
+
     return {
       type: null,
       callback: null,
-      labelMap: {
-        'run': runBundleMap,
-        'bundle': bundleMap
-      }
+      labelMap: labelMap
     };
   },
 
@@ -69,9 +81,9 @@ var ContextMenu = React.createClass({
 
     return (
       <div className="context-menu" style={style}>
-        {Object.keys(this.state.labelMap[this.state.type]).map(function(x, i){
-            return <div className="context-menu-item" key={i} onClick={this.makeClickHandler(x)}>
-                    {this.state.labelMap[this.state.type][x]}
+        {Object.keys(this.state.labelMap[this.state.type]).map(function(display, i){
+            return <div className="context-menu-item" key={i} onClick={this.makeClickHandler(this.state.labelMap[this.state.type][display])}>
+                    {display}
                    </div>
           }, this)}
       </div>

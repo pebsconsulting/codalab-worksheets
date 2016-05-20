@@ -58,8 +58,8 @@ var WorksheetItemList = React.createClass({
     },
 
     bundleUuidToIndex: function() {
-      // bundle uuid -> an array of [index, subIndex]
-      // 0x47bda9 -> [[0, 1], [2, 3]], which means bundle 0x47bda9 appears twice in the current worksheet
+      // bundle uuid -> an array of [index, subIndex], corresponding to positions where the bundle occurs
+      // E.g. 0x47bda9 -> [[0, 1], [2, 3]], which means bundle 0x47bda9 appears twice in the current worksheet
       var uuidToIndex = {};
       var info = this.props.ws.info;
       if (info && info.items.length > 0) {
@@ -79,10 +79,26 @@ var WorksheetItemList = React.createClass({
       return uuidToIndex;
     },
 
+    buildTerminalCommand: function(args) {
+      var ret = [];
+      args.forEach(function(s) {
+        if (/[^A-Za-z0-9_\/:=-]/.test(s)) {
+          s = "'"+s.replace(/'/g,"'\\''")+"'";
+          s = s.replace(/^(?:'')+/g, '') // unduplicate single-quote at the beginning
+          .replace(/\\'''/g, "\\'" ); // remove non-escaped single-quote if there are enclosed between 2 escaped
+        }
+        ret.push(s);
+      });
+      return ret.join(' ');
+    },
+
     handleContextMenuSelection: function(uuid, focusIndex, subFocusIndex, option) {
-      var command = 'cl ' + option + ' ' + uuid;
-      if (option === 'add bundle') command += ' /';
-      if (option === 'detach') {
+      var type = option[0]
+      var args = option[1];
+      args.push(uuid);
+      if (type === ContextMenuEnum.command.ADD_BUNDLE_TO_HOMEWORKSHEET) {
+        args.push('/');
+      } else if (type === ContextMenuEnum.command.DETACH_BUNDLE) {
         var uuidToIndex = this.bundleUuidToIndex();
         if (uuidToIndex[uuid].length > 1) {
           // if a bundle appears more than once in the current worksheet
@@ -92,16 +108,16 @@ var WorksheetItemList = React.createClass({
               break;
           }
           // index counting from the end
-          command += ' -n ' + (uuidToIndex[uuid].length - i);
+          args.push('-n', uuidToIndex[uuid].length - i)
         }
       }
-      $('#command_line').terminal().exec(command);
+      $('#command_line').terminal().exec(this.buildTerminalCommand(args));
     },
 
     handleContextMenu: function(uuid, focusIndex, subFocusIndex, isRunBundle, e) {
       e.preventDefault();
       this.props.setFocus(focusIndex, subFocusIndex, false);
-      var bundleType = isRunBundle ? 'run' : 'bundle';
+      var bundleType = isRunBundle ? ContextMenuEnum.type.RUN : ContextMenuEnum.type.BUNDLE;
       ContextMenuMixin.openContextMenu(bundleType, this.handleContextMenuSelection.bind(undefined, uuid, focusIndex, subFocusIndex));
     },
 
