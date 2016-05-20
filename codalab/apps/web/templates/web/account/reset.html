@@ -15,14 +15,14 @@
             {{request.GET.error}}
         </div>
         {% endif %}
-        <form method="POST" action="/rest/account/reset" class="password_reset">
+        <form method="POST" action="/rest/account/reset">
             <div class="form-group">
                 <div class="form-group">
                     <label for="id_email">Email:</label>
                     <input id="id_email" class="form-control" name="email" placeholder="Email address" type="email" autofocus required>
                 </div>
             </div>
-            <input class="btn btn-primary margin-top" type="submit" value="Request Password Reset" %}" />
+            <input class="btn btn-primary margin-top" type="submit" value="Request Password Reset" />
         </form>
     </div>
 </div>

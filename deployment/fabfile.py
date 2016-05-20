@@ -295,7 +295,7 @@ def install():
     Install everything from scratch (idempotent).
     '''
     # Install Linux packages
-    sudo('apt-get install -y git xclip python-virtualenv virtualenvwrapper zip ruby')
+    sudo('apt-get install -y git xclip python-virtualenv virtualenvwrapper zip')
     sudo('apt-get install -y python-dev libmysqlclient-dev libjpeg-dev')
     sudo('apt-get install -y nginx supervisor')
 

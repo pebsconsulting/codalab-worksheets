@@ -755,10 +755,16 @@
         self.addClass('cmd');
         self.append('<span class="prompt"></span><span></span>' +
                     '<span class="cursor">&nbsp;</span><span></span>');
-        var clip = $('<textarea/>').addClass('clipboard').appendTo(self);
+        var clip = $('<textarea>').addClass('clipboard').appendTo(self);
+        var contentEditable = $('<div contentEditable></div>')
+        $(document.body).append(contentEditable);
         if (options.width) {
             self.width(options.width);
         }
+        clip.on('input', function(e) {
+            paste();
+        });
+
         var num_chars; // calculated by draw_prompt
         var prompt_len;
         var reverse_search = false;
@@ -819,7 +825,7 @@
         }
         // -----------------------------------------------------------------------
         // :: Search through command line history. If next is not defined or false
-        // :: it searches for the first item from the end. If true it search for 
+        // :: it searches for the first item from the end. If true it search for
         // :: the next item
         // -----------------------------------------------------------------------
         function reverse_history_search(next) {
@@ -1087,12 +1093,9 @@
         // :: Paste content to terminal using hidden textarea
         // -----------------------------------------------------------------------
         function paste() {
-            clip.focus();
-            //wait until Browser insert text to textarea
-            self.oneTime(1, function() {
-                self.insert(clip.val());
-                clip.blur().val('');
-            });
+          console.log(clip.val())
+            self.insert(clip.val());
+            clip.blur().val('');
         }
         var first_up_history = true;
         //var prevent_keypress = false;
@@ -1338,9 +1341,9 @@
                             if (kill_text !== '') {
                                 self.insert(kill_text);
                             }
-                        } else if (e.which === 86) {
+                        } else if (e.which === 86 || e.which === 118) {
                             //CTRL+V
-                            paste();
+                            clip.focus()
                             return true;
                         } else if (e.which === 75) {
                             //CTRL+K
@@ -1539,35 +1542,35 @@
         // Keystrokes
         var object;
         $(document.documentElement || window).bind('keypress.cmd', function(e) {
-            var result;
-            if (e.ctrlKey && e.which === 99) { // CTRL+C
-                return true;
-            }
-            if (!reverse_search && typeof options.keypress === 'function') {
-                result = options.keypress(e);
-            }
-            if (result === undefined || result) {
-                if (enabled) {
-                    if ($.inArray(e.which, [38, 13, 0, 8]) > -1 &&
-                        e.keyCode !== 123 && // for F12 which === 0
-                        //!(e.which === 40 && e.shiftKey ||
-                        !(e.which === 38 && e.shiftKey)) {
-                        return false;
-                    } else if (!e.ctrlKey && !(e.altKey && e.which === 100) || e.altKey) { // ALT+D
-                        // TODO: this should be in one statement
-                        if (reverse_search) {
-                            reverse_search_string += String.fromCharCode(e.which);
-                            reverse_history_search();
-                            draw_reverse_prompt();
-                        } else {
-                            self.insert(String.fromCharCode(e.which));
-                        }
-                        return false;
-                    }
-                }
-            } else {
-                return result;
-            }
+          var result;
+          if ((e.ctrlKey || e.metaKey) && (e.which === 99 || e.which === 118 || e.which === 86)) { // CTRL+C or CTRL+V
+              return true;
+          }
+          if (!reverse_search && typeof options.keypress === 'function') {
+              result = options.keypress(e);
+          }
+          if (result === undefined || result) {
+              if (enabled) {
+                  if ($.inArray(e.which, [38, 13, 0, 8]) > -1 &&
+                      e.keyCode !== 123 && // for F12 which === 0
+                      //!(e.which === 40 && e.shiftKey ||
+                      !(e.which === 38 && e.shiftKey)) {
+                      return false;
+                  } else if (!e.ctrlKey && !(e.altKey && e.which === 100) || e.altKey) { // ALT+D
+                      // TODO: this should be in one statement
+                      if (reverse_search) {
+                          reverse_search_string += String.fromCharCode(e.which);
+                          reverse_history_search();
+                          draw_reverse_prompt();
+                      } else {
+                          self.insert(String.fromCharCode(e.which));
+                      }
+                      return false;
+                  }
+              }
+          } else {
+              return result;
+          }
         }).bind('keydown.cmd', keydown_event);
         // characters
         self.data('cmd', self);
@@ -3303,7 +3306,7 @@
                         throw new Error($.terminal.defaults.strings.invalidCompletion);
                     }
                     return false;
-                } else if (e.which === 86 && e.ctrlKey) { // CTRL+V
+                } else if ((e.which === 118 || e.which === 86) && (e.ctrlKey || e.metaKey)) { // CTRL+V
                     self.oneTime(1, function() {
                         scroll_to_bottom();
                     });
@@ -3643,7 +3646,7 @@
                 },
                 // -----------------------------------------------------------------------
                 // :: Make the terminal in focus or blur depending on the first argument.
-                // :: If there is more then one terminal it will switch to next one, 
+                // :: If there is more then one terminal it will switch to next one,
                 // :: if the second argument is set to true the events will be not fired.
                 // :: Used on init
                 // -----------------------------------------------------------------------

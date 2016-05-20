@@ -6,5 +6,6 @@
 {% block page_title %}Password Reset{% endblock page_title %}
 
 {% block content %}
-<p>Your password has been set.  You may go ahead and <a href="{% url 'account_login' %}">log in</a> now.</p>
+<p>Your password has been updated.</p>
+<p class="user-not-authenticated">You may go ahead and <a href="{% url 'account_login' %}">log in</a> now.</p>
 {% endblock %}
