@@ -79,19 +79,6 @@ var WorksheetItemList = React.createClass({
       return uuidToIndex;
     },
 
-    buildTerminalCommand: function(args) {
-      var ret = [];
-      args.forEach(function(s) {
-        if (/[^A-Za-z0-9_\/:=-]/.test(s)) {
-          s = "'"+s.replace(/'/g,"'\\''")+"'";
-          s = s.replace(/^(?:'')+/g, '') // unduplicate single-quote at the beginning
-          .replace(/\\'''/g, "\\'" ); // remove non-escaped single-quote if there are enclosed between 2 escaped
-        }
-        ret.push(s);
-      });
-      return ret.join(' ');
-    },
-
     handleContextMenuSelection: function(uuid, focusIndex, subFocusIndex, option) {
       var type = option[0]
       var args = option[1];
@@ -111,7 +98,7 @@ var WorksheetItemList = React.createClass({
           args.push('-n', uuidToIndex[uuid].length - i)
         }
       }
-      $('#command_line').terminal().exec(this.buildTerminalCommand(args));
+      $('#command_line').terminal().exec(buildTerminalCommand(args));
     },
 
     handleContextMenu: function(uuid, focusIndex, subFocusIndex, isRunBundle, e) {
