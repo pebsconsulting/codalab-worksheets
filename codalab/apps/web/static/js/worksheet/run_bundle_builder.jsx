@@ -6,7 +6,7 @@ var RunBundleBuilder = React.createClass({
       selectedDependencies: [],
       dependencyKeyList: [],
       command: null,
-      clCommand: 'cl run ',
+      clCommand: '',
     };
   },
 
@@ -18,7 +18,7 @@ var RunBundleBuilder = React.createClass({
         selectedDependencies: [],
         dependencyKeyList: [],
         command: null,
-        clCommand: 'cl run ',
+        clCommand: '',
       });
     } else {
       $('#run-bundle-builder').css('display', 'block');
@@ -86,19 +86,19 @@ var RunBundleBuilder = React.createClass({
   },
 
   getClCommand: function(selectedDependencies, dependencyKeyList, command) {
-    var clCommand = ['cl run'];
+    var clCommand = ['run'];
     for (var i = 0; i < dependencyKeyList.length; i++) {
       var key = dependencyKeyList[i];
       var target = selectedDependencies[i];
-      target = target.path === '' ? shorten_uuid(target.bundle_uuid) : shorten_uuid(target.bundle_uuid) + '/' + target.path;
+      var shortUuid = shorten_uuid(target.bundle_uuid);
+      target = target.path === '' ? shortUuid : shortUuid + '/' + target.path;
       clCommand.push(key + ':' + target);
     }
     if (command != null) {
-      command = command.replace(/"/g, '\\\"');
-      clCommand.push("\"" + command + "\"");
+      command = buildTerminalCommand(command.split(' '));
+      clCommand.push(command);
     }
-    clCommand = clCommand.join(' ');
-    return clCommand
+    return buildTerminalCommand(clCommand);
   },
 
   componentWillReceiveProps: function(newProps) {
