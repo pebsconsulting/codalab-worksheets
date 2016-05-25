@@ -39,13 +39,10 @@
         "password": "{{EMAIL_HOST_PASSWORD}}"
     },
     "workers": {
-        "q": {
-            "verbose": 1,
-            "docker_image": "codalab/ubuntu:1.9",
-            "max_request_time": "1d",
-            "max_request_memory": "10g",
-            "max_request_disk": "10g",
-            "dispatch_command": "{{VIRTUAL_ENV}}/bin/python {{BUNDLE_SERVICE_CODE_PATH}}/scripts/dispatch-q.py"
-        }
+        "launch_new_worker_system": true,
+        "default_docker_image": "codalab/ubuntu:1.9",
+        "max_request_time": "1d",
+        "max_request_memory": "10g",
+        "max_request_disk": "10g"
     }
 }

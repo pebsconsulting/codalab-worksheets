@@ -43,3 +43,17 @@ function worksheetItemPropsChanged(props, nextProps) {
          (nextProps.focused && props.subFocusIndex != nextProps.subFocusIndex) ||
          props.version != nextProps.version;
 }
+
+// given an array of arguments, return a shell-safe command
+function buildTerminalCommand(args) {
+  var ret = [];
+  args.forEach(function(s) {
+    if (/[^A-Za-z0-9_\/:=-]/.test(s)) {
+      s = "'"+s.replace(/'/g,"'\\''") + "'";
+      s = s.replace(/^(?:'')+/g, '') // unduplicate single-quote at the beginning
+           .replace(/\\'''/g, "\\'" ); // remove non-escaped single-quote if there are enclosed between 2 escaped
+    }
+    ret.push(s);
+  });
+  return ret.join(' ');
+}
