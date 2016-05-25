@@ -5,6 +5,7 @@ var GraphItem = React.createClass({
     getInitialState: function() {
       return {};
     },
+
     handleClick: function() {
       this.props.setFocus(this.props.focusIndex, 0);
     },
@@ -103,8 +104,9 @@ var GraphItem = React.createClass({
         this.throttledRenderChart();
 
         var className = 'type-image' + (this.props.focused ? ' focused' : '');
+        var bundleInfo = this.props.item.bundle_info;
         return (
-            <div className="ws-item" onClick={this.handleClick}>
+            <div className="ws-item" onClick={this.handleClick} onContextMenu={this.props.handleContextMenu.bind(null, bundleInfo.uuid, this.props.focusIndex, 0, bundleInfo.bundle_type === 'run')}>
                 <div className={className}>
                     <div id={this._chartId()} />
                 </div>

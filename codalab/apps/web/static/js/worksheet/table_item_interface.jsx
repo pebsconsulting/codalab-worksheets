@@ -86,6 +86,7 @@ var TableItem = React.createClass({
                      item={row_item}
                      rowIndex={row_index}
                      focused={row_focused}
+                     focusIndex={self.props.focusIndex}
                      url={url}
                      bundleInfo={bundle_info[row_index]}
                      uuid={bundle_info[row_index].uuid}
@@ -94,6 +95,7 @@ var TableItem = React.createClass({
                      canEdit={canEdit}
                      updateRowIndex={self.updateRowIndex}
                      columnWithHyperlinks={column_with_hyperlinks}
+                     handleContextMenu={self.props.handleContextMenu}
                    />;
         });
         return (
@@ -121,6 +123,7 @@ var TableRow = React.createClass({
     getInitialState: function() {
         return { };
     },
+
     handleClick: function() {
         this.props.updateRowIndex(this.props.rowIndex);
     },
@@ -160,7 +163,7 @@ var TableRow = React.createClass({
         });
 
         return (
-            <tr className={focusedClass} onClick={this.handleClick}>
+            <tr className={focusedClass} onClick={this.handleClick} onContextMenu={this.props.handleContextMenu.bind(null, this.props.bundleInfo.uuid, this.props.focusIndex, this.props.rowIndex, this.props.bundleInfo.bundle_type === 'run')}>
                 {row_cells}
             </tr>
         );
