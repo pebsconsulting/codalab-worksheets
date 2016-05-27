@@ -344,6 +344,10 @@ function renderMetadata(bundle_info, bundleMetadataChanged) {
   keys.sort();
   for (var i = 0; i < keys.length; i++) {
     var property = keys[i];
+    if (["run_status", "failure_message"].indexOf(property) != -1) {
+    	// These are displayed in the header.
+      continue;
+    }
     if (bundle_info.edit_permission && editableMetadataFields && editableMetadataFields.indexOf(property) >= 0){
       metadata_list_html.push(<tr>
         <th>{property}</th>
@@ -397,7 +401,13 @@ function renderHeader(bundle_info, bundleMetadataChanged) {
   rows.push(createRow('permissions', render_permissions(bundle_info)));
   if (bundle_info.bundle_type == 'run') {
     rows.push(createRow('command', bundle_info.command));
-    rows.push(createRow('state', <span className={bundle_state_class}>{bundle_info.state}</span>));
+  }
+  rows.push(createRow('state', <span className={bundle_state_class}>{bundle_info.state}</span>));
+  if (bundle_info.metadata.failure_message) {
+    rows.push(createRow('failure_message', bundle_info.metadata.failure_message));
+  }
+  if (bundle_info.bundle_type == 'run' && bundle_info.state == "running" && bundle_info.metadata.run_status != "Running") {
+    rows.push(createRow('run_status', bundle_info.metadata.run_status));
   }
 
   return (<div>
