@@ -1,5 +1,3 @@
-# CodaLab Worksheets [![Circle CI](https://circleci.com/gh/codalab/codalab.svg?style=shield)](https://circleci.com/gh/codalab/codalab-worksheets)
+# CodaLab Worksheets [![Circle CI](https://circleci.com/gh/codalab/codalab-worksheets.svg?style=shield)](https://circleci.com/gh/codalab/codalab-worksheets)
 
-See [CodaLab Worksheets
-wiki](https://github.com/codalab/codalab/wiki/CodaLab-Worksheets) for more
-information.
+See [CodaLab Worksheets wiki](https://github.com/codalab/codalab-worksheets/wiki/) for more information.
