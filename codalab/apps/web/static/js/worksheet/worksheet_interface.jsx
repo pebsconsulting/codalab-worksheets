@@ -381,69 +381,56 @@ var Worksheet = React.createClass({
         return ['end', 'end'];
     },
 
-    refreshWorksheet: function() {
-        $('#update_progress').show();
-        this.setState({updating: true});
-        this.state.ws.fetch({
-            success: function(data) {
-                $('#update_progress, #worksheet-message').hide();
-                $('#worksheet_content').show();
-                var items = this.state.ws.info.items;
-                var numOfBundles = this.getNumOfBundles(items);
-                if (this.state.numOfBundles !== -1 && numOfBundles > this.state.numOfBundles) {
-                    // If the number of bundles increases then the focus should be on the new bundles.
-                    this.setFocus('end', 'end');
-                } else if (numOfBundles < this.state.numOfBundles) {
-                    // If the number of bundles decreases, then focus should be on the same bundle as before
-                    // unless that bundle doesn't exist anymore, in which case we select the closest bundle that does exist,
-                    // where closest means 'next' by default or 'last' if there is no next bundle.
-                    var focus = this.getFocusAfterBundleRemoved(items);
-                    this.setFocus(focus[0], focus[1]);
-                }
-                this.setState({updating: false, version: this.state.version + 1, numOfBundles: numOfBundles});
-            }.bind(this),
-            error: function(xhr, status, err) {
-                this.setState({updating: false});
-                $("#worksheet-message").html(xhr.responseText).addClass('alert-danger alert');
-                $('#update_progress').hide();
-                $('#worksheet_container').hide();
-            }.bind(this)
-        });
-    },
-
-    // Update individual unfinished run bundles to reflect server-side changes such as bundle state, output file, etc.
-    refreshBundle: function(uuid, updatedBundle) {
-      var ws = _.clone(this.state.ws);
-      var info = ws.info;
-      if (info && info.items) {
-        var items = info.items;
-        for (var i = 0; i < items.length; i++) {
-          var item = items[i];
-          var bundle_info = item.bundle_info;
-          if (bundle_info) {
-            if (!Array.isArray(bundle_info)) bundle_info = [bundle_info];
-            for (var j = 0; j < bundle_info.length; j++) {
-              var bundle = bundle_info[j];
-              // refresh all the bundles that match this uuid
-              if (bundle.uuid === uuid) {
-                bundle_info[j].state = updatedBundle.state;
-                var schemas = item.interpreted_schema[0];
-                var dataSources = item.interpreted_schema[1][0];
-                for (var k = 0; k < schemas.length; k++) {
-                  if (Array.isArray(dataSources[schemas[k]])) {
-                    // rendering a file with genpath
-                    item.interpreted[1][j][schemas[k]] = updatedBundle[dataSources[schemas[k]][1].substring(1)];
+    refreshWorksheet: function(partialUpdate) {
+        if (!partialUpdate) {
+          $('#update_progress').show();
+          this.setState({updating: true});
+          this.state.ws.fetch({
+              success: function(data) {
+                  $('#update_progress, #worksheet-message').hide();
+                  $('#worksheet_content').show();
+                  var items = this.state.ws.info.items;
+                  var numOfBundles = this.getNumOfBundles(items);
+                  if (this.state.numOfBundles !== -1 && numOfBundles > this.state.numOfBundles) {
+                      // If the number of bundles increases then the focus should be on the new bundles.
+                      this.setFocus('end', 'end');
+                  } else if (numOfBundles < this.state.numOfBundles) {
+                      // If the number of bundles decreases, then focus should be on the same bundle as before
+                      // unless that bundle doesn't exist anymore, in which case we select the closest bundle that does exist,
+                      // where closest means 'next' by default or 'last' if there is no next bundle.
+                      var focus = this.getFocusAfterBundleRemoved(items);
+                      this.setFocus(focus[0], focus[1]);
                   }
-                }
-                if ('state' in item.interpreted[1][j]) {
-                  item.interpreted[1][j].state = updatedBundle.state;
+                  this.setState({updating: false, version: this.state.version + 1, numOfBundles: numOfBundles});
+              }.bind(this),
+              error: function(xhr, status, err) {
+                  this.setState({updating: false});
+                  $("#worksheet-message").html(xhr.responseText).addClass('alert-danger alert');
+                  $('#update_progress').hide();
+                  $('#worksheet_container').hide();
+              }.bind(this)
+          });
+        } else {
+          var ws = _.clone(this.state.ws);
+          var items = partialUpdate.items;
+          for (var i = 0; i < items.length; i++) {
+            if (!items[i]) continue;
+            // update interpreted items
+            ws.info.items[i].interpreted = items[i].interpreted;
+            var bundle_info = items[i].bundle_info;
+            if (bundle_info) {
+              bundle_info = this.ensureIsArray(bundle_info);
+              ws.info.items[i].bundle_info = this.ensureIsArray(ws.info.items[i].bundle_info);
+              for (var j = 0; j < bundle_info.length; j++) {
+                if (bundle_info[j]) {
+                  // update bundle info
+                  ws.info.items[i].bundle_info[j] = bundle_info[j];
                 }
               }
             }
           }
+          this.setState({ws: ws, version: this.state.version + 1});
         }
-      }
-      this.setState({ws: ws, version: this.state.version + 1});
     },
 
     openWorksheet: function(uuid) {
@@ -564,7 +551,6 @@ var Worksheet = React.createClass({
                     subFocusIndex={this.state.subFocusIndex}
                     setFocus={this.setFocus}
                     refreshWorksheet={this.refreshWorksheet}
-                    refreshBundle={this.refreshBundle}
                     openWorksheet={this.openWorksheet}
                     focusActionBar={this.focusActionBar}
                     ensureIsArray={this.ensureIsArray}

@@ -9,7 +9,7 @@ the bundle service.
 var WorksheetItemList = React.createClass({
     getInitialState: function() {
         return {
-          bundlesBeingUpdated: {}  // store all the bundles (uuid) that are currently being updated
+          isUpdatingRunBundles: false
         };
     },
     throttledScrollToItem: undefined, // for use later
@@ -60,37 +60,33 @@ var WorksheetItemList = React.createClass({
     },
 
     // Automatically update run bundle until it is ready or failed
-    updateRunBundle: function(bundleUuid) {
+    updateRunBundle: function(worksheetUuid) {
       var startTime = new Date().getTime();
       var self = this;
       $.ajax({
         type: "GET",
-        url: "/rest/api/bundles/" + bundleUuid + "/",
+        url: "/rest/api/worksheets/unfinished_bundles/" + worksheetUuid + "/",
         dataType: 'json',
         cache: false,
-        success: function(data) {
-          this.props.refreshBundle(bundleUuid, data);
+        success: function(worksheet_content) {
+          if (Object.keys(worksheet_content).length === 0) {
+            // If there are no unfinished bundles, the server returns an empty object {}.
+            self.setState({isUpdatingRunBundles: false});
+          } else {
+            self.props.refreshWorksheet(worksheet_content);
+            var endTime = new Date().getTime();
+            var delayTime = Math.max(3000, (endTime - startTime) * 5);
+            // delayTime is at least five times the amount of time it takes for the last request to complete
+            setTimeout(function() {
+              self.updateRunBundle(worksheetUuid);
+            }, delayTime);
+            startTime = endTime;
+          }
         }.bind(this),
         error: function(xhr, status, err) {
           $("#worksheet-message").html(xhr.responseText).addClass('alert-danger alert');
           $('#worksheet_container').hide();
-        }.bind(this),
-        complete: function(jqXHR, status) {
-          // Schedule the next request when the current one is complete
-          if (status === 'success') {
-            var bundleState = JSON.parse(jqXHR.responseText).state;
-            if (bundleState === 'ready' || bundleState === 'failed')
-              return;
-          }
-          // bundleState is not ready or failed, needs to make another ajax request
-          var endTime = new Date().getTime();
-          var delayTime = Math.max(3000, (endTime - startTime) * 5);
-          // delayTime is at least five times the amount of time it takes for the last request to complete
-          setTimeout(function() {
-            self.updateRunBundle(bundleUuid);
-          }, delayTime);
-          startTime = endTime;
-        }
+        }.bind(this)
       });
     },
 
@@ -99,8 +95,7 @@ var WorksheetItemList = React.createClass({
       var info = nextProps.ws.info;
       if (info && info.items.length > 0) {
         var items = info.items;
-        var self = this;
-        var bundlesBeingUpdated = _.clone(this.state.bundlesBeingUpdated);
+        var hasUnfinishedRunBundles = false;
         for (var i = 0; i < items.length; i++) {
           var bundle_info = items[i].bundle_info;
           if (bundle_info) {
@@ -109,16 +104,16 @@ var WorksheetItemList = React.createClass({
               var bundle = bundle_info[j];
               if (bundle.bundle_type === 'run') {
                 if (bundle.state !== 'ready' && bundle.state !== 'failed') {
-                  if (!(bundle.uuid in bundlesBeingUpdated)) {
-                    bundlesBeingUpdated[bundle.uuid] = true;
-                    this.updateRunBundle(bundle.uuid);
-                  }
+                  hasUnfinishedRunBundles = true;
                 }
               }
             }
           }
         }
-        this.setState({bundlesBeingUpdated: bundlesBeingUpdated});
+        if (hasUnfinishedRunBundles && !this.state.isUpdatingRunBundles) {
+          this.setState({isUpdatingRunBundles: true});
+          this.updateRunBundle(info.uuid);
+        }
       }
     },
 
@@ -184,7 +179,6 @@ var WorksheetItemList = React.createClass({
         var items_display;
         var info = this.props.ws.info;
         if (info && info.items.length > 0) {
-          // console.log('render worksheet item list')
             var worksheet_items = [];
             info.items.forEach(function(item, index) {
                 var focused = (index == this.props.focusIndex);
