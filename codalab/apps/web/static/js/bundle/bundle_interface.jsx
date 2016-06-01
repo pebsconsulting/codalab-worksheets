@@ -3,7 +3,7 @@ var Bundle = React.createClass({
       return null;
     },
 
-    componentWillMount: function() {
+    fetchExtra: function() {
       var url = this.props.bundle_uuid ? "/rest/api/bundles/" + this.props.bundle_uuid + "/" : "/rest/api" + document.location.pathname;
       $.ajax({
         type: "GET",
@@ -23,6 +23,13 @@ var Bundle = React.createClass({
             $('#bundle-content').hide();
         }.bind(this)
       });
+    },
+
+    componentWillMount: function() {
+      if (!this.props.bundle_uuid) {
+        // if it is the bundle detail page, not bundle detail on the side panel
+        this.fetchExtra();
+      }
     },
 
     render: function() {

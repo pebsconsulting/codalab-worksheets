@@ -20,6 +20,17 @@ var WorksheetSidePanel = React.createClass({
         });
     },
 
+    componentDidUpdate: function() {
+      var __innerFetchExtra = function() {
+        //console.log('__innerFetchExtra');
+        if (this.refs.hasOwnProperty('bundle_info_side_panel'))
+          this.refs.bundle_info_side_panel.fetchExtra();
+      }
+      if (this.debouncedFetchExtra === undefined)
+        this.debouncedFetchExtra = _.debounce(__innerFetchExtra, 200).bind(this);
+      this.debouncedFetchExtra();
+    },
+
     getFocus: function() {
         // Return the state to show on the side panel
         var info = this.props.ws.info;
@@ -124,6 +135,7 @@ var WorksheetSidePanel = React.createClass({
                                      key={'table' + this.props.focusIndex + ',' + this.props.subFocusIndex}
                                      bundle_uuid={bundle_info.uuid}
                                      bundleMetadataChanged={this.props.bundleMetadataChanged}
+                                     ref="bundle_info_side_panel"
                                    />;
             }
           } else {
