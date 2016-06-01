@@ -141,16 +141,38 @@ var Bundle = React.createClass({
         var saveButton;
         var metadata = this.state.metadata;
         var bundle_download_url = "/rest/bundles/" + this.state.uuid + "/contents/blob/";
+        var headerRows = [];
         var bundleAttrs = [];
         var editing = this.state.editing;
         var tableClassName = 'table' + (editing ? ' editing' : '');
         var editButtonText = editing ? 'cancel' : 'edit';
+
+        function createRow(key, value) {
+          return (<tr>
+            <th width="33%">{key}</th>
+            <td>{value}</td>
+          </tr>);
+        }
+        if (this.state.bundle_type == 'run') {
+            headerRows.push(createRow('Command', this.state.command));
+        }
+        headerRows.push(createRow('State', this.state.state));
+        if (metadata.failure_message) {
+            headerRows.push(createRow('Failure Message', metadata.failure_message));
+        }
+        if (this.state.bundle_type == 'run' && this.state.state == "running" && metadata.run_status != "Running") {
+            headerRows.push(createRow('Run Status', metadata.run_status));
+        }
 
         if (editing)
             saveButton = <button className="btn btn-success btn-sm" onClick={this.saveMetadata}>save</button>;
 
         var keys = [];
         for (var property in metadata) {
+            if (["run_status", "failure_message"].indexOf(property) != -1) {
+                // These are displayed in the header.
+                continue;
+            }
             if (metadata.hasOwnProperty(property))
                 keys.push(property);
         }
@@ -305,30 +327,9 @@ var Bundle = React.createClass({
                 </p>
                     <div className="metadata-table">
                         <table>
-                            <tr>
-                                <th width="33%">
-                                    State
-                                </th>
-                                <td>
-                                    {this.state.state}
-                                </td>
-                            </tr>
-                            <tr>
-                                <th width="33%">
-                                    Command
-                                </th>
-                                <td>
-                                    {this.state.command || "<none>"}
-                                </td>
-                            </tr>
-                             <tr>
-                                <th width="33%">
-                                    Data Hash
-                                </th>
-                                <td>
-                                    {this.state.data_hash || "<none>"}
-                                </td>
-                            </tr>
+                            <tbody>
+                                {headerRows}
+                            </tbody>
                         </table>
                     </div>
 
