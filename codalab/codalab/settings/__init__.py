@@ -64,7 +64,7 @@ class Base(Settings):
     VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV', None)
 
     # Keep in sync with codalab-cli
-    CODALAB_VERSION = '0.1.7'
+    CODALAB_VERSION = '0.1.8'
     
     # Bundle service location, used in config generation.
     BUNDLE_SERVICE_CODE_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'codalab-cli'))

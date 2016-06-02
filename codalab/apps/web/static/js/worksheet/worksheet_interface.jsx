@@ -48,7 +48,8 @@ var Worksheet = React.createClass({
       }
     },
 
-    setFocus: function(index, subIndex) {
+    setFocus: function(index, subIndex, shouldScroll) {
+        if (shouldScroll === undefined) shouldScroll = true;
         //console.log('setFocus', index, subIndex);
         var info = this.state.ws.info;
         // resolve to the last item that contains bundle(s)
@@ -87,7 +88,7 @@ var Worksheet = React.createClass({
         }
         // Change the focus - triggers updating of all descendants.
         this.setState({focusIndex: index, subFocusIndex: subIndex, focusedBundleUuidList: focusedBundleUuidList});
-        this.scrollToItem(index, subIndex);
+        if (shouldScroll) this.scrollToItem(index, subIndex);
     },
 
     scrollToItem: function(index, subIndex) {
@@ -210,6 +211,7 @@ var Worksheet = React.createClass({
             if ($('#glossaryModal').hasClass('in')) {
                 $('#glossaryModal').modal('hide');
             }
+            ContextMenuMixin.closeContextMenu();
             self.setState({escCount: self.state.escCount + 1});
         });
 
@@ -529,8 +531,13 @@ var Worksheet = React.createClass({
                     refreshWorksheet={this.refreshWorksheet}
                     openWorksheet={this.openWorksheet}
                     focusActionBar={this.focusActionBar}
+                    ensureIsArray={this.ensureIsArray}
                 />
             );
+
+        var context_menu_display = (
+            <ContextMenu />
+        );
 
         var worksheet_side_panel = (
                 <WorksheetSidePanel
@@ -548,11 +555,13 @@ var Worksheet = React.createClass({
 
         var worksheet_display = this.state.editMode ? raw_display : items_display;
         var editButtons = this.state.editMode ? editModeFeatures: editFeatures;
+
         return (
             <div id="worksheet" className={searchClassName}>
                 {action_bar_display}
                 {chat_box_display}
                 {chat_portal}
+                {context_menu_display}
                 <div id="worksheet_panel" className="actionbar-focus">
                     {worksheet_side_panel}
                     <div className="ws-container">

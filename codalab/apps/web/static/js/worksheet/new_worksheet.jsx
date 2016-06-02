@@ -45,7 +45,8 @@ var NewWorksheet = React.createClass({
       $('#new-worksheet-input').focus();
       return;
     }
-    var command = 'cl new \"' + this.state.newWorksheetName + '\"';
+    var args = ['new', this.state.newWorksheetName];
+    $('#command_line').terminal().exec(buildTerminalCommand(args));
     this.toggleNewWorksheet();
   },
 
