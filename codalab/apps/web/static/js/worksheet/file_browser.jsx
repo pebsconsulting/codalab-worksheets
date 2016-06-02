@@ -26,8 +26,8 @@ var FileBrowser = React.createClass({
             this.setState({'fileBrowserData': data});
         }.bind(this),
         error: function(xhr, status, err) {
-          this.setState({"fileBrowserData": ""});
-          $('.bundle-file-view-container').hide();
+          this.setState({"fileBrowserData": {}});
+          $('.file-browser').hide();
         }.bind(this)
       });
     },
@@ -118,7 +118,7 @@ var FileBrowser = React.createClass({
           header = (<div className="collapsible-header"><span><p>contents {arrow}</p></span></div>);
           checkbox = null
         }
-        return (<div>
+        return (<div className='file-browser'>
           {checkbox}
           {header}
           <div className={content_class_name}>
@@ -186,7 +186,7 @@ var FileBrowserItem = React.createClass({
             </span>
           );
         } else if (this.props.type == 'file') {
-          var file_link = '/rest/bundle/' + this.props.bundle_uuid + '/contents/blob/' + encodeURIComponent(file_location);
+          var file_link = '/rest/bundles/' + this.props.bundle_uuid + '/contents/blob/' + encodeURIComponent(file_location);
           item = (
             <span className={this.props.type}>
                 <span className="glyphicon-file glyphicon" alt="More"></span>
