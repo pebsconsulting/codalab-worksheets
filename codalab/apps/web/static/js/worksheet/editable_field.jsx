@@ -7,32 +7,30 @@ var EditableField = React.createClass({
     canEdit: React.PropTypes.bool.isRequired
   },
   componentDidMount: function() {
-    if (this.props.value) {
-      $(this.refs.field.getDOMNode()).editable({
-        send: 'always',
-        type: 'text',
-        mode: 'inline',
-        value: this.props.value,
-        url: this.props.url,
-        defaultValue: '<none>',
-        params: function(params) {
-          return JSON.stringify(this.props.buildParams(params));
-        }.bind(this),
-        success: function(response, newValue) {
-          if (response.exception) {
-            return response.exception;
-          }
-          if ('onChange' in this.props) {
-            this.props.onChange();
-          }
-        }.bind(this)
-      }).on('click', function() {
-        // Hack to put the right input into the field, since the jQuery plugin doesn't update it properly
-        // in response to new values.
-        if (!this.props.canEdit) return;
-        $(this.refs.field.getDOMNode()).data('editable').input.value2input(this.props.value);
-      }.bind(this));
-    }
+    $(this.refs.field.getDOMNode()).editable({
+      send: 'always',
+      type: 'text',
+      mode: 'inline',
+      value: this.props.value,
+      url: this.props.url,
+      defaultValue: '<none>',
+      params: function(params) {
+        return JSON.stringify(this.props.buildParams(params));
+      }.bind(this),
+      success: function(response, newValue) {
+        if (response.exception) {
+          return response.exception;
+        }
+        if ('onChange' in this.props) {
+          this.props.onChange();
+        }
+      }.bind(this)
+    }).on('click', function() {
+      // Hack to put the right input into the field, since the jQuery plugin doesn't update it properly
+      // in response to new values.
+      if (!this.props.canEdit) return;
+      $(this.refs.field.getDOMNode()).data('editable').input.value2input(this.props.value);
+    }.bind(this));
   },
   componentDidUpdate: function() {
     //$(this.refs.field.getDOMNode()).editable('option', 'value', this.props.value);
@@ -40,7 +38,7 @@ var EditableField = React.createClass({
   },
   render: function () {
     return (
-      <a href="#" ref='field'>{this.props.value}</a>
+      <a href="#" ref='field'></a>
     );
   }
 });
@@ -61,7 +59,7 @@ var WorksheetEditableField = React.createClass({
     };
   },
   render: function () {
-    return (
+    return this.props.value === null ? null : (
       <EditableField {...this.props} url="/rest/api/worksheets/command/" buildParams={this.buildParams} />
     );
   }
@@ -81,7 +79,7 @@ var BundleEditableField = React.createClass({
     };
   },
   render: function () {
-    return (
+    return this.props.value === null ? null : (
       <EditableField {...this.props} url={"/rest/api/bundles/" + this.props.uuid + "/"} buildParams={this.buildParams} />
     );
   }
