@@ -39,7 +39,6 @@
         "password": "{{EMAIL_HOST_PASSWORD}}"
     },
     "workers": {
-        "launch_new_worker_system": true,
         "default_docker_image": "codalab/ubuntu:1.9",
         "max_request_time": "1d",
         "max_request_memory": "10g",
