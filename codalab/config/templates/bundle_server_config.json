@@ -9,13 +9,6 @@
     "cli": {
         "verbose": 1
     },
-    {% if EMAIL_HOST %}
-    "email": {
-      "host": "{{EMAIL_HOST}}",
-      "user": "{{EMAIL_HOST_USER}}",
-      "password": "{{EMAIL_HOST_PASSWORD}}"
-    },
-    {% endif %}
     "server": {
         "host": "localhost",
         "port": 2800,
@@ -38,8 +31,8 @@
         "user": "{{EMAIL_HOST_USER}}",
         "password": "{{EMAIL_HOST_PASSWORD}}"
     },
+    "admin-email": "{{ADMIN_EMAIL}}",
     "workers": {
-        "launch_new_worker_system": true,
         "default_docker_image": "codalab/ubuntu:1.9",
         "max_request_time": "1d",
         "max_request_memory": "10g",

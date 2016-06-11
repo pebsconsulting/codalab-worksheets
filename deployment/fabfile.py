@@ -97,6 +97,9 @@ class DeploymentConfig(object):
     def getEmailInfo(self):
         return self._svc_global['email']
 
+    def getAdminEmail(self):
+        return self._svc_global['admin-email']
+
     def getServiceName(self):
         """Gets the cloud service name."""
         return "{0}{1}".format(self.getServicePrefix(), self.label)
@@ -226,6 +229,7 @@ def getWebsiteConfig(config):
         'DJANGO_USE_UWSGI': True,
         # For generating the bundle_server_config.json file.
         'email': config.getEmailInfo(),
+        'admin-email': config.getAdminEmail(),
         'BUNDLE_DB_NAME': config.getBundleServiceDatabaseName(),
         'BUNDLE_DB_USER': config.getBundleServiceDatabaseUser(),
         'BUNDLE_DB_PASSWORD': config.getBundleServiceDatabasePassword(),
