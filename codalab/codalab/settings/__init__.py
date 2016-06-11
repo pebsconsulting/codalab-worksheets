@@ -71,6 +71,7 @@ class Base(Settings):
     BUNDLE_SERVICE_VIRTUAL_ENV = os.path.join(BUNDLE_SERVICE_CODE_PATH, 'venv')
 
     LOGS_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'logs'))
+    BACKUP_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'backup'))
 
     BUNDLE_DB_NAME = config.get('BUNDLE_DB_NAME')
     BUNDLE_DB_USER = config.get('BUNDLE_DB_USER')
@@ -89,6 +90,8 @@ class Base(Settings):
         EMAIL_HOST_PASSWORD = config['email']['password']
     else:
         EMAIL_HOST = None
+
+    ADMIN_EMAIL = config.get('admin-email')
 
     ############################################################
 
