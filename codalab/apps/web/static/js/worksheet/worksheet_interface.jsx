@@ -381,8 +381,9 @@ var Worksheet = React.createClass({
         return ['end', 'end'];
     },
 
+    // partialUpdate is an optional argument that, if exists, contains only items (run bundles for now) that need to be updated
     refreshWorksheet: function(partialUpdate) {
-        if (!partialUpdate) {
+        if (partialUpdate === undefined) {
           $('#update_progress').show();
           this.setState({updating: true});
           this.state.ws.fetch({
