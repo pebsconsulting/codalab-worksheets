@@ -9,10 +9,10 @@ the bundle service.
 var WorksheetItemList = React.createClass({
     getInitialState: function() {
         return {
-          isUpdatingRunBundles: false
+          updatingBundleUuids: {},
+          isUpdatingBundles: false,
         };
     },
-    throttledScrollToItem: undefined, // for use later
 
     componentDidUpdate: function() {
         var info = this.props.ws.info;
@@ -63,17 +63,17 @@ var WorksheetItemList = React.createClass({
     updateRunBundle: function(worksheetUuid) {
       var startTime = new Date().getTime();
       var self = this;
+      var queryParams = Object.keys(this.state.updatingBundleUuids).map(function(bundle_uuid) {
+        return 'bundle_uuid=' + bundle_uuid;
+      }).join('&');
       $.ajax({
         type: "GET",
-        url: "/rest/api/worksheets/unfinished_bundles/" + worksheetUuid + "/",
+        url: "/rest/api/worksheets/" + worksheetUuid + "/?" + queryParams,
         dataType: 'json',
         cache: false,
         success: function(worksheet_content) {
-          if (Object.keys(worksheet_content).length === 0) {
-            // If there are no unfinished bundles, the server returns an empty object {}.
-            self.setState({isUpdatingRunBundles: false});
-          } else {
-            self.props.refreshWorksheet(worksheet_content);
+          if (this.state.isUpdatingBundles) {
+            self.props.refreshWorksheet(worksheet_content, this.state.updatingBundleUuids);
             var endTime = new Date().getTime();
             var delayTime = Math.max(3000, (endTime - startTime) * 5);
             // delayTime is at least five times the amount of time it takes for the last request to complete
@@ -93,9 +93,9 @@ var WorksheetItemList = React.createClass({
     // Check for unfinished run bundles (not ready or failed), and call updateRunBundle to constantly update them
     checkRunBundle: function(nextProps) {
       var info = nextProps.ws.info;
+      var updatingBundleUuids = _.clone(this.state.updatingBundleUuids);
       if (info && info.items.length > 0) {
         var items = info.items;
-        var hasUnfinishedRunBundles = false;
         for (var i = 0; i < items.length; i++) {
           var bundle_info = items[i].bundle_info;
           if (bundle_info) {
@@ -104,16 +104,23 @@ var WorksheetItemList = React.createClass({
               var bundle = bundle_info[j];
               if (bundle.bundle_type === 'run') {
                 if (bundle.state !== 'ready' && bundle.state !== 'failed') {
-                  hasUnfinishedRunBundles = true;
+                  updatingBundleUuids[bundle.uuid] = true;
+                } else {
+                  if (bundle.uuid in updatingBundleUuids)
+                    delete updatingBundleUuids[bundle.uuid];
                 }
               }
             }
           }
         }
-        if (hasUnfinishedRunBundles && !this.state.isUpdatingRunBundles) {
-          this.setState({isUpdatingRunBundles: true});
+        if (Object.keys(updatingBundleUuids).length > 0 && !this.state.isUpdatingBundles) {
+          this.setState({isUpdatingBundles: true});
           this.updateRunBundle(info.uuid);
         }
+        if (Object.keys(updatingBundleUuids).length === 0 && this.state.isUpdatingBundles) {
+          this.setState({isUpdatingBundles: false});
+        }
+        this.setState({updatingBundleUuids: updatingBundleUuids});
       }
     },
 
