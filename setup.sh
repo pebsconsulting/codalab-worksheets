@@ -54,4 +54,12 @@ else
         exit 1
 fi
 
-echo "One time setup is complete. You are ready to proceed."
+# Install Javascript dependencies
+(
+  cd codalab/apps/web &&
+  npm install &&
+  npm run bower &&
+  npm run build
+) || exit 1
+
+echo "Setup done."
