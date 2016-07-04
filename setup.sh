@@ -66,4 +66,12 @@ echo '### Installing Javascript dependencies (via npm)...'
   npm run build
 ) || exit 1
 
+echo '### Giving world-readable permissions to static files (for nginx)...'
+chmod a+rx . || exit 1
+chmod a+rx codalab || exit 1
+chmod a+rx codalab/apps || exit 1
+chmod a+rx codalab/apps/web || exit 1
+chmod -R a+r codalab/apps/web/static || exit 1
+find codalab/apps/web/static -type d -exec chmod a+x {} \; || exit 1
+
 echo 'Setup done.'
