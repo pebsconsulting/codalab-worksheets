@@ -16,12 +16,10 @@ class Base(Settings):
     home_path = os.getenv('CODALAB_HOME', os.path.join(os.getenv('HOME'), '.codalab'))
     config_path = os.path.join(home_path, 'website-config.json')
     # Generate an empty config file if one does not already exist
-    if not os.path.exists(config_path):
-        print 'No configuration file detected. Generating a blank one at %s' % config_path
-        with open(config_path, 'w') as conf:
-            conf.write('{}')
-
-    config = json.loads(open(config_path).read())
+    if os.path.exists(config_path):
+        config = json.loads(open(config_path).read())
+    else:
+        config = {}
 
     SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
     PROJECT_APP_DIR = os.path.dirname(SETTINGS_DIR)
@@ -29,11 +27,6 @@ class Base(Settings):
     ROOT_DIR = os.path.dirname(PROJECT_DIR)
     DEBUG = False
     TEMPLATE_DEBUG = DEBUG
-
-    COMPILE_LESS = True # less -> css already done (true) or less.js to compile it on render (false)
-
-    LOCAL_MATHJAX = True # see prep_for_offline
-    LOCAL_ACE_EDITOR = True # see prep_for_offline
 
     SITE_ID = 1
     DOMAIN_NAME = 'localhost'
@@ -67,31 +60,16 @@ class Base(Settings):
     CODALAB_VERSION = '0.1.8'
     
     # Bundle service location, used in config generation.
+    # Hopefully we can remove this!
     BUNDLE_SERVICE_CODE_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'codalab-cli'))
     BUNDLE_SERVICE_VIRTUAL_ENV = os.path.join(BUNDLE_SERVICE_CODE_PATH, 'venv')
 
     LOGS_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'logs'))
     BACKUP_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'backup'))
 
-    BUNDLE_DB_NAME = config.get('BUNDLE_DB_NAME')
-    BUNDLE_DB_USER = config.get('BUNDLE_DB_USER')
-    BUNDLE_DB_PASSWORD = config.get('BUNDLE_DB_PASSWORD')
-
-    NEW_RELIC_KEY = config.get('NEW_RELIC_KEY')
-
     # Hosts/domain names that are valid for this site; required if DEBUG is False
     # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
     ALLOWED_HOSTS = config.get('ALLOWED_HOSTS', [])
-
-    # Email Configuration, used in config generation.
-    if 'email' in config:
-        EMAIL_HOST = config['email']['host']
-        EMAIL_HOST_USER = config['email']['user']
-        EMAIL_HOST_PASSWORD = config['email']['password']
-    else:
-        EMAIL_HOST = None
-
-    ADMIN_EMAIL = config.get('admin-email')
 
     ############################################################
 

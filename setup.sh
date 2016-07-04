@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
  
+echo '### Installing Python dependencies (via pip)...'
+
 script_dir="$( cd "$( dirname "$0" )" && pwd )"
 venv=${VENV:-"venv"}
  
@@ -54,7 +56,9 @@ else
         exit 1
 fi
 
-# Install Javascript dependencies
+############################################################
+
+echo '### Installing Javascript dependencies (via npm)...'
 (
   cd codalab/apps/web &&
   npm install &&
@@ -62,4 +66,4 @@ fi
   npm run build
 ) || exit 1
 
-echo "Setup done."
+echo 'Setup done.'
