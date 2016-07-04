@@ -39,7 +39,7 @@ class Base(Settings):
     STARTUP_ENV = {
         'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'],
         'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],
-        'NEW_RELIC_CONFIG_FILE': '%s/newrelic.ini' % PROJECT_DIR,
+        #'NEW_RELIC_CONFIG_FILE': '%s/newrelic.ini' % PROJECT_DIR,
     }
 
     SSL_PORT = config.get('SSL_PORT')
@@ -164,30 +164,9 @@ class Base(Settings):
     )
 
     INSTALLED_APPS = (
-        # Standard django apps
-        'django.contrib.contenttypes',
-        'django.contrib.sites',
-        'django.contrib.staticfiles',
-        'django.contrib.humanize',
-
-        # Analytics app that works with many services - IRJ 2013.7.29
         'analytical',
-
-        # This is used to manage the HTML page hierarchy for the competition
-        'mptt',
-        
-        # This is usef for generating config files.
         'django_config_gen',
-
-        # TODO: Document the need for these
         'compressor',
-        'django_js_reverse',
-        'bootstrapform',
-
-        # Django Nose !!Important!! This needs to come after South.
-        'django_nose',
-
-        # CodaLab apps
         'apps.web',
     )
 
@@ -295,7 +274,8 @@ class Base(Settings):
 ############################################################
 
 class Dev(Base):
-    OPTIONAL_APPS = ('debug_toolbar','django_extensions',)
+    OPTIONAL_APPS = ()
+    #OPTIONAL_APPS = ('debug_toolbar','django_extensions',)
     INTERNAL_IPS = ('127.0.0.1',)
     DEBUG = True
     CACHES = {
