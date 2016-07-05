@@ -458,7 +458,6 @@ var Worksheet = React.createClass({
         var sourceStr = editPermission ? 'Edit source' : 'View source';
         var editFeatures = (
             <div className="edit-features">
-                <label>Mode:</label>
                 <div className="btn-group">
                     <button className={viewClass} onClick={this.viewMode}>View</button>
                     <button className={rawClass} onClick={this.editMode}>{sourceStr}</button>
@@ -468,7 +467,6 @@ var Worksheet = React.createClass({
 
         var editModeFeatures = (
             <div className="edit-features">
-                <label>Mode:</label>
                 <div className="btn-group">
                     <button className={viewClass} onClick={this.viewMode} disabled={disableWorksheetEditing}>Save</button>
                     <button className={viewClass} onClick={this.discardChanges}>Discard</button>
@@ -554,7 +552,7 @@ var Worksheet = React.createClass({
             );
 
         var worksheet_display = this.state.editMode ? raw_display : items_display;
-        var editButtons = this.state.editMode ? editModeFeatures: editFeatures;
+        var editButtons = this.state.editMode ? editModeFeatures : editFeatures;
 
         return (
             <div id="worksheet" className={searchClassName}>
@@ -569,14 +567,8 @@ var Worksheet = React.createClass({
                             <div id="worksheet_content" className={editableClassName}>
                                 <div className="header-row">
                                     <div className="row">
-                                        <h4 className='worksheet-title'><WorksheetEditableField canEdit={this.canEdit()} fieldName="title" value={info && info.title} uuid={info && info.uuid} onChange={this.refreshWorksheet} /></h4>
                                         <div className="col-sm-6 col-md-8">
-                                            <div className="worksheet-name">
-                                                <div className="worksheet-detail"><b>name: </b><WorksheetEditableField canEdit={this.canEdit()} fieldName="name" value={info && info.name} uuid={info && info.uuid} onChange={this.refreshWorksheet} /></div>
-                                                <div className="worksheet-detail"><b>uuid: </b>{info && info.uuid}</div>
-                                                <div className="worksheet-detail"><b>owner: </b>{info && info.owner_name}</div>
-                                                <div className="worksheet-detail"><b>permissions: </b>{info && render_permissions(info)}</div>
-                                            </div>
+                                          <h4 className='worksheet-title'><WorksheetEditableField canEdit={this.canEdit()} fieldName="title" value={info && info.title} uuid={info && info.uuid} onChange={this.refreshWorksheet} /></h4>
                                         </div>
                                         <div className="col-sm-6 col-md-4">
                                             <div className="controls">
