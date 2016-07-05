@@ -134,6 +134,7 @@ var WorksheetSidePanel = React.createClass({
                                    key={'ws' + this.props.focusIndex}
                                    worksheet_info={worksheet_info}
                                    ref="worksheet_info_side_panel"
+                                   bundleMetadataChanged={this.props.bundleMetadataChanged}
                                  />;
           } else if (this.isFocusMarkup(focus)) {
             // Show nothing (maybe later show markdown just for fun?)
@@ -226,13 +227,12 @@ var WorksheetDetailSidePanel = React.createClass({
         </div>
       );
 
-      // TODO: Allow editing of worksheet metadata from side panel.
       return (
           <div id="panel_content">
-              <h4 className="ws-title"><WorksheetEditableField canEdit={false} fieldName="title" value={worksheet.title} uuid={worksheet.uuid} /></h4>
               <table className="bundle-meta table">
-                <tr><th>name</th><td><WorksheetEditableField canEdit={false} fieldName="name" value={worksheet.name} uuid={worksheet.uuid} /></td></tr>
                 <tr><th>uuid</th><td>{worksheet.uuid}</td></tr>
+                <tr><th>name</th><td><WorksheetEditableField canEdit={true} fieldName="name" value={worksheet.name} uuid={worksheet.uuid} onChange={this.props.bundleMetadataChanged} /></td></tr>
+                <tr><th>title</th><td><WorksheetEditableField canEdit={true} fieldName="title" value={worksheet.title} uuid={worksheet.uuid} onChange={this.props.bundleMetadataChanged} /></td></tr>
                 <tr><th>owner</th><td>{worksheet.owner_name}</td></tr>
                 <tr><th>permissions</th><td>{render_permissions(worksheet)}</td></tr>
               </table>
@@ -343,11 +343,11 @@ function createRow(bundle_info, bundleMetadataChanged, key, value) {
 
 function renderMetadata(bundle_info, bundleMetadataChanged) {
   /*
-  In the current implementaiton, refreshWorksheet method of worksheet_content
+  In the current implementation, refreshWorksheet method of worksheet_content
   is passed in as bundleMetadataChanged and is just called in order to reflect
-  changes made in the side-panel on the main page.
+  changes made in the side panel on the main page.
   TODO: The response object contains the uuid of the modified object.
-        Use that to update the main view instead of refrsehing the
+        Use that to update the main view instead of refreshing the
         entire worksheet.
   */
   var metadata = bundle_info.metadata;
