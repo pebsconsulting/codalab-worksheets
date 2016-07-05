@@ -1,75 +1,33 @@
 This file describes the structure of the code relevant to CodaLab worksheets.
 
-Maps URLs to views
-  ./apps/api/routers.py
-  ./apps/web/urls/bundles.py
-  ./apps/web/urls/worksheets.py
-
-Template views (./apps/web/views.py)
-  WorksheetLandingView: landing page
-  WorksheetListView: list worksheets
-  WorksheetDetailView: show worksheet page
-  BundleDetailView: show bundle page
-  BundleDownload: download bundle
-
-API views (./apps/api/views/worksheet_views.py): 
-  WorksheetsInfoApi
-  WorksheetsListApi
-  WorksheetsAddApi
-  WorksheetsDeleteApi
-  WorksheetsSearchApi
-  WorksheetsGetUUIDApi
-  WorksheetsGetBundleListApi
-  WorksheetContentApi
-  WorksheetsCommandApi
-  BundleInfoApi
-  BundleSearchApi
-  BundleGetUUIDApi
-  BundleUploadApi
-  BundleContentApi
-  BundleFileContentApi
-
-BundleService (./apps/web/bundles.py): talks to RemoteBundleClient (codalab-cli repo)
-
-Utilities
-  ./apps/common/worksheet_utils.py
-
 CSS
   ./apps/web/static/less/imports.less
 
-############################################################
-
 Template page (./apps/web/templates/base.html)
+
 Main page (./apps/web/templates/web/index.html)
-  ./apps/web/templates/web/worksheets_latest.html
   ./apps/web/templates/404.html
   ./apps/web/templates/500.html
-
-Worksheet lists page (./apps/web/templates/web/worksheets/index.html)
-  react Worksheets (./apps/web/static/js/worksheet/worksheet_list.jsx)
-    react WorksheetSearch
-    react WorksheetList
-      react Worksheet
 
 Worksheet page (./apps/web/templates/web/worksheets/detail.html)
   WorksheetContent (./apps/web/static/js/worksheet/worksheet_content.jsx)
   react Worksheet (./apps/web/static/js/worksheet/worksheet_interface.jsx)
     react WorksheetChatBox (./apps/web/static/js/worksheet/worksheet_chat_box.jsx)
-    react WorksheetChatPortal, WorksheetChatPortalInterface, WorksheetChatPortalUserList,
-    WorksheetChatPortalUser, WorksheetChatPortalChatList, WorksheetChatPortalChat, WorksheetChatPortalChatBox (./apps/web/static/js/worksheet/worksheet_chat_portal.jsx)
+    react WorksheetChatPortal, WorksheetChatPortalInterface, WorksheetChatPortalUserList, WorksheetChatPortalUser, WorksheetChatPortalChatList, WorksheetChatPortalChat, WorksheetChatPortalChatBox
+          (./apps/web/static/js/worksheet/worksheet_chat_portal.jsx)
     react WorksheetActionBar (./apps/web/static/js/worksheet/worksheet_action_bar.jsx)
     react WorksheetSidePanel, WorksheetDetailSidePanel, BundleDetailSidePanel (./apps/web/static/js/worksheet/worksheet_side_panel.jsx)
       react NewWorksheet (./apps/web/static/js/worksheet/new_worksheet.jsx)
     react RunBundleBuilder, BundleBrowser, RunBundleTerminal (./apps/web/static/js/worksheet/run_bundle_builder.jsx)
     react WorksheetItemList (./apps/web/static/js/worksheet/worksheet_items.jsx)
-      react ContentsBundle (./apps/web/static/js/worksheet/contents_bundle_interface.jsx)
-      react HTMLBundle (./apps/web/static/js/worksheet/html_bundle_interface.jsx)
-      react ImageBundle (./apps/web/static/js/worksheet/image_bundle_interface.jsx)
-      react GraphBundle (./apps/web/static/js/worksheet/graph_bundle_interface.jsx)
-      react MarkdownBundle (./apps/web/static/js/worksheet/markdown_bundle_interface.jsx)
-      react RecordBundle (./apps/web/static/js/worksheet/record_bundle_interface.jsx)
-      react TableBundle, TableRow (./apps/web/static/js/worksheet/table_bundle_interface.jsx)
-      react WorksheetBundle (./apps/web/static/js/worksheet/worksheet_bundle_interface.jsx)
+      react ContentsItem (./apps/web/static/js/worksheet/contents_item_interface.jsx)
+      react HTMLItem (./apps/web/static/js/worksheet/html_item_interface.jsx)
+      react ImageItem (./apps/web/static/js/worksheet/image_item_interface.jsx)
+      react GraphItem (./apps/web/static/js/worksheet/graph_item_interface.jsx)
+      react MarkdownItem (./apps/web/static/js/worksheet/markdown_item_interface.jsx)
+      react RecordItem (./apps/web/static/js/worksheet/record_item_interface.jsx)
+      react TableItem, TableRow (./apps/web/static/js/worksheet/table_item_interface.jsx)
+      react WorksheetItem (./apps/web/static/js/worksheet/worksheet_item_interface.jsx)
 
 Bundle page (./apps/web/templates/web/bundles/detail.html)
   react Bundle (./apps/web/static/js/bundle/bundle_interface.jsx)

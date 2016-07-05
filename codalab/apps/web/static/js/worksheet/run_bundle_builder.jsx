@@ -94,10 +94,8 @@ var RunBundleBuilder = React.createClass({
       target = target.path === '' ? shortUuid : shortUuid + '/' + target.path;
       clCommand.push(key + ':' + target);
     }
-    if (command != null) {
-      command = buildTerminalCommand(command.split(' '));
+    if (command != null)
       clCommand.push(command);
-    }
     return buildTerminalCommand(clCommand);
   },
 
