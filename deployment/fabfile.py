@@ -46,7 +46,6 @@ class DeploymentConfig(object):
         self._dinfo = info['deployment']
         self._svc_global = self._dinfo['service-global']
         self._svc = self._dinfo['service-configurations'][label] if label is not None else {}
-        #self.new_relic_key = self._dinfo['new-relic-key']
 
     def getLoggerDictConfig(self):
         """Gets Dict config for logging configuration."""
@@ -310,7 +309,6 @@ def install():
     with cd(env.deploy_codalab_cli_dir):
         run('git checkout %s' % env.git_codalab_cli_tag)
         run('./setup.sh server')
-        run('venv/bin/pip install MySQL-Python')
 
     # Deploy!
     _deploy()
@@ -435,7 +433,6 @@ def _deploy():
         run('git checkout %s' % env.git_codalab_cli_tag)
         run('git pull')
         run('./setup.sh server')
-        run('venv/bin/alembic upgrade head')
 
     # Create website-config.json
     cfg = DeploymentConfig(env.cfg_label, env.cfg_path)
@@ -464,17 +461,21 @@ def _deploy():
     with cd(env.deploy_codalab_cli_dir), cd('codalab'), cd('bin'):
         # For generating the bundle_server_config.json file.
         run('./cl config server/engine_url mysql://%s:%s@localhost:3306/%s' % ( \
-            config.getBundleServiceDatabaseName(),
-            config.getBundleServiceDatabaseUser(),
-            config.getBundleServiceDatabasePassword(),
+            cfg.getBundleServiceDatabaseUser(),
+            cfg.getBundleServiceDatabasePassword(),
+            cfg.getBundleServiceDatabaseName(),
         ))
         # Send out emails from here (e.g., for password reset)
-        email_info = config.getEmailInfo()
+        email_info = cfg.getEmailInfo()
         run('./cl config email/host %s' % email_info['host'])
         run('./cl config email/user %s' % email_info['user'])
         run('./cl config email/password %s' % email_info['password'])
         # Send notifications.
-        run('./cl config admin-email %s' % config.getAdminEmail())
+        run('./cl config admin-email %s' % cfg.getAdminEmail())
+
+    # Update database
+    with cd(env.deploy_codalab_cli_dir):
+        run('venv/bin/alembic upgrade head')
 
     # Set up the bundles database.
     with cd(env.deploy_codalab_cli_dir):
