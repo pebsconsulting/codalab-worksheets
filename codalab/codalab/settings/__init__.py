@@ -39,7 +39,6 @@ class Base(Settings):
     STARTUP_ENV = {
         'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'],
         'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],
-        #'NEW_RELIC_CONFIG_FILE': '%s/newrelic.ini' % PROJECT_DIR,
     }
 
     SSL_PORT = config.get('SSL_PORT')
@@ -47,7 +46,11 @@ class Base(Settings):
     SSL_CERTIFICATE_KEY = config.get('SSL_CERTIFICATE_KEY')
     SSL_ALLOWED_HOSTS = config.get('SSL_ALLOWED_HOSTS')
 
-    # For config_gen
+    # Keep in sync with codalab-cli
+    CODALAB_VERSION = '0.1.9'
+
+    ### For config_gen
+
     CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR, 'config', 'templates')
     CONFIG_GEN_GENERATED_DIR = os.path.join(PROJECT_DIR, 'config', 'generated')
 
@@ -56,9 +59,6 @@ class Base(Settings):
 
     VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV', None)
 
-    # Keep in sync with codalab-cli
-    CODALAB_VERSION = '0.1.8'
-    
     # Bundle service location, used in config generation.
     # Hopefully we can remove this!
     BUNDLE_SERVICE_CODE_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'codalab-cli'))
