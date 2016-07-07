@@ -14,7 +14,7 @@ var EditableField = React.createClass({
       mode: 'inline',
       value: this.props.value,
       url: this.props.url,
-      defaultValue: '<none>',
+      emptytext: $('<div/>').text('<none>').html(),
       params: function(params) {
         return JSON.stringify(this.props.buildParams(params));
       }.bind(this),
