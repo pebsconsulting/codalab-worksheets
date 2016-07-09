@@ -146,7 +146,7 @@ class Base(Settings):
         # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
         # Always use forward slashes, even on Windows.
         # Don't forget to use absolute paths, not relative paths.
-        os.path.join(PROJECT_DIR,'templates'),
+        os.path.join(PROJECT_DIR, 'templates'),
     )
 
     TEMPLATE_CONTEXT_PROCESSORS = Settings.TEMPLATE_CONTEXT_PROCESSORS + (
@@ -174,14 +174,6 @@ class Base(Settings):
         ('text/less', 'lessc {infile} {outfile}'),
         ('text/typescript', 'tsc {infile} --out {outfile}'),
     )
-
-    # Added for catching certain parts on competitions side
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-            'LOCATION': '127.0.0.1:11211',
-        }
-    }
 
     # A sample logging configuration. The only tangible logging
     # performed by this configuration is to send an email to
@@ -268,7 +260,6 @@ class Base(Settings):
 
 class Dev(Base):
     OPTIONAL_APPS = ()
-    #OPTIONAL_APPS = ('debug_toolbar','django_extensions',)
     INTERNAL_IPS = ('127.0.0.1',)
     DEBUG = True
     CACHES = {
