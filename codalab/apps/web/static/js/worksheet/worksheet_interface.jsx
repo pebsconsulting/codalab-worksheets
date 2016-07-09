@@ -119,7 +119,7 @@ var Worksheet = React.createClass({
           success: function(data) {
               $('#worksheet-message').hide();
               $('#worksheet_content').show();
-              this.setState({updating: false, version: this.state.version + 1});
+              this.setState({updating: false, version: this.state.version + 1, numOfBundles: this.getNumOfBundles()});
               // Fix out of bounds.
           }.bind(this),
           error: function(xhr, status, err) {
@@ -354,31 +354,35 @@ var Worksheet = React.createClass({
       return bundle_info;
     },
 
-    getNumOfBundles: function(items) {
-        var count = 0;
-        for (var i = 0; i < items.length; i++) {
-            var bundle_info = this.ensureIsArray(items[i].bundle_info);
-            if (bundle_info) {
-                count += bundle_info.length;
-            }
+    getNumOfBundles: function() {
+      var items = this.state.ws.info && this.state.ws.info.items;
+      if (!items) return 0;
+      var count = 0;
+      for (var i = 0; i < items.length; i++) {
+        var bundle_info = this.ensureIsArray(items[i].bundle_info);
+        if (bundle_info) {
+          count += bundle_info.length;
         }
-        return count;
+      }
+      return count;
     },
 
     getFocusAfterBundleRemoved: function(items) {
-        for (var i = 0; i < this.state.focusedBundleUuidList.length; i++) {
-            for (var index = 0; index < items.length; index++) {
-                var bundle_info = this.ensureIsArray(items[index].bundle_info);
-                if (bundle_info) {
-                    for (var subIndex = 0; subIndex < (this._numTableRows(items[index]) || 1); subIndex++) {
-                        if (bundle_info[subIndex].uuid == this.state.focusedBundleUuidList[i])
-                            return [index, subIndex];
-                    }
-                }
+      var items = this.state.ws.info && this.state.ws.info.items;
+      if (!items) return null;
+      for (var i = 0; i < this.state.focusedBundleUuidList.length; i++) {
+        for (var index = 0; index < items.length; index++) {
+          var bundle_info = this.ensureIsArray(items[index].bundle_info);
+          if (bundle_info) {
+            for (var subIndex = 0; subIndex < (this._numTableRows(items[index]) || 1); subIndex++) {
+              if (bundle_info[subIndex].uuid == this.state.focusedBundleUuidList[i])
+                return [index, subIndex];
             }
+          }
         }
-        // there is no next bundle, use the last bundle
-        return ['end', 'end'];
+      }
+      // there is no next bundle, use the last bundle
+      return ['end', 'end'];
     },
 
     refreshWorksheet: function() {
@@ -388,8 +392,7 @@ var Worksheet = React.createClass({
             success: function(data) {
                 $('#update_progress, #worksheet-message').hide();
                 $('#worksheet_content').show();
-                var items = this.state.ws.info.items;
-                var numOfBundles = this.getNumOfBundles(items);
+                var numOfBundles = this.getNumOfBundles();
                 if (this.state.numOfBundles !== -1 && numOfBundles > this.state.numOfBundles) {
                     // If the number of bundles increases then the focus should be on the new bundles.
                     this.setFocus('end', 'end');
@@ -397,8 +400,10 @@ var Worksheet = React.createClass({
                     // If the number of bundles decreases, then focus should be on the same bundle as before
                     // unless that bundle doesn't exist anymore, in which case we select the closest bundle that does exist,
                     // where closest means 'next' by default or 'last' if there is no next bundle.
-                    var focus = this.getFocusAfterBundleRemoved(items);
-                    this.setFocus(focus[0], focus[1]);
+                    var focus = this.getFocusAfterBundleRemoved();
+                    if (focus !== null) {
+                      this.setFocus(focus[0], focus[1]);
+                    }
                 }
                 this.setState({updating: false, version: this.state.version + 1, numOfBundles: numOfBundles});
             }.bind(this),
