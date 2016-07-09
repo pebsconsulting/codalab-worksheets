@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
  
+echo '### Installing Python dependencies (via pip)...'
+
 script_dir="$( cd "$( dirname "$0" )" && pwd )"
 venv=${VENV:-"venv"}
  
@@ -54,4 +56,22 @@ else
         exit 1
 fi
 
-echo "One time setup is complete. You are ready to proceed."
+############################################################
+
+echo '### Installing Javascript dependencies (via npm)...'
+(
+  cd codalab/apps/web &&
+  npm install &&
+  npm run bower &&
+  npm run build
+) || exit 1
+
+echo '### Giving world-readable permissions to static files (for nginx)...'
+chmod a+rx . || exit 1
+chmod a+rx codalab || exit 1
+chmod a+rx codalab/apps || exit 1
+chmod a+rx codalab/apps/web || exit 1
+chmod -R a+r codalab/apps/web/static || exit 1
+find codalab/apps/web/static -type d -exec chmod a+x {} \; || exit 1
+
+echo 'Setup done.'

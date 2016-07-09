@@ -46,10 +46,6 @@ class DeploymentConfig(object):
         self._dinfo = info['deployment']
         self._svc_global = self._dinfo['service-global']
         self._svc = self._dinfo['service-configurations'][label] if label is not None else {}
-        self.new_relic_key = self._dinfo['new-relic-key']
-
-    def getNewRelicKey(self):
-        return self.new_relic_key
 
     def getLoggerDictConfig(self):
         """Gets Dict config for logging configuration."""
@@ -227,14 +223,6 @@ def getWebsiteConfig(config):
         'SSL_ALLOWED_HOSTS': ssl_allowed_hosts,
         'django': config.getDjangoInfo(),
         'DJANGO_USE_UWSGI': True,
-        # For generating the bundle_server_config.json file.
-        'email': config.getEmailInfo(),
-        'admin-email': config.getAdminEmail(),
-        'BUNDLE_DB_NAME': config.getBundleServiceDatabaseName(),
-        'BUNDLE_DB_USER': config.getBundleServiceDatabaseUser(),
-        'BUNDLE_DB_PASSWORD': config.getBundleServiceDatabasePassword(),
-        # New relic
-        'NEW_RELIC_KEY': config.getNewRelicKey(),
     }
 
 ############################################################
@@ -321,7 +309,6 @@ def install():
     with cd(env.deploy_codalab_cli_dir):
         run('git checkout %s' % env.git_codalab_cli_tag)
         run('./setup.sh server')
-        run('venv/bin/pip install MySQL-Python')
 
     # Deploy!
     _deploy()
@@ -434,8 +421,7 @@ def deploy():
 
 def _deploy():
     # Update website
-    env_prefix, env_shell = setup_env()
-    with env_prefix, env_shell, cd(env.deploy_codalab_worksheets_dir):
+    with cd(env.deploy_codalab_worksheets_dir):
         run('git fetch')
         run('git checkout %s' % env.git_codalab_tag)
         run('git pull')
@@ -447,10 +433,8 @@ def _deploy():
         run('git checkout %s' % env.git_codalab_cli_tag)
         run('git pull')
         run('./setup.sh server')
-        run('venv/bin/pip install MySQL-Python')
-        run('venv/bin/alembic upgrade head')
 
-    # Create local.py
+    # Create website-config.json
     cfg = DeploymentConfig(env.cfg_label, env.cfg_path)
     buf = StringIO()
     json.dump(getWebsiteConfig(cfg), buf, sort_keys=True, indent=4, separators=(',', ': '))
@@ -458,32 +442,12 @@ def _deploy():
     put(buf, '.codalab/website-config.json')
 
     # Update the website configuration
-    env_prefix, env_shell = setup_env()
-    with env_prefix, env_shell, cd(env.deploy_codalab_worksheets_dir), cd('codalab'):
-        # Generate configuration files (bundle_server_config, nginx, etc.)
-        run('python manage.py config_gen')
-        # Create static pages
-        run('python manage.py collectstatic --noinput')
-        # Put configuration files in place
-        run('mkdir -p ~/.codalab')
-        run('ln -sf `pwd`/config/generated/bundle_server_config.json ~/.codalab/config.json')
+    with cd(env.deploy_codalab_worksheets_dir), cd('codalab'):
+        # Generate configuration files (nginx, supervisord)
+        run('./manage config_gen')
+        # Put configuration files in place.
         sudo('ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
         sudo('ln -sf `pwd`/config/generated/supervisor.conf /etc/supervisor/conf.d/codalab.conf')
-        # Setup new relic
-        run('newrelic-admin generate-config %s newrelic.ini' % cfg.getNewRelicKey())
-
-    # Set up the bundles database.
-    with cd(env.deploy_codalab_cli_dir):
-        run('scripts/create-root-user.py %s' % cfg.getDatabaseAdminPassword())
-
-    # Build and install steps for JavaScript application
-    with cd(env.deploy_codalab_worksheets_dir), cd('codalab/apps/web'):
-        # Update NPM packages
-        run('npm install')
-        # Build static files (e.g. JSX and LESS)
-        run('npm run build')
-        # Install third-party dependencies
-        run('npm run bower')
 
     # Install SSL certficates (/etc/ssl/certs/)
     require('configuration')
@@ -492,3 +456,27 @@ def _deploy():
         put(cfg.getSslCertificateKeyPath(), cfg.getSslCertificateKeyInstalledPath(), use_sudo=True)
     else:
         logger.info("Skipping certificate installation because both files are not specified.")
+
+    # Configure the bundle server
+    with cd(env.deploy_codalab_cli_dir), cd('codalab'), cd('bin'):
+        # For generating the bundle_server_config.json file.
+        run('./cl config server/engine_url mysql://%s:%s@localhost:3306/%s' % ( \
+            cfg.getBundleServiceDatabaseUser(),
+            cfg.getBundleServiceDatabasePassword(),
+            cfg.getBundleServiceDatabaseName(),
+        ))
+        # Send out emails from here (e.g., for password reset)
+        email_info = cfg.getEmailInfo()
+        run('./cl config email/host %s' % email_info['host'])
+        run('./cl config email/user %s' % email_info['user'])
+        run('./cl config email/password %s' % email_info['password'])
+        # Send notifications.
+        run('./cl config admin-email %s' % cfg.getAdminEmail())
+
+    # Update database
+    with cd(env.deploy_codalab_cli_dir):
+        run('venv/bin/alembic upgrade head')
+
+    # Set up the bundles database.
+    with cd(env.deploy_codalab_cli_dir):
+        run('scripts/create-root-user.py %s' % cfg.getDatabaseAdminPassword())
