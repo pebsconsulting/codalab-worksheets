@@ -12,64 +12,57 @@ import json
 import codalab
 
 class Base(Settings):
-    # Load config file
+    # Load config file (okay if it doesn't exist).
+    # These settings are used for two purposes:
+    # - config_gen: generating deployment files (supervisord.conf, nginx.conf, etc.)
+    # - configuration for the actual Django app
+    # TODO: in the future, we should decouple these two.
     home_path = os.getenv('CODALAB_HOME', os.path.join(os.getenv('HOME'), '.codalab'))
     config_path = os.path.join(home_path, 'website-config.json')
-    # Generate an empty config file if one does not already exist
     if os.path.exists(config_path):
         config = json.loads(open(config_path).read())
     else:
         config = {}
-
-    SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
-    PROJECT_APP_DIR = os.path.dirname(SETTINGS_DIR)
-    PROJECT_DIR = os.path.dirname(PROJECT_APP_DIR)
-    ROOT_DIR = os.path.dirname(PROJECT_DIR)
-    DEBUG = False
-    TEMPLATE_DEBUG = DEBUG
-
-    SITE_ID = 1
-    DOMAIN_NAME = 'localhost'
-    SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME', 'localhost')
-    PORT = os.environ.get('CONFIG_HTTP_PORT', 8000)
-    MAINTENANCE_MODE = os.environ.get('MAINTENANCE_MODE', 0)
-
-    DJANGO_USE_UWSGI = config.get('DJANGO_USE_UWSGI')
 
     STARTUP_ENV = {
         'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'],
         'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],
     }
 
+    # Keep in sync with codalab-cli
+    CODALAB_VERSION = '0.1.9'
+
+    ############################################################
+    ### For config_gen
+
+    SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
+    PROJECT_APP_DIR = os.path.dirname(SETTINGS_DIR)
+    PROJECT_DIR = os.path.dirname(PROJECT_APP_DIR)
+    CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR, 'config', 'templates')
+    CONFIG_GEN_GENERATED_DIR = os.path.join(PROJECT_DIR, 'config', 'generated')
+
+    # nginx
     SSL_PORT = config.get('SSL_PORT')
     SSL_CERTIFICATE = config.get('SSL_CERTIFICATE')
     SSL_CERTIFICATE_KEY = config.get('SSL_CERTIFICATE_KEY')
     SSL_ALLOWED_HOSTS = config.get('SSL_ALLOWED_HOSTS')
-
-    # Keep in sync with codalab-cli
-    CODALAB_VERSION = '0.1.9'
-
-    ### For config_gen
-
-    CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR, 'config', 'templates')
-    CONFIG_GEN_GENERATED_DIR = os.path.join(PROJECT_DIR, 'config', 'generated')
-
-    DJANGO_ROOT = dirname(dirname(abspath(__file__)))
-    SITE_ROOT = dirname(DJANGO_ROOT)
-
-    VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV', None)
-
-    # Bundle service location, used in config generation.
-    # Hopefully we can remove this!
-    BUNDLE_SERVICE_CODE_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'codalab-cli'))
-    BUNDLE_SERVICE_VIRTUAL_ENV = os.path.join(BUNDLE_SERVICE_CODE_PATH, 'venv')
-
-    LOGS_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'logs'))
-    BACKUP_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'backup'))
-
     # Hosts/domain names that are valid for this site; required if DEBUG is False
     # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
     ALLOWED_HOSTS = config.get('ALLOWED_HOSTS', [])
+    SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME', 'localhost')
+    PORT = os.environ.get('CONFIG_HTTP_PORT', 8000)
+    MAINTENANCE_MODE = os.environ.get('MAINTENANCE_MODE', 0)
+
+    # uwsgi
+    DJANGO_USE_UWSGI = config.get('DJANGO_USE_UWSGI')
+    VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV', None)
+
+    # supervisord.conf
+    LOGS_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'logs'))
+    BACKUP_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'backup'))
+    # Bundle service location, used in config generation.
+    BUNDLE_SERVICE_CODE_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'codalab-cli'))
+    BUNDLE_SERVICE_VIRTUAL_ENV = os.path.join(BUNDLE_SERVICE_CODE_PATH, 'venv')
 
     ############################################################
 
