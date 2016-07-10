@@ -216,13 +216,12 @@ var WorksheetDetailSidePanel = React.createClass({
         </div>
       );
 
-      // TODO: Allow editing of worksheet metadata from side panel.
       return (
           <div id="panel_content">
-              <h4 className="ws-title"><WorksheetEditableField canEdit={false} fieldName="title" value={worksheet.title} uuid={worksheet.uuid} /></h4>
               <table className="bundle-meta table">
-                <tr><th>name</th><td><WorksheetEditableField canEdit={false} fieldName="name" value={worksheet.name} uuid={worksheet.uuid} /></td></tr>
                 <tr><th>uuid</th><td>{worksheet.uuid}</td></tr>
+                <tr><th>name</th><td><WorksheetEditableField canEdit={true} fieldName="name" value={worksheet.name} uuid={worksheet.uuid} onChange={this.props.bundleMetadataChanged} /></td></tr>
+                <tr><th>title</th><td><WorksheetEditableField canEdit={true} fieldName="title" value={worksheet.title} uuid={worksheet.uuid} onChange={this.props.bundleMetadataChanged} /></td></tr>
                 <tr><th>owner</th><td>{worksheet.owner_name}</td></tr>
                 <tr><th>permissions</th><td>{render_permissions(worksheet)}</td></tr>
               </table>

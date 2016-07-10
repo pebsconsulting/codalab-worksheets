@@ -6,6 +6,7 @@ var EditableField = React.createClass({
     onChange: React.PropTypes.func,
     canEdit: React.PropTypes.bool.isRequired
   },
+
   componentDidMount: function() {
     $(this.refs.field.getDOMNode()).editable({
       send: 'always',
@@ -13,7 +14,7 @@ var EditableField = React.createClass({
       mode: 'inline',
       value: this.props.value,
       url: this.props.url,
-      defaultValue: '<none>',
+      emptytext: $('<div/>').text('<none>').html(),
       params: function(params) {
         return JSON.stringify(this.props.buildParams(params));
       }.bind(this),
@@ -32,9 +33,14 @@ var EditableField = React.createClass({
       $(this.refs.field.getDOMNode()).data('editable').input.value2input(this.props.value);
     }.bind(this));
   },
+
+  shouldComponentUpdate: function(nextProps, nextState) {
+    return nextProps.value !== this.props.value;
+  },
+
   componentDidUpdate: function() {
-    //$(this.refs.field.getDOMNode()).editable('option', 'value', this.props.value);
-    $(this.refs.field.getDOMNode()).editable('option', 'disabled', !this.props.canEdit);
+    $(this.refs.field.getDOMNode()).editable('setValue', this.props.value)
+    $(this.refs.field.getDOMNode()).editable('option', 'disabled', this.props.canEdit === false);
   },
   render: function () {
     return (
@@ -59,9 +65,7 @@ var WorksheetEditableField = React.createClass({
     };
   },
   render: function () {
-    console.log('worksheet')
-    console.log(this.props)
-    return this.props.value === null ? null : (
+    return (
       <EditableField {...this.props} url="/rest/api/worksheets/command/" buildParams={this.buildParams} />
     );
   }
@@ -81,7 +85,7 @@ var BundleEditableField = React.createClass({
     };
   },
   render: function () {
-    return this.props.value === null ? null : (
+    return (
       <EditableField {...this.props} url={"/rest/api/bundles/" + this.props.uuid + "/"} buildParams={this.buildParams} />
     );
   }

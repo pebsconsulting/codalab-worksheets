@@ -12,83 +12,57 @@ import json
 import codalab
 
 class Base(Settings):
-    # Load config file
+    # Load config file (okay if it doesn't exist).
+    # These settings are used for two purposes:
+    # - config_gen: generating deployment files (supervisord.conf, nginx.conf, etc.)
+    # - configuration for the actual Django app
+    # TODO: in the future, we should decouple these two.
     home_path = os.getenv('CODALAB_HOME', os.path.join(os.getenv('HOME'), '.codalab'))
     config_path = os.path.join(home_path, 'website-config.json')
-    # Generate an empty config file if one does not already exist
-    if not os.path.exists(config_path):
-        print 'No configuration file detected. Generating a blank one at %s' % config_path
-        with open(config_path, 'w') as conf:
-            conf.write('{}')
-
-    config = json.loads(open(config_path).read())
-
-    SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
-    PROJECT_APP_DIR = os.path.dirname(SETTINGS_DIR)
-    PROJECT_DIR = os.path.dirname(PROJECT_APP_DIR)
-    ROOT_DIR = os.path.dirname(PROJECT_DIR)
-    DEBUG = False
-    TEMPLATE_DEBUG = DEBUG
-
-    COMPILE_LESS = True # less -> css already done (true) or less.js to compile it on render (false)
-
-    LOCAL_MATHJAX = True # see prep_for_offline
-    LOCAL_ACE_EDITOR = True # see prep_for_offline
-
-    SITE_ID = 1
-    DOMAIN_NAME = 'localhost'
-    SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME', 'localhost')
-    PORT = os.environ.get('CONFIG_HTTP_PORT', 8000)
-    MAINTENANCE_MODE = os.environ.get('MAINTENANCE_MODE', 0)
-
-    DJANGO_USE_UWSGI = config.get('DJANGO_USE_UWSGI')
+    if os.path.exists(config_path):
+        config = json.loads(open(config_path).read())
+    else:
+        config = {}
 
     STARTUP_ENV = {
         'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'],
         'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],
-        'NEW_RELIC_CONFIG_FILE': '%s/newrelic.ini' % PROJECT_DIR,
     }
 
+    # Keep in sync with codalab-cli
+    CODALAB_VERSION = '0.1.9'
+
+    ############################################################
+    ### For config_gen
+
+    SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
+    PROJECT_APP_DIR = os.path.dirname(SETTINGS_DIR)
+    PROJECT_DIR = os.path.dirname(PROJECT_APP_DIR)
+    CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR, 'config', 'templates')
+    CONFIG_GEN_GENERATED_DIR = os.path.join(PROJECT_DIR, 'config', 'generated')
+
+    # nginx
     SSL_PORT = config.get('SSL_PORT')
     SSL_CERTIFICATE = config.get('SSL_CERTIFICATE')
     SSL_CERTIFICATE_KEY = config.get('SSL_CERTIFICATE_KEY')
     SSL_ALLOWED_HOSTS = config.get('SSL_ALLOWED_HOSTS')
-
-    # For config_gen
-    CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR, 'config', 'templates')
-    CONFIG_GEN_GENERATED_DIR = os.path.join(PROJECT_DIR, 'config', 'generated')
-
-    DJANGO_ROOT = dirname(dirname(abspath(__file__)))
-    SITE_ROOT = dirname(DJANGO_ROOT)
-
-    VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV', None)
-
-    # Keep in sync with codalab-cli
-    CODALAB_VERSION = '0.1.8'
-    
-    # Bundle service location, used in config generation.
-    BUNDLE_SERVICE_CODE_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'codalab-cli'))
-    BUNDLE_SERVICE_VIRTUAL_ENV = os.path.join(BUNDLE_SERVICE_CODE_PATH, 'venv')
-
-    LOGS_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'logs'))
-
-    BUNDLE_DB_NAME = config.get('BUNDLE_DB_NAME')
-    BUNDLE_DB_USER = config.get('BUNDLE_DB_USER')
-    BUNDLE_DB_PASSWORD = config.get('BUNDLE_DB_PASSWORD')
-
-    NEW_RELIC_KEY = config.get('NEW_RELIC_KEY')
-
     # Hosts/domain names that are valid for this site; required if DEBUG is False
     # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
     ALLOWED_HOSTS = config.get('ALLOWED_HOSTS', [])
+    SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME', 'localhost')
+    PORT = os.environ.get('CONFIG_HTTP_PORT', 8000)
+    MAINTENANCE_MODE = os.environ.get('MAINTENANCE_MODE', 0)
 
-    # Email Configuration, used in config generation.
-    if 'email' in config:
-        EMAIL_HOST = config['email']['host']
-        EMAIL_HOST_USER = config['email']['user']
-        EMAIL_HOST_PASSWORD = config['email']['password']
-    else:
-        EMAIL_HOST = None
+    # uwsgi
+    DJANGO_USE_UWSGI = config.get('DJANGO_USE_UWSGI')
+    VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV', None)
+
+    # supervisord.conf
+    LOGS_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'logs'))
+    BACKUP_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'backup'))
+    # Bundle service location, used in config generation.
+    BUNDLE_SERVICE_CODE_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'codalab-cli'))
+    BUNDLE_SERVICE_VIRTUAL_ENV = os.path.join(BUNDLE_SERVICE_CODE_PATH, 'venv')
 
     ############################################################
 
@@ -172,7 +146,7 @@ class Base(Settings):
         # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
         # Always use forward slashes, even on Windows.
         # Don't forget to use absolute paths, not relative paths.
-        os.path.join(PROJECT_DIR,'templates'),
+        os.path.join(PROJECT_DIR, 'templates'),
     )
 
     TEMPLATE_CONTEXT_PROCESSORS = Settings.TEMPLATE_CONTEXT_PROCESSORS + (
@@ -183,30 +157,9 @@ class Base(Settings):
     )
 
     INSTALLED_APPS = (
-        # Standard django apps
-        'django.contrib.contenttypes',
-        'django.contrib.sites',
-        'django.contrib.staticfiles',
-        'django.contrib.humanize',
-
-        # Analytics app that works with many services - IRJ 2013.7.29
         'analytical',
-
-        # This is used to manage the HTML page hierarchy for the competition
-        'mptt',
-        
-        # This is usef for generating config files.
         'django_config_gen',
-
-        # TODO: Document the need for these
         'compressor',
-        'django_js_reverse',
-        'bootstrapform',
-
-        # Django Nose !!Important!! This needs to come after South.
-        'django_nose',
-
-        # CodaLab apps
         'apps.web',
     )
 
@@ -221,14 +174,6 @@ class Base(Settings):
         ('text/less', 'lessc {infile} {outfile}'),
         ('text/typescript', 'tsc {infile} --out {outfile}'),
     )
-
-    # Added for catching certain parts on competitions side
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-            'LOCATION': '127.0.0.1:11211',
-        }
-    }
 
     # A sample logging configuration. The only tangible logging
     # performed by this configuration is to send an email to
@@ -314,7 +259,7 @@ class Base(Settings):
 ############################################################
 
 class Dev(Base):
-    OPTIONAL_APPS = ('debug_toolbar','django_extensions',)
+    OPTIONAL_APPS = ()
     INTERNAL_IPS = ('127.0.0.1',)
     DEBUG = True
     CACHES = {
