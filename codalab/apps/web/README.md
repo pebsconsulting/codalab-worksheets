@@ -15,7 +15,7 @@ dependencies for our front-end build tools.
 Once you've installed Node, you'll need to install development dependencies.
 Inside the directory that contains this README, run
 
-        $ npm i
+    npm install
 
 Building
 =========
@@ -33,23 +33,14 @@ You also must download the [Bower](https://bower.io) dependencies before
 deploying the site, as Bower is how we track all of our third-party remote
 dependencies. The NPM script for this is listed below as well.
 
-* **Compiling only JSX**: Compile all the JSX code into the `static/dist/` directory
+* **Bower dependencies**: Install all of the third party dependencies before deploying.
 
-        $ npm run jsx
+        npm run bower
 
-* **Compiling only LESS**: Compile all the LESS code into the `static/css/` directory
+* **Compiling both JSX and LESS**: Compile all the JSX and LESS code into `static/dist` and `static/css`:
 
-        $ npm run less
-
-* **Compiling both JSX and LESS**: Compile all the JSX and LESS code
-
-        $ npm run build
+        npm run build
 
 * **Cleaning**: Removes the `static/dist/` directory and `static/css/imports.css` file
 
-        $ npm run clean
-
-* **Bower dependencies**: Install all of the third party dependencies before deploying
-
-        $ npm run bower
-
+        npm run clean

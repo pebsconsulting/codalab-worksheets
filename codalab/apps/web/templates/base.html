@@ -29,12 +29,7 @@
         <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.dataTables.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-editable.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}bower_components/select2/dist/css/select2.min.css" />
-        {% if compile_less %}
-            <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/imports.css">
-        {% else %}
-            <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}less/imports.less">
-            <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.5/less.min.js"></script>
-        {% endif %}
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/imports.css">
 
         <script src="{{ STATIC_URL }}bower_components/jquery/jquery.min.js"></script>
         <script src="{{ STATIC_URL }}js/custom/custom.modernizr.js"></script>

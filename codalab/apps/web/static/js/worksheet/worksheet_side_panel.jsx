@@ -134,6 +134,7 @@ var WorksheetSidePanel = React.createClass({
                                    key={'ws' + this.props.focusIndex}
                                    worksheet_info={worksheet_info}
                                    ref="worksheet_info_side_panel"
+                                   bundleMetadataChanged={this.props.bundleMetadataChanged}
                                  />;
           } else if (this.isFocusMarkup(focus)) {
             // Show nothing (maybe later show markdown just for fun?)
@@ -226,13 +227,12 @@ var WorksheetDetailSidePanel = React.createClass({
         </div>
       );
 
-      // TODO: Allow editing of worksheet metadata from side panel.
       return (
           <div id="panel_content">
-              <h4 className="ws-title"><WorksheetEditableField canEdit={false} fieldName="title" value={worksheet.title} uuid={worksheet.uuid} /></h4>
               <table className="bundle-meta table">
-                <tr><th>name</th><td><WorksheetEditableField canEdit={false} fieldName="name" value={worksheet.name} uuid={worksheet.uuid} /></td></tr>
                 <tr><th>uuid</th><td>{worksheet.uuid}</td></tr>
+                <tr><th>name</th><td><WorksheetEditableField canEdit={true} fieldName="name" value={worksheet.name} uuid={worksheet.uuid} onChange={this.props.bundleMetadataChanged} /></td></tr>
+                <tr><th>title</th><td><WorksheetEditableField canEdit={true} fieldName="title" value={worksheet.title} uuid={worksheet.uuid} onChange={this.props.bundleMetadataChanged} /></td></tr>
                 <tr><th>owner</th><td>{worksheet.owner_name}</td></tr>
                 <tr><th>permissions</th><td>{render_permissions(worksheet)}</td></tr>
               </table>
@@ -322,13 +322,32 @@ function renderDependencies(bundle_info) {
   </div>);
 }
 
+function createRow(bundle_info, bundleMetadataChanged, key, value) {
+  // Return a row corresponding to showing
+  //   key: value
+  // which can be edited.
+  var editableMetadataFields = bundle_info.editable_metadata_fields;
+  if (bundle_info.edit_permission && editableMetadataFields && editableMetadataFields.indexOf(key) != -1) {
+    return (<tr>
+      <th><span className="editable-key">{key}</span></th>
+      <td><BundleEditableField canEdit={true} fieldName={key} uuid={bundle_info.uuid} value={value} onChange={bundleMetadataChanged} /></td>
+    </tr>);
+  }
+  else {
+    return (<tr>
+      <th><span>{key}</span></th>
+      <td><span>{value}</span></td>
+    </tr>);
+  }
+}
+
 function renderMetadata(bundle_info, bundleMetadataChanged) {
   /*
-  In the current implementaiton, refreshWorksheet method of worksheet_content
+  In the current implementation, refreshWorksheet method of worksheet_content
   is passed in as bundleMetadataChanged and is just called in order to reflect
-  changes made in the side-panel on the main page.
+  changes made in the side panel on the main page.
   TODO: The response object contains the uuid of the modified object.
-        Use that to update the main view instead of refrsehing the
+        Use that to update the main view instead of refreshing the
         entire worksheet.
   */
   var metadata = bundle_info.metadata;
@@ -336,7 +355,6 @@ function renderMetadata(bundle_info, bundleMetadataChanged) {
 
   // Sort the metadata by key.
   var keys = [];
-  var editableMetadataFields = bundle_info.editable_metadata_fields;
   for (var property in metadata) {
     if (metadata.hasOwnProperty(property))
       keys.push(property);
@@ -344,22 +362,7 @@ function renderMetadata(bundle_info, bundleMetadataChanged) {
   keys.sort();
   for (var i = 0; i < keys.length; i++) {
     var property = keys[i];
-    if (["run_status", "failure_message"].indexOf(property) != -1) {
-    	// These are displayed in the header.
-      continue;
-    }
-    if (bundle_info.edit_permission && editableMetadataFields && editableMetadataFields.indexOf(property) >= 0){
-      metadata_list_html.push(<tr>
-        <th>{property}</th>
-        <td><BundleEditableField canEdit={true} fieldName={property} uuid={bundle_info.uuid} value={metadata[property]} onChange={bundleMetadataChanged} /></td>
-      </tr>);
-    }
-    else{
-      metadata_list_html.push(<tr>
-        <th>{property}</th>
-        <td><span>{metadata[property]}</span></td>
-      </tr>);
-    }
+    metadata_list_html.push(createRow(bundle_info, bundleMetadataChanged, property, metadata[property]));
   }
 
   return (<div>
@@ -389,32 +392,29 @@ function renderHeader(bundle_info, bundleMetadataChanged) {
   var bundle_state_class = 'bundle-state state-' + (bundle_info.state || 'ready');
 
   // Display basic information
-  function createRow(key, value) {
-    return (<tr>
-      <th>{key}:</th>
-      <td>{value}</td>
-    </tr>);
-  }
   var rows = [];
-  rows.push(createRow('uuid', bundle_info.uuid));
-  rows.push(createRow('owner', bundle_info.owner_name));
-  rows.push(createRow('permissions', render_permissions(bundle_info)));
+  rows.push(createRow(bundle_info, bundleMetadataChanged, 'uuid', bundle_info.uuid));
+  rows.push(createRow(bundle_info, bundleMetadataChanged, 'name', bundle_info.metadata.name));
+  rows.push(createRow(bundle_info, bundleMetadataChanged, 'description', bundle_info.metadata.description));
+  rows.push(createRow(bundle_info, bundleMetadataChanged, 'owner', bundle_info.owner_name));
+  rows.push(createRow(bundle_info, bundleMetadataChanged, 'permissions', render_permissions(bundle_info)));
+  rows.push(createRow(bundle_info, bundleMetadataChanged, 'created', bundle_info.metadata.created));
+  rows.push(createRow(bundle_info, bundleMetadataChanged, 'data_size', bundle_info.metadata.data_size));
   if (bundle_info.bundle_type == 'run') {
-    rows.push(createRow('command', bundle_info.command));
+    rows.push(createRow(bundle_info, bundleMetadataChanged, 'command', bundle_info.command));
   }
-  rows.push(createRow('state', <span className={bundle_state_class}>{bundle_info.state}</span>));
   if (bundle_info.metadata.failure_message) {
-    rows.push(createRow('failure_message', bundle_info.metadata.failure_message));
+    rows.push(createRow(bundle_info, bundleMetadataChanged, 'failure_message', bundle_info.metadata.failure_message));
   }
-  if (bundle_info.bundle_type == 'run' && bundle_info.state == "running" && bundle_info.metadata.run_status != "Running") {
-    rows.push(createRow('run_status', bundle_info.metadata.run_status));
+  if (bundle_info.bundle_type == 'run') {
+    if (bundle_info.state == 'running' && bundle_info.metadata.run_status != 'Running')
+      rows.push(createRow(bundle_info, bundleMetadataChanged, 'run_status', bundle_info.metadata.run_status));
+    rows.push(createRow(bundle_info, bundleMetadataChanged, 'time', bundle_info.metadata.time));
   }
 
+  rows.push(createRow(bundle_info, bundleMetadataChanged, 'state', <span className={bundle_state_class}>{bundle_info.state}</span>));
+
   return (<div>
-    <div className="bundle-header">
-      {bundle_name}
-      {bundle_description}
-    </div>
     <table className="bundle-meta table">
       <tbody>{rows}</tbody>
     </table>
