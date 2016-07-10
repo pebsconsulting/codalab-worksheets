@@ -73,7 +73,9 @@ var WorksheetItemList = React.createClass({
         cache: false,
         success: function(worksheet_content) {
           if (this.state.isUpdatingBundles) {
-            self.props.refreshWorksheet(worksheet_content, this.state.updatingBundleUuids);
+            if (worksheet_content.items) {
+              self.props.refreshWorksheet(worksheet_content.items);
+            }
             var endTime = new Date().getTime();
             var delayTime = Math.max(3000, (endTime - startTime) * 5);
             // delayTime is at least five times the amount of time it takes for the last request to complete

@@ -385,9 +385,13 @@ var Worksheet = React.createClass({
       return ['end', 'end'];
     },
 
-    // partialUpdate is an optional argument that, if exists, contains only items (run bundles for now) that need to be updated
-    refreshWorksheet: function(partialUpdate) {
-        if (partialUpdate === undefined) {
+    // If partialUpdateItems is undefined, we will fetch the whole worksheet.
+    // Otherwise, partialUpdateItems is a list of item parallel to ws.info.items that contain only items that need updating.
+    // More spefically, all items that don't contain run bundles that need updating are null.
+    // Also, a non-null item could contain a list of bundle_infos, which represent a list of bundles. Usually not all of them need updating.
+    // The bundle_infos for bundles that don't need updating are also null.
+    refreshWorksheet: function(partialUpdateItems) {
+        if (partialUpdateItems === undefined) {
           $('#update_progress').show();
           this.setState({updating: true});
           this.state.ws.fetch({
@@ -417,12 +421,11 @@ var Worksheet = React.createClass({
           });
         } else {
           var ws = _.clone(this.state.ws);
-          var items = partialUpdate.items;
-          for (var i = 0; i < items.length; i++) {
-            if (!items[i]) continue;
+          for (var i = 0; i < partialUpdateItems.length; i++) {
+            if (!partialUpdateItems[i]) continue;
             // update interpreted items
-            ws.info.items[i].interpreted = items[i].interpreted;
-            var bundle_info = items[i].bundle_info;
+            ws.info.items[i].interpreted = partialUpdateItems[i].interpreted;
+            var bundle_info = partialUpdateItems[i].bundle_info;
             if (bundle_info) {
               bundle_info = this.ensureIsArray(bundle_info);
               ws.info.items[i].bundle_info = this.ensureIsArray(ws.info.items[i].bundle_info);
