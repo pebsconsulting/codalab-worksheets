@@ -173,7 +173,8 @@
    font-size: inherit;  /* jqueryui widget font 1.1em too big, overwrite it */
    z-index: 9990; /* should be less than select2 dropdown z-index to close dropdown first when click */
 }
-.editable-click, 
+
+.editable-click,
 a.editable-click, 
 a.editable-click:hover {
     text-decoration: none;
@@ -195,6 +196,11 @@ a.editable-click.editable-disabled:hover {
   color: #DD1144;
   /* border-bottom: none; */
   text-decoration: none;
+}
+
+a.editable-click:hover, a.editable-click.editable-disabled:hover, a.editable-empty:hover {
+    cursor: text;
+    border: solid 1px #c8c8c8;
 }
 
 .editable-unsaved {
