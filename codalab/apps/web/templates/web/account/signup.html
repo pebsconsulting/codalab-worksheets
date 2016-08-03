@@ -22,7 +22,19 @@
     </div>
     <div class="form-group">
         <label for="id_login">Username:</label>
-        <input id="id_login" class="form-control" name="username" placeholder="Username" type="text" value="{{ request.GET.username}}" required>
+        <input id="id_login" class="form-control" name="username" placeholder="Username" type="text" value="{{ request.GET.username }}" required>
+    </div>
+    <div class="form-group">
+        <label for="id_login">First Name:</label>
+        <input id="id_firstname" class="form-control" name="first_name" placeholder="First Name" type="text" value="{{ request.GET.first_name }}" required>
+    </div>
+    <div class="form-group">
+        <label for="id_login">Last Name:</label>
+        <input id="id_lastname" class="form-control" name="last_name" placeholder="Last Name" type="text" value="{{ request.GET.last_name }}" required>
+    </div>
+    <div class="form-group">
+        <label for="id_login">Affiliation:</label>
+        <input id="id_affiliation" class="form-control" name="affiliation" placeholder="Affiliation" type="text" value="{{ request.GET.affiliation }}">
     </div>
     <div class="form-group">
         <label for="id_password">Password:</label>
