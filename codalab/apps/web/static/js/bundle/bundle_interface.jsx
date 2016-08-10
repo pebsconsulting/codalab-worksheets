@@ -3,7 +3,7 @@ var Bundle = React.createClass({
       return null;
     },
 
-    fetchExtra: function() {
+    refreshBundle: function() {
       var url = this.props.bundle_uuid ? "/rest/api/bundles/" + this.props.bundle_uuid + "/" : "/rest/api" + document.location.pathname;
       $.ajax({
         type: "GET",
@@ -28,7 +28,7 @@ var Bundle = React.createClass({
     componentWillMount: function() {
       if (!this.props.bundle_uuid) {
         // if it is the bundle detail page, not bundle detail on the side panel
-        this.fetchExtra();
+        this.refreshBundle();
       }
     },
 
@@ -45,11 +45,11 @@ var Bundle = React.createClass({
         }
 
         return (<div id="panel_content">
-          {renderHeader(bundle_info, this.props.bundleMetadataChanged)}
+          {renderHeader(bundle_info, this.refreshBundle)}
           {renderDependencies(bundle_info)}
           {renderContents(bundle_info)}
           {fileBrowser}
-          {renderMetadata(bundle_info, this.props.bundleMetadataChanged)}
+          {renderMetadata(bundle_info, this.refreshBundle)}
           {renderHostWorksheets(bundle_info)}
         </div>);
       } else {

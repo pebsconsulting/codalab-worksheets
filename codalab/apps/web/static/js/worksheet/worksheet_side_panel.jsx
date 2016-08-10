@@ -24,7 +24,7 @@ var WorksheetSidePanel = React.createClass({
       var __innerFetchExtra = function() {
         //console.log('__innerFetchExtra');
         if (this.refs.hasOwnProperty('bundle_info_side_panel'))
-          this.refs.bundle_info_side_panel.fetchExtra();
+          this.refs.bundle_info_side_panel.refreshBundle();
       }
       if (this.debouncedFetchExtra === undefined)
         this.debouncedFetchExtra = _.debounce(__innerFetchExtra, 200).bind(this);
@@ -124,6 +124,7 @@ var WorksheetSidePanel = React.createClass({
             side_panel_details = <WorksheetDetailSidePanel
                                    key={'ws' + this.props.focusIndex}
                                    worksheet_info={worksheet_info}
+                                   bundleMetadataChanged={this.props.bundleMetadataChanged}
                                  />;
           } else if (this.isFocusMarkup(focus)) {
             // Show nothing (maybe later show markdown just for fun?)
