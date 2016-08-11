@@ -27,13 +27,12 @@ var Bundle = React.createClass({
 
     componentWillMount: function() {
       if (!this.props.bundle_uuid) {
-        // if it is the bundle detail page, not bundle detail on the side panel
+        // if it is the bundle detail page, not the bundle detail side panel
         this.refreshBundle();
       }
     },
 
     render: function() {
-      //console.log('BundleDetailSidePanel.render');
       var bundle_info = this.state;
       if (bundle_info) {
         var fileBrowser = '';
@@ -82,15 +81,26 @@ function renderDependencies(bundle_info) {
   </div>);
 }
 
+function createRow(bundle_info, bundleMetadataChanged, key, value) {
+  // Return a row corresponding to showing
+  //   key: value
+  // which can be edited.
+  var editableMetadataFields = bundle_info.editable_metadata_fields;
+  if (bundle_info.edit_permission && editableMetadataFields && editableMetadataFields.indexOf(key) != -1) {
+    return (<tr>
+      <th><span className="editable-key">{key}</span></th>
+      <td><BundleEditableField canEdit={true} fieldName={key} uuid={bundle_info.uuid} value={value} onChange={bundleMetadataChanged} /></td>
+    </tr>);
+  }
+  else {
+    return (<tr>
+      <th><span>{key}</span></th>
+      <td><span>{value}</span></td>
+    </tr>);
+  }
+}
+
 function renderMetadata(bundle_info, bundleMetadataChanged) {
-  /*
-  In the current implementaiton, refreshWorksheet method of worksheet_content
-  is passed in as bundleMetadataChanged and is just called in order to reflect
-  changes made in the side-panel on the main page.
-  TODO: The response object contains the uuid of the modified object.
-        Use that to update the main view instead of refrsehing the
-        entire worksheet.
-  */
   var metadata = bundle_info.metadata;
   var metadata_list_html = [];
 
@@ -104,22 +114,7 @@ function renderMetadata(bundle_info, bundleMetadataChanged) {
   keys.sort();
   for (var i = 0; i < keys.length; i++) {
     var property = keys[i];
-    if (["run_status", "failure_message"].indexOf(property) != -1) {
-      // These are displayed in the header.
-      continue;
-    }
-    if (bundle_info.edit_permission && editableMetadataFields && editableMetadataFields.indexOf(property) >= 0){
-      metadata_list_html.push(<tr>
-        <th>{property}</th>
-        <td><BundleEditableField canEdit={true} fieldName={property} uuid={bundle_info.uuid} value={metadata[property]} onChange={bundleMetadataChanged} /></td>
-      </tr>);
-    }
-    else{
-      metadata_list_html.push(<tr>
-        <th>{property}</th>
-        <td><span>{metadata[property]}</span></td>
-      </tr>);
-    }
+    metadata_list_html.push(createRow(bundle_info, bundleMetadataChanged, property, metadata[property]));
   }
 
   return (<div>
@@ -133,55 +128,62 @@ function renderMetadata(bundle_info, bundleMetadataChanged) {
 }
 
 function renderHeader(bundle_info, bundleMetadataChanged) {
-  var bundle_url = '/bundles/' + bundle_info.uuid;
   var bundle_download_url = "/rest/bundles/" + bundle_info.uuid + "/contents/blob/";
-  var bundle_name;
-  var bundle_description;
-  if (bundle_info.metadata.name) {
-    if (bundle_info.edit_permission) {
-      bundle_name = <h3 className="bundle-name"><BundleEditableField canEdit={true} fieldName="name" uuid={bundle_info.uuid} value={bundle_info.metadata.name} onChange={bundleMetadataChanged} /></h3>;
-      bundle_description = <h3 className="bundle-description">description: <BundleEditableField canEdit={true} fieldName="description" uuid={bundle_info.uuid} value={bundle_info.metadata.description} onChange={bundleMetadataChanged} /></h3>;
-    } else {
-      bundle_name = <h3 className="bundle-name">{bundle_info.metadata.name}</h3>;
-      bundle_description = <h3 className="bundle-description"><b>description:</b> {bundle_info.metadata.description}</h3>;
-    }
-  }
   var bundle_state_class = 'bundle-state state-' + (bundle_info.state || 'ready');
 
   // Display basic information
-  function createRow(key, value) {
-    return (<tr>
-      <th>{key}:</th>
-      <td>{value}</td>
-    </tr>);
-  }
   var rows = [];
-  rows.push(createRow('uuid', bundle_info.uuid));
-  rows.push(createRow('owner', bundle_info.owner_name));
-  rows.push(createRow('permissions', render_permissions(bundle_info)));
+  rows.push(createRow(bundle_info, bundleMetadataChanged, 'uuid', bundle_info.uuid));
+  rows.push(createRow(bundle_info, bundleMetadataChanged, 'name', bundle_info.metadata.name));
+  rows.push(createRow(bundle_info, bundleMetadataChanged, 'description', bundle_info.metadata.description));
+  rows.push(createRow(bundle_info, bundleMetadataChanged, 'owner', bundle_info.owner_name));
+  rows.push(createRow(bundle_info, bundleMetadataChanged, 'permissions', render_permissions(bundle_info)));
+  rows.push(createRow(bundle_info, bundleMetadataChanged, 'created', bundle_info.metadata.created));
+  rows.push(createRow(bundle_info, bundleMetadataChanged, 'data_size', bundle_info.metadata.data_size));
   if (bundle_info.bundle_type == 'run') {
-    rows.push(createRow('command', bundle_info.command));
+    rows.push(createRow(bundle_info, bundleMetadataChanged, 'command', bundle_info.command));
   }
-  rows.push(createRow('state', <span className={bundle_state_class}>{bundle_info.state}</span>));
   if (bundle_info.metadata.failure_message) {
-    rows.push(createRow('failure message', bundle_info.metadata.failure_message));
+    rows.push(createRow(bundle_info, bundleMetadataChanged, 'failure_message', bundle_info.metadata.failure_message));
   }
-  if (bundle_info.bundle_type == 'run' && bundle_info.state == "running" && bundle_info.run_status != "Running") {
-    rows.push(createRow('Run Status', bundle_info.metadata.run_status));
+  if (bundle_info.bundle_type == 'run') {
+    if (bundle_info.state == 'running' && bundle_info.metadata.run_status != 'Running')
+      rows.push(createRow(bundle_info, bundleMetadataChanged, 'run_status', bundle_info.metadata.run_status));
+    rows.push(createRow(bundle_info, bundleMetadataChanged, 'time', bundle_info.metadata.time));
   }
 
-  return (<div>
-    <div className="bundle-header">
-      {bundle_name}
-      <div className="bundle-links">
-        <a href={bundle_download_url} className="bundle-download btn btn-default btn-sm" alt="Download Bundle">
-          <span className="glyphicon glyphicon-download-alt"></span>
-        </a>
-      </div>
-    </div>
-    {bundle_description}
+  rows.push(createRow(bundle_info, bundleMetadataChanged, 'state', <span className={bundle_state_class}>{bundle_info.state}</span>));
+  var bundle_header;
+  if (document.getElementById('bundle-content')) {
+    var bundle_name = (<h3 className="bundle-name">{bundle_info.metadata.name}</h3>);
+    bundle_header = (
+        <div className="bundle-header">
+          {bundle_name}
+          <div className="bundle-links">
+            <a href={bundle_download_url} className="bundle-download btn btn-default btn-sm" alt="Download Bundle">
+              <span className="glyphicon glyphicon-download-alt"></span>
+            </a>
+          </div>
+        </div>
+    )
+  }
+  return (
+  <div>
+    {bundle_header}
     <table className="bundle-meta table">
-      <tbody>{rows}</tbody>
+      <tbody>
+        {rows}
+        <tr>
+          <th><span>download</span></th>
+          <td>
+            <div className="bundle-links">
+              <a href={bundle_download_url} className="bundle-download btn btn-default btn-sm" alt="Download Bundle">
+                <span className="glyphicon glyphicon-download-alt"></span>
+              </a>
+            </div>
+          </td>
+        </tr>
+      </tbody>
     </table>
   </div>);
 }

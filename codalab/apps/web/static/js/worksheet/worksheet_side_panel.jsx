@@ -18,17 +18,21 @@ var WorksheetSidePanel = React.createClass({
         $(window).resize(function(e) {
             self.resetPanel();
         });
+        this.debouncedRefreshBundleSidePanel = _.debounce(this.refreshBundleSidePanel, 200).bind(this);
     },
 
-    componentDidUpdate: function() {
-      var __innerFetchExtra = function() {
-        //console.log('__innerFetchExtra');
-        if (this.refs.hasOwnProperty('bundle_info_side_panel'))
-          this.refs.bundle_info_side_panel.refreshBundle();
+    refreshBundleSidePanel: function() {
+     if (this.refs.hasOwnProperty('bundle_info_side_panel')) {
+       this.refs.bundle_info_side_panel.refreshBundle();
+     }
+   },
+
+    componentWillReceiveProps: function(nextProps) {
+      if (nextProps.ws.info && this.props.ws.info) {
+          if (this.props.focusIndex !== nextProps.focusIndex || this.props.subFocusIndex !== nextProps.subFocusIndex) {
+            this.debouncedRefreshBundleSidePanel();
+          }
       }
-      if (this.debouncedFetchExtra === undefined)
-        this.debouncedFetchExtra = _.debounce(__innerFetchExtra, 200).bind(this);
-      this.debouncedFetchExtra();
     },
 
     getFocus: function() {
