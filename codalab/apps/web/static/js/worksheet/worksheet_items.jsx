@@ -59,8 +59,8 @@ var WorksheetItemList = React.createClass({
         }.bind(this), 'keydown');
     },
 
-    // Automatically update run bundle until it is ready or failed
-    updateRunBundle: function(worksheetUuid, updatingBundleUuids) {
+    // updateRunBundles fetch all the "unfinished" bundles in the worksheet, and recursively call itself until all the bundles in the worksheet are finished.
+    updateRunBundles: function(worksheetUuid, numTrials, updatingBundleUuids) {
       var bundleUuids = updatingBundleUuids ? updatingBundleUuids : this.state.updatingBundleUuids;
       var startTime = new Date().getTime();
       var self = this;
@@ -78,10 +78,13 @@ var WorksheetItemList = React.createClass({
               self.props.refreshWorksheet(worksheet_content.items);
             }
             var endTime = new Date().getTime();
-            var delayTime = Math.max(3000, (endTime - startTime) * 5);
-            // delayTime is at least five times the amount of time it takes for the last request to complete
+            var guaranteedDelayTime = Math.min(3000, numTrials * 1000)
+            // Since we don't want to flood the server with too many requests, we enforce a guaranteedDelayTime.
+            // guaranteedDelayTime is usually 3 seconds, except that we make the first two delays 1 second and 2 seconds respectively in case of really quick jobs.
+            // delayTime is also at least five times the amount of time it takes for the last request to complete
+            var delayTime = Math.max(guaranteedDelayTime, (endTime - startTime) * 5);
             setTimeout(function() {
-              self.updateRunBundle(worksheetUuid);
+              self.updateRunBundles(worksheetUuid, numTrials + 1);
             }, delayTime);
             startTime = endTime;
           }
@@ -93,7 +96,9 @@ var WorksheetItemList = React.createClass({
       });
     },
 
-    // Check for unfinished run bundles (not ready or failed), and call updateRunBundle to constantly update them
+    // Everytime the worksheet is updated, checkRunBundle will loop through all the bundles and find the "unfinished" ones (not ready or failed).
+    // If there are unfinished bundles and we are not updating bundles now, call updateRunBundles, which will recursively call itself until all the bundles in the worksheet are finished.
+    // this.state.updatingBundleUuids keeps track of the "unfinished" bundles in the worksheet at every moment.
     checkRunBundle: function(nextProps) {
       var info = nextProps.ws.info;
       var updatingBundleUuids = _.clone(this.state.updatingBundleUuids);
@@ -118,9 +123,8 @@ var WorksheetItemList = React.createClass({
         }
         if (Object.keys(updatingBundleUuids).length > 0 && !this.state.isUpdatingBundles) {
           this.setState({isUpdatingBundles: true});
-          this.updateRunBundle(info.uuid, updatingBundleUuids);
-        }
-        if (Object.keys(updatingBundleUuids).length === 0 && this.state.isUpdatingBundles) {
+          this.updateRunBundles(info.uuid, 1, updatingBundleUuids);
+        } else if (Object.keys(updatingBundleUuids).length === 0 && this.state.isUpdatingBundles) {
           this.setState({isUpdatingBundles: false});
         }
         this.setState({updatingBundleUuids: updatingBundleUuids});

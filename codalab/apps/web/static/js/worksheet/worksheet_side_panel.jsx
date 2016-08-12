@@ -27,12 +27,8 @@ var WorksheetSidePanel = React.createClass({
      }
    },
 
-    componentWillReceiveProps: function(nextProps) {
-      if (nextProps.ws.info && this.props.ws.info) {
-          if (this.props.focusIndex !== nextProps.focusIndex || this.props.subFocusIndex !== nextProps.subFocusIndex) {
-            this.debouncedRefreshBundleSidePanel();
-          }
-      }
+    componentDidUpdate: function() {
+      this.debouncedRefreshBundleSidePanel();
     },
 
     getFocus: function() {

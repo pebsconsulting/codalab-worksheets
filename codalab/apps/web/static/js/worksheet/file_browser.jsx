@@ -4,6 +4,8 @@ var FileBrowser = React.createClass({
       return {
         currentWorkingDirectory: '',
         fileBrowserData: {},
+        // FileBrowser has a collapsible-header that can show/hide the content of FileBrowser.
+        // isVisible keeps track of whether the content is visible now. If isVisible is false, FileBrowser is collapsed. Vice versa.
         isVisible: false
       };
     },
