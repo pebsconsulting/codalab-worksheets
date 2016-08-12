@@ -9,7 +9,8 @@ gulp.task('jsx', function() {
   return gulp.src([
       'static/js/bundle/*.jsx',
       'static/js/worksheet/*.jsx',
-      'static/js/account/*.jsx'
+      'static/js/account/*.jsx',
+      'static/js/common/*.jsx'
     ])
     .pipe(babel({presets: ['react']}))
     .pipe(gulp.dest('static/dist'));
@@ -29,4 +30,3 @@ gulp.task('clean', function() {
     del(['static/dist']);
     del(['static/css/imports.css']);
 });
- 

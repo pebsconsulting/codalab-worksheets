@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% block head_title %}Bundle{% endblock head_title %}
-{% block page_title %}Bundle Details{% endblock page_title %}
 {% block meta %}
     <meta property="og:title" content="Bundle">
     <meta property="og:site_name" content="CodaLab">
@@ -27,10 +26,18 @@
 {% endblock js %}
 
 {% block jsincludes %}
+    <script>
+      // Fix for poshytip: https://github.com/vitalets/x-editable/issues/496
+      $.fn.poshytip = { defaults: null };
+    </script>
     <script src="{{ STATIC_URL }}bower_components/react/react.min.js"></script>
     {# TODO: remove JSX and move to deploy processing of JSX #}
     <script src="{{ STATIC_URL }}dist/worksheet_utils.js"></script>
+    <script src="{{ STATIC_URL }}dist/file_browser.js"></script>
     <script src="{{ STATIC_URL }}dist/bundle_interface.js"></script>
+    <script src="{{ STATIC_URL }}dist/editable_field.js"></script>
+    <script src="{{ STATIC_URL }}dist/collapsible.js"></script>
+    <script src="{{ STATIC_URL }}bower_components/x-editable/dist/jquery-editable/js/jquery-editable-poshytip.min.js"></script>
 <script>
 //
 </script>

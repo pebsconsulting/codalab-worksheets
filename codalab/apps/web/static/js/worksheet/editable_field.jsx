@@ -22,7 +22,7 @@ var EditableField = React.createClass({
         if (response.exception) {
           return response.exception;
         }
-        if ('onChange' in this.props) {
+        if (this.props.onChange !== undefined) {
           this.props.onChange();
         }
       }.bind(this)
