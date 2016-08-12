@@ -78,7 +78,7 @@ var WorksheetItemList = React.createClass({
               self.props.refreshWorksheet(worksheet_content.items);
             }
             var endTime = new Date().getTime();
-            var guaranteedDelayTime = Math.min(3000, numTrials * 1000)
+            var guaranteedDelayTime = Math.min(3000, numTrials * 1000);
             // Since we don't want to flood the server with too many requests, we enforce a guaranteedDelayTime.
             // guaranteedDelayTime is usually 3 seconds, except that we make the first two delays 1 second and 2 seconds respectively in case of really quick jobs.
             // delayTime is also at least five times the amount of time it takes for the last request to complete
