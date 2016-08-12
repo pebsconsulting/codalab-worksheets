@@ -57,8 +57,10 @@ var WorksheetActionBar = React.createClass({
           self.props.handleFocus();
           return false;
         }
-        term.resize(term.width(), ACTIONBAR_MINIMIZE_HEIGHT);
-        self.props.handleBlur();
+        if (term.enabled()) {
+          term.resize(term.width(), ACTIONBAR_MINIMIZE_HEIGHT);
+          self.props.handleBlur();
+        }
       },
       onFocus: function (term) {
         if (!term.data('resizing')) {

@@ -115,6 +115,7 @@ var RunBundleBuilder = React.createClass({
       <BundleBrowser
         ws={this.props.ws}
         handleDependencySelection={this.handleDependencySelection}
+        showBuilder={this.state.showBuilder}
       />
     );
 
@@ -211,6 +212,7 @@ var BundleBrowser = React.createClass({
                 handleCheckbox={this.props.handleDependencySelection}
                 bundle_name={b.metadata.name}
                 startCollapsed={true}
+                isRunBundleUIVisible={this.props.showBuilder}
               />
             );
             rows.push(
@@ -236,7 +238,7 @@ var BundleBrowser = React.createClass({
 
     if (rows.length === 0) {
       return (<div className='pop-up-text'>
-        You don't have any bundles in this worksheet.
+        You do not have any bundles in this worksheet.
       </div>);
     }
     return (

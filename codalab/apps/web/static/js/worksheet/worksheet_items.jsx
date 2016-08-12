@@ -8,9 +8,11 @@ the bundle service.
 
 var WorksheetItemList = React.createClass({
     getInitialState: function() {
-        return {};
+        return {
+          updatingBundleUuids: {},
+          isUpdatingBundles: false,
+        };
     },
-    throttledScrollToItem: undefined, // for use later
 
     componentDidUpdate: function() {
         var info = this.props.ws.info;
@@ -55,6 +57,82 @@ var WorksheetItemList = React.createClass({
             this.props.setFocus(this.props.ws.info.items.length - 1, 'end');
             $('html, body').animate({scrollTop: $(document).height()}, 'fast');
         }.bind(this), 'keydown');
+    },
+
+    // updateRunBundles fetch all the "unfinished" bundles in the worksheet, and recursively call itself until all the bundles in the worksheet are finished.
+    updateRunBundles: function(worksheetUuid, numTrials, updatingBundleUuids) {
+      var bundleUuids = updatingBundleUuids ? updatingBundleUuids : this.state.updatingBundleUuids;
+      var startTime = new Date().getTime();
+      var self = this;
+      var queryParams = Object.keys(bundleUuids).map(function(bundle_uuid) {
+        return 'bundle_uuid=' + bundle_uuid;
+      }).join('&');
+      $.ajax({
+        type: "GET",
+        url: "/rest/api/worksheets/" + worksheetUuid + "/?" + queryParams,
+        dataType: 'json',
+        cache: false,
+        success: function(worksheet_content) {
+          if (this.state.isUpdatingBundles) {
+            if (worksheet_content.items) {
+              self.props.refreshWorksheet(worksheet_content.items);
+            }
+            var endTime = new Date().getTime();
+            var guaranteedDelayTime = Math.min(3000, numTrials * 1000);
+            // Since we don't want to flood the server with too many requests, we enforce a guaranteedDelayTime.
+            // guaranteedDelayTime is usually 3 seconds, except that we make the first two delays 1 second and 2 seconds respectively in case of really quick jobs.
+            // delayTime is also at least five times the amount of time it takes for the last request to complete
+            var delayTime = Math.max(guaranteedDelayTime, (endTime - startTime) * 5);
+            setTimeout(function() {
+              self.updateRunBundles(worksheetUuid, numTrials + 1);
+            }, delayTime);
+            startTime = endTime;
+          }
+        }.bind(this),
+        error: function(xhr, status, err) {
+          $("#worksheet-message").html(xhr.responseText).addClass('alert-danger alert');
+          $('#worksheet_container').hide();
+        }.bind(this)
+      });
+    },
+
+    // Everytime the worksheet is updated, checkRunBundle will loop through all the bundles and find the "unfinished" ones (not ready or failed).
+    // If there are unfinished bundles and we are not updating bundles now, call updateRunBundles, which will recursively call itself until all the bundles in the worksheet are finished.
+    // this.state.updatingBundleUuids keeps track of the "unfinished" bundles in the worksheet at every moment.
+    checkRunBundle: function(nextProps) {
+      var info = nextProps.ws.info;
+      var updatingBundleUuids = _.clone(this.state.updatingBundleUuids);
+      if (info && info.items.length > 0) {
+        var items = info.items;
+        for (var i = 0; i < items.length; i++) {
+          var bundle_info = items[i].bundle_info;
+          if (bundle_info) {
+            if (!Array.isArray(bundle_info)) bundle_info = [bundle_info];
+            for (var j = 0; j < bundle_info.length; j++) {
+              var bundle = bundle_info[j];
+              if (bundle.bundle_type === 'run') {
+                if (bundle.state !== 'ready' && bundle.state !== 'failed') {
+                  updatingBundleUuids[bundle.uuid] = true;
+                } else {
+                  if (bundle.uuid in updatingBundleUuids)
+                    delete updatingBundleUuids[bundle.uuid];
+                }
+              }
+            }
+          }
+        }
+        if (Object.keys(updatingBundleUuids).length > 0 && !this.state.isUpdatingBundles) {
+          this.setState({isUpdatingBundles: true});
+          this.updateRunBundles(info.uuid, 1, updatingBundleUuids);
+        } else if (Object.keys(updatingBundleUuids).length === 0 && this.state.isUpdatingBundles) {
+          this.setState({isUpdatingBundles: false});
+        }
+        this.setState({updatingBundleUuids: updatingBundleUuids});
+      }
+    },
+
+    componentWillReceiveProps: function(nextProps) {
+      this.checkRunBundle(nextProps);
     },
 
     bundleUuidToIndex: function() {
