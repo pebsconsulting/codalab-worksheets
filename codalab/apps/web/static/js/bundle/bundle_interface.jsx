@@ -29,6 +29,7 @@ var Bundle = React.createClass({
       if (!this.props.bundle_uuid) {
         // if it is the bundle detail page, not the bundle detail side panel
         this.refreshBundle();
+        $('.page-header').hide();
       }
     },
 
