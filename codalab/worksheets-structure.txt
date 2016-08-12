@@ -39,4 +39,5 @@ Utilities
 
 General Components
   react Button (./apps/web/static/js/worksheet/button.jsx)
+  react FileBrowser (./apps/web/static/js/worksheet/file_browser.jsx)
   react EditableField (./apps/web/static/js/worksheet/editable_field.jsx)
