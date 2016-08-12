@@ -131,6 +131,7 @@ var Worksheet = React.createClass({
 
     componentDidMount: function() {
         // Initialize history stack
+        this.setupEventHandlers();
         window.history.replaceState({uuid: this.state.ws.uuid}, '', window.location.pathname);
         $('body').addClass('ws-interface');
         $.ajax({
@@ -435,6 +436,9 @@ var Worksheet = React.createClass({
                   ws.info.items[i].bundle_info[j] = bundle_info[j];
                 }
               }
+              if (ws.info.items[i].bundle_info.length < ws.info.items[i].interpreted[1].length) {
+                ws.info.items[i].interpreted[1] = ws.info.items[i].interpreted[1].slice(0, ws.info.items[i].bundle_info.length);
+              }
             }
           }
           this.setState({ws: ws, version: this.state.version + 1});
@@ -474,7 +478,6 @@ var Worksheet = React.createClass({
     },
 
     render: function() {
-        this.setupEventHandlers();
         var info = this.state.ws.info;
         var rawWorksheet = info && info.raw.join('\n');
         var editPermission = info && info.edit_permission;

@@ -60,10 +60,11 @@ var WorksheetItemList = React.createClass({
     },
 
     // Automatically update run bundle until it is ready or failed
-    updateRunBundle: function(worksheetUuid) {
+    updateRunBundle: function(worksheetUuid, updatingBundleUuids) {
+      var bundleUuids = updatingBundleUuids ? updatingBundleUuids : this.state.updatingBundleUuids;
       var startTime = new Date().getTime();
       var self = this;
-      var queryParams = Object.keys(this.state.updatingBundleUuids).map(function(bundle_uuid) {
+      var queryParams = Object.keys(bundleUuids).map(function(bundle_uuid) {
         return 'bundle_uuid=' + bundle_uuid;
       }).join('&');
       $.ajax({
@@ -117,7 +118,7 @@ var WorksheetItemList = React.createClass({
         }
         if (Object.keys(updatingBundleUuids).length > 0 && !this.state.isUpdatingBundles) {
           this.setState({isUpdatingBundles: true});
-          this.updateRunBundle(info.uuid);
+          this.updateRunBundle(info.uuid, updatingBundleUuids);
         }
         if (Object.keys(updatingBundleUuids).length === 0 && this.state.isUpdatingBundles) {
           this.setState({isUpdatingBundles: false});

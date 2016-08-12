@@ -4,11 +4,29 @@ var FileBrowser = React.createClass({
       return {
         currentWorkingDirectory: '',
         fileBrowserData: {},
+        isVisible: false
       };
     },
 
-    componentDidMount: function(nextProps) {
-      this.updateFileBrowser('');
+    componentWillReceiveProps: function(nextProps) {
+      if (nextProps.isRunBundleUIVisible === false && this.state.isVisible) {
+        this.setState({isVisible: false});
+        this.getDOMNode().getElementsByClassName('file-browser-arrow')[0].click();
+      }
+    },
+
+    componentWillMount: function() {
+      if (!this.props.startCollapsed) {
+        this.setState({isVisible: true});
+        this.updateFileBrowser('');
+      }
+    },
+
+    updateFileBrowserWhenDrilledIn: function() {
+      if (!this.state.isVisible) {
+        this.updateFileBrowser('');
+      }
+      this.setState({isVisible: !this.state.isVisible});
     },
 
     updateFileBrowser: function(folder_path) {
@@ -96,7 +114,7 @@ var FileBrowser = React.createClass({
             updateFileBrowser={this.updateFileBrowser}
             currentWorkingDirectory={this.state.currentWorkingDirectory}/>);
         var content_class_name = this.props.startCollapsed ? "collapsible-content-collapsed" : "collapsible-content";
-        var arrow = this.props.startCollapsed ? <span className='file-browser-arrow'>&#x25B8;</span> : <span className='file-browser-arrow'>&#x25BE;</span>;
+        var arrow = this.state.isVisible ? <span className='file-browser-arrow' onClick={this.updateFileBrowserWhenDrilledIn}>&#x25BE;</span> : <span className='file-browser-arrow' onClick={this.updateFileBrowserWhenDrilledIn}>&#x25B8;</span>;
         var header, checkbox;
         // this.props.hasCheckbox is true in run_bundle_builder for the user to select bundle depedency
         // In other cases, it is false
