@@ -157,7 +157,7 @@ var TableRow = React.createClass({
 
             return (
               <td key={col} className={column_classes[col]}>
-                {row_content}
+                {row_content + ''}
               </td>
             );
         });
