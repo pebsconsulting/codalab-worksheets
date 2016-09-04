@@ -154,10 +154,12 @@ var TableRow = React.createClass({
             }
             if (url)
               row_content = <a href={url} className="bundle-link" target="_blank">{row_content}</a>;
+            else
+              row_content = row_content + '';
 
             return (
               <td key={col} className={column_classes[col]}>
-                {row_content + ''}
+                {row_content}
               </td>
             );
         });
