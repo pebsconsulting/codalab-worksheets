@@ -23,6 +23,9 @@ var Bundle = React.createClass({
             $('#bundle-content').hide();
         }.bind(this)
       });
+      if (this.refs.file_browser) {
+        this.refs.file_browser.updateFileBrowser()
+      }
     },
 
     componentWillMount: function() {
@@ -43,13 +46,17 @@ var Bundle = React.createClass({
             ref={'file_browser'}
           />);
         }
-
+        var bundleMetadataChanged = this.refreshBundle
+        if (this.props.bundle_uuid) {
+          // if it is the bundle detail side panel, it should call refreshWorksheet
+          bundleMetadataChanged = this.props.bundleMetadataChanged
+        }
         return (<div id="panel_content">
-          {renderHeader(bundle_info, this.refreshBundle)}
+          {renderHeader(bundle_info, bundleMetadataChanged)}
           {renderDependencies(bundle_info)}
           {renderContents(bundle_info)}
           {fileBrowser}
-          {renderMetadata(bundle_info, this.refreshBundle)}
+          {renderMetadata(bundle_info, bundleMetadataChanged)}
           {renderHostWorksheets(bundle_info)}
         </div>);
       } else {
