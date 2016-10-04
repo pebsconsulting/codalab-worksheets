@@ -46,11 +46,8 @@ var Bundle = React.createClass({
             ref={'file_browser'}
           />);
         }
-        var bundleMetadataChanged = this.refreshBundle
-        if (this.props.bundle_uuid) {
-          // if it is the bundle detail side panel, it should call refreshWorksheet
-          bundleMetadataChanged = this.props.bundleMetadataChanged
-        }
+        // if it is the bundle detail side panel, it should call refreshWorksheet, which is passed in as this.props.bundleMetadataChanged.
+        var bundleMetadataChanged = this.props.bundle_uuid ? this.props.bundleMetadataChanged : this.refreshBundle
         return (<div id="panel_content">
           {renderHeader(bundle_info, bundleMetadataChanged)}
           {renderDependencies(bundle_info)}

@@ -22,6 +22,8 @@ var Worksheet = React.createClass({
             numOfBundles: -1, // Number of bundles in this worksheet (-1 is just the initial value)
             focusedBundleUuidList: [], // Uuid of the focused bundle and that of all bundles after it
             userInfo: null, // User info of the current user. (null is the default)
+            updatingBundleUuids: {},
+            isUpdatingBundles: false,
         };
     },
 
@@ -253,24 +255,11 @@ var Worksheet = React.createClass({
               info.raw = editor.getValue().split('\n');
             }
             var rawIndex = editor.getCursorPosition().row;
-            var focusIndexPair;
-            if (rawIndex >= info.raw_to_interpreted.length) {
-              // Happens when things are inserted at the end
-              focusIndexPair = [info.raw_to_interpreted.length - 1, 0];
-            } else {
-              focusIndexPair = info.raw_to_interpreted[rawIndex];
-            }
-            if (focusIndexPair == null) {
-              console.error('Can\'t map raw index ' + rawIndex + ' to item index pair');
-              focusIndexPair = [0, 0];  // Fall back to default
-            }
             this.setState({
                 editMode: editMode,
                 editorEnabled: false,
-                focusIndex: focusIndexPair[0],
-                subFocusIndex: focusIndexPair[1],
             });  // Needs to be after getting the raw contents
-            this.saveAndUpdateWorksheet(saveChanges);
+            this.saveAndUpdateWorksheet(saveChanges, rawIndex);
           } else {
             // Not allowed to edit the worksheet.
             this.setState({
@@ -283,6 +272,77 @@ var Worksheet = React.createClass({
           this.setState({editMode: editMode});  // Needs to be before focusing
           $("#worksheet-editor").focus();
         }
+    },
+
+    // updateRunBundles fetch all the "unfinished" bundles in the worksheet, and recursively call itself until all the bundles in the worksheet are finished.
+    updateRunBundles: function(worksheetUuid, numTrials, updatingBundleUuids) {
+      var bundleUuids = updatingBundleUuids ? updatingBundleUuids : this.state.updatingBundleUuids;
+      var startTime = new Date().getTime();
+      var self = this;
+      var queryParams = Object.keys(bundleUuids).map(function(bundle_uuid) {
+        return 'bundle_uuid=' + bundle_uuid;
+      }).join('&');
+      $.ajax({
+        type: "GET",
+        url: "/rest/api/worksheets/" + worksheetUuid + "/?" + queryParams,
+        dataType: 'json',
+        cache: false,
+        success: function(worksheet_content) {
+          if (this.state.isUpdatingBundles) {
+            if (worksheet_content.items) {
+              self.refreshWorksheet(worksheet_content.items);
+            }
+            var endTime = new Date().getTime();
+            var guaranteedDelayTime = Math.min(3000, numTrials * 1000);
+            // Since we don't want to flood the server with too many requests, we enforce a guaranteedDelayTime.
+            // guaranteedDelayTime is usually 3 seconds, except that we make the first two delays 1 second and 2 seconds respectively in case of really quick jobs.
+            // delayTime is also at least five times the amount of time it takes for the last request to complete
+            var delayTime = Math.max(guaranteedDelayTime, (endTime - startTime) * 5);
+            setTimeout(function() {
+              self.updateRunBundles(worksheetUuid, numTrials + 1);
+            }, delayTime);
+            startTime = endTime;
+          }
+        }.bind(this),
+        error: function(xhr, status, err) {
+          $("#worksheet-message").html(xhr.responseText).addClass('alert-danger alert');
+          $('#worksheet_container').hide();
+        }.bind(this)
+      });
+    },
+
+    // Everytime the worksheet is updated, checkRunBundle will loop through all the bundles and find the "unfinished" ones (not ready or failed).
+    // If there are unfinished bundles and we are not updating bundles now, call updateRunBundles, which will recursively call itself until all the bundles in the worksheet are finished.
+    // this.state.updatingBundleUuids keeps track of the "unfinished" bundles in the worksheet at every moment.
+    checkRunBundle: function(info) {
+      var updatingBundleUuids = _.clone(this.state.updatingBundleUuids);
+      if (info && info.items.length > 0) {
+        var items = info.items;
+        for (var i = 0; i < items.length; i++) {
+          var bundle_info = items[i].bundle_info;
+          if (bundle_info) {
+            if (!Array.isArray(bundle_info)) bundle_info = [bundle_info];
+            for (var j = 0; j < bundle_info.length; j++) {
+              var bundle = bundle_info[j];
+              if (bundle.bundle_type === 'run') {
+                if (bundle.state !== 'ready' && bundle.state !== 'failed') {
+                  updatingBundleUuids[bundle.uuid] = true;
+                } else {
+                  if (bundle.uuid in updatingBundleUuids)
+                    delete updatingBundleUuids[bundle.uuid];
+                }
+              }
+            }
+          }
+        }
+        if (Object.keys(updatingBundleUuids).length > 0 && !this.state.isUpdatingBundles) {
+          this.setState({isUpdatingBundles: true});
+          this.updateRunBundles(info.uuid, 1, updatingBundleUuids);
+        } else if (Object.keys(updatingBundleUuids).length === 0 && this.state.isUpdatingBundles) {
+          this.setState({isUpdatingBundles: false});
+        }
+        this.setState({updatingBundleUuids: updatingBundleUuids});
+      }
     },
 
     componentDidUpdate: function(props,state,root) {
@@ -325,7 +385,6 @@ var Worksheet = React.createClass({
 
               if (rawIndex === undefined) {
                   console.error('Can\'t map %s (focusIndex %d, subFocusIndex %d) to raw index', focusIndexPair, this.state.focusIndex, this.state.subFocusIndex);
-                  console.log(this.state.ws.info.interpreted_to_raw);
                   return;
               }
               if (cursorColumnPosition === undefined)
@@ -390,7 +449,8 @@ var Worksheet = React.createClass({
     // More spefically, all items that don't contain run bundles that need updating are null.
     // Also, a non-null item could contain a list of bundle_infos, which represent a list of bundles. Usually not all of them need updating.
     // The bundle_infos for bundles that don't need updating are also null.
-    refreshWorksheet: function(partialUpdateItems) {
+    // If rawIndexAfterEditMode is defined, this refreshWorksheet is called right after toggling editMode. It should resolve rawIndex to (focusIndex, subFocusIndex) pair.
+    refreshWorksheet: function(partialUpdateItems, rawIndexAfterEditMode) {
         if (partialUpdateItems === undefined) {
           $('#update_progress').show();
           this.setState({updating: true});
@@ -400,7 +460,14 @@ var Worksheet = React.createClass({
                   $('#worksheet_content').show();
                   var items = this.state.ws.info.items;
                   var numOfBundles = this.getNumOfBundles();
-                  if (this.state.numOfBundles !== -1 && numOfBundles > this.state.numOfBundles) {
+                  if (rawIndexAfterEditMode !== undefined) {
+                    var focusIndexPair = this.state.ws.info.raw_to_interpreted[rawIndexAfterEditMode];
+                    if (focusIndexPair === undefined) {
+                      console.error('Can\'t map raw index ' + rawIndexAfterEditMode + ' to item index pair');
+                      focusIndexPair = [0, 0];  // Fall back to default
+                    }
+                    this.setFocus(focusIndexPair[0], focusIndexPair[1]);
+                  } else if (this.state.numOfBundles !== -1 && numOfBundles > this.state.numOfBundles) {
                       // If the number of bundles increases then the focus should be on the new bundles.
                       this.setFocus('end', 'end');
                   } else if (numOfBundles < this.state.numOfBundles) {
@@ -411,6 +478,7 @@ var Worksheet = React.createClass({
                       this.setFocus(focus[0], focus[1]);
                   }
                   this.setState({updating: false, version: this.state.version + 1, numOfBundles: numOfBundles});
+                  this.checkRunBundle(this.state.ws.info);
               }.bind(this),
               error: function(xhr, status, err) {
                   this.setState({updating: false});
@@ -441,6 +509,7 @@ var Worksheet = React.createClass({
             }
           }
           this.setState({ws: ws, version: this.state.version + 1});
+          this.checkRunBundle(ws.info)
         }
     },
 
@@ -456,20 +525,20 @@ var Worksheet = React.createClass({
       window.history.pushState({uuid: this.state.ws.uuid}, '', '/worksheets/' + uuid + '/');
     },
 
-    saveAndUpdateWorksheet: function(from_raw) {
+    saveAndUpdateWorksheet: function(fromRaw, rawIndex) {
         $("#worksheet-message").hide();
         this.setState({updating: true});
         this.state.ws.saveWorksheet({
             success: function(data) {
                 this.setState({updating: false});
-                this.refreshWorksheet();
+                this.refreshWorksheet(undefined, rawIndex);
             }.bind(this),
             error: function(xhr, status, err) {
                 this.setState({updating: false});
                 $('#update_progress').hide();
                 $('#save_error').show();
                 $("#worksheet-message").html(xhr.responseText).addClass('alert-danger alert').show();
-                if (from_raw) {
+                if (fromRaw) {
                     this.toggleEditMode(true);
                 }
             }
