@@ -57,3 +57,66 @@ function buildTerminalCommand(args) {
   });
   return ret.join(' ');
 }
+
+// the five functions below are used for uplading files on the web
+const ARCHIVE_EXTS = ['.tar.gz', '.tgz', '.tar.bz2', '.zip', '.gz'];
+const NOT_NAME_CHAR_REGEX = /[^a-zA-Z0-9_\.\-]/ig;
+const BEGIN_NAME_REGEX = /[a-zA-Z_]/ig;
+
+function shortenName(name) {
+  if (name.length <= 32) {
+    return name;
+  } else {
+    return name.substring(0, 15) + '..' + name.substring(name.length-15);
+  }
+}
+
+function pathIsArchive(name) {
+  for (var i = 0; i < ARCHIVE_EXTS.length; i++) {
+    if (name.endsWith(ARCHIVE_EXTS[i])) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function stripArchiveExt(name) {
+  for (var i = 0; i < ARCHIVE_EXTS.length; i++) {
+    if (name.endsWith(ARCHIVE_EXTS[i])) {
+      return name.substring(0, name.length - ARCHIVE_EXTS[i].length);
+    }
+  }
+  return name;
+}
+
+function createDefaultBundleName(name) {
+  name = stripArchiveExt(name);
+  name = name.replace(NOT_NAME_CHAR_REGEX, '-');
+  name = name.replace(/\-+/ig, '-'); // Collapse '---' => '-'
+  var beginChar = name.charAt(0);
+  if (beginChar.match(BEGIN_NAME_REGEX).length == 0) {
+    name = '_' + name;
+  }
+  name = shortenName(name);
+  return name;
+}
+
+function getDefaultBundleMetadata(name) {
+  return {
+    "data": [
+      {
+        "attributes": {
+          "bundle_type": "dataset",
+          "metadata": {
+            "description": "",
+            "license": "",
+            "name": createDefaultBundleName(name),
+            "source_url": "",
+            "tags": []
+          }
+        },
+        "type": "bundles"
+      }
+    ]
+  };
+}
