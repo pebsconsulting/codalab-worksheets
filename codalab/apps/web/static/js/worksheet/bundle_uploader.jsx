@@ -1,5 +1,3 @@
-const PROGRESS_BAR_ID = "progressbar-";
-const PROGRESS_LABEL_ID = "progressbar-label-";
 var BundleUploader = React.createClass({
   getInitialState: function() {
     // Maintain a table of the currently uploading bundles.
@@ -12,7 +10,10 @@ var BundleUploader = React.createClass({
     // Append new file to table of uploading bundles
     var key = String(Math.floor(Math.random() * 10000000));
     var entry = {};
-    entry[key] = file;
+    entry[key] = {
+      'file': file,
+      'progress': 0
+    };
     this.setState({uploading: _.extend(entry, this.state.uploading)});
     return key;
   },
@@ -22,10 +23,16 @@ var BundleUploader = React.createClass({
     delete newUploading[key];
     this.setState({uploading: newUploading});
   },
+  updateProgress:function(key, newProgress) {
+    var newUploading = _.clone(this.state.uploading);
+    newUploading[key].progress = newProgress;
+    this.setState({uploading: newUploading});
+  },
   getQueryParams: function(filename) {
+    var formattedFilename = createDefaultBundleName(filename);
     var queryParams = {
       'finalize': 1,
-      'filename': filename,
+      'filename': pathIsArchive(filename) ? formattedFilename + getArchiveExt(filename) : formattedFilename,
       'unpack': pathIsArchive(filename) ? 1 : 0,
     }
     return $.param(queryParams);
@@ -49,25 +56,14 @@ var BundleUploader = React.createClass({
       type: 'POST',
       success: function (data, status, jqXHR) {
         var bundleUuid = data.data[0].id;
-        var fileEntryKey = this.addUploading([file.name, bundleUuid]);
-        var progressbar = $("#" + PROGRESS_BAR_ID + bundleUuid);
-        var progressLabel = $("#" + PROGRESS_LABEL_ID + bundleUuid);
-        progressbar.progressbar({
-          value: 0,
-          max: 100,
-          change: function() {
-            progressLabel.text(progressbar.progressbar("value") + "%");
-          },
-          complete: function() {
-            progressLabel.text("Processing data...");
-          }
-        });
+        var fileEntryKey = this.addUploading(file.name);
         var reader = new FileReader();
         reader.onload = function() {
           var arrayBuffer = this.result,
-            bytesArray = new Uint8Array(arrayBuffer);
+              bytesArray = new Uint8Array(arrayBuffer);
+          var url = '/rest/bundles/' + bundleUuid + '/contents/blob/?' + self.getQueryParams(file.name);
           $.ajax({
-             url: '/rest/bundles/' + bundleUuid + '/contents/blob/?' + self.getQueryParams(file.name),
+             url: url,
              type: 'PUT',
              contentType: 'application/octet-stream',
              data: new Blob([bytesArray]),
@@ -76,8 +72,8 @@ var BundleUploader = React.createClass({
                var xhr = new window.XMLHttpRequest();
                xhr.upload.addEventListener("progress", function(evt) {
                  if (evt.lengthComputable) {
-                   var percentComplete = parseInt(evt.loaded / evt.total * 100);
-                   progressbar.progressbar("value", percentComplete);
+                   var percentComplete = parseInt(evt.loaded * 100 / evt.total);
+                   self.updateProgress(fileEntryKey, percentComplete);
                  }
                }, false);
                return xhr;
@@ -88,14 +84,14 @@ var BundleUploader = React.createClass({
              },
              error: function (jqHXR, status, error) {
                self.clearUploading(fileEntryKey);
-               alert(jqHXR.responseText);
+               alert(createAlertText(this.url, jqHXR.responseText, "if you are using Chrome, clear your browser history (cached images and files) and retry."));
              }
           });
         }
         reader.readAsArrayBuffer(file);
       }.bind(this),
       error: function (jqHXR, status, error) {
-        alert(jqHXR.responseText);
+        alert(createAlertText(this.url, jqHXR.responseText));
       }.bind(this)
     });
   },
@@ -129,14 +125,21 @@ var BundleUploader = React.createClass({
 
         <div id="bundle-upload-progress-bars">
           {_.mapObject(this.state.uploading, function(value, key) {
-            var filename = value[0]
-            var bundleUuid = value[1];
-            return (
-              <div className="bundle-upload-progress-bar progress-bar progress-bar-striped active" role="progressbar">
-                Uploading {filename}...
-                <div id={PROGRESS_BAR_ID + bundleUuid} className='progressbar'><div id={PROGRESS_LABEL_ID + bundleUuid} className='progress-label'></div></div>
-              </div>
-            );
+            var filename = value.file;
+            var progress = value.progress;
+            if (progress == 100) {
+              return (
+                <div className="bundle-upload-progress-bar progress-bar progress-bar-striped active" role="progressbar">
+                  Waiting for server to finish processing bundle.
+                </div>
+              );
+            } else {
+              return (
+                <div className="bundle-upload-progress-bar progress-bar progress-bar-striped active" role="progressbar">
+                  Uploading {filename}. {progress}% completed.
+                </div>
+              );
+            }
           })}
         </div>
 
