@@ -1,3 +1,5 @@
+const PROGRESS_BAR_ID = "progressbar-";
+const PROGRESS_LABEL_ID = "progressbar-label-";
 var BundleUploader = React.createClass({
   getInitialState: function() {
     // Maintain a table of the currently uploading bundles.
@@ -6,13 +8,13 @@ var BundleUploader = React.createClass({
       uploading: {}
     };
   },
-  addUploading: function(file) {
+  addUploading: function(file, bundleUuid) {
     // Append new file to table of uploading bundles
     var key = String(Math.floor(Math.random() * 10000000));
     var entry = {};
     entry[key] = {
       'file': file,
-      'progress': 0
+      'uuid': bundleUuid
     };
     this.setState({uploading: _.extend(entry, this.state.uploading)});
     return key;
@@ -56,7 +58,22 @@ var BundleUploader = React.createClass({
       type: 'POST',
       success: function (data, status, jqXHR) {
         var bundleUuid = data.data[0].id;
-        var fileEntryKey = this.addUploading(file.name);
+        var fileEntryKey = this.addUploading(file.name, bundleUuid);
+        var progressbar = $("#" + PROGRESS_BAR_ID + bundleUuid);
+        var progressLabel = $("#" + PROGRESS_LABEL_ID + bundleUuid);
+        progressbar.progressbar({
+          value: 0,
+          max: 100,
+          create: function() {
+            progressLabel.text("Uploading " + file.name + ".\n" + "0% completed.");
+          },
+          change: function() {
+            progressLabel.text("Uploading " + file.name + ".\n" + progressbar.progressbar("value") + "% completed.");
+          },
+          complete: function() {
+            progressLabel.text("Waiting for server to finish processing bundle.");
+          }
+        });
         var reader = new FileReader();
         reader.onload = function() {
           var arrayBuffer = this.result,
@@ -72,8 +89,8 @@ var BundleUploader = React.createClass({
                var xhr = new window.XMLHttpRequest();
                xhr.upload.addEventListener("progress", function(evt) {
                  if (evt.lengthComputable) {
-                   var percentComplete = parseInt(evt.loaded * 100 / evt.total);
-                   self.updateProgress(fileEntryKey, percentComplete);
+                   var percentComplete = parseInt(evt.loaded / evt.total * 100);
+                   progressbar.progressbar("value", percentComplete);
                  }
                }, false);
                return xhr;
@@ -84,7 +101,7 @@ var BundleUploader = React.createClass({
              },
              error: function (jqHXR, status, error) {
                self.clearUploading(fileEntryKey);
-               alert(createAlertText(this.url, jqHXR.responseText, "if you are using Chrome, clear your browser history (cached images and files) and retry."));
+               alert(createAlertText(this.url, jqHXR.responseText, "refresh and try again."));
              }
           });
         }
@@ -125,21 +142,10 @@ var BundleUploader = React.createClass({
 
         <div id="bundle-upload-progress-bars">
           {_.mapObject(this.state.uploading, function(value, key) {
-            var filename = value.file;
-            var progress = value.progress;
-            if (progress == 100) {
-              return (
-                <div className="bundle-upload-progress-bar progress-bar progress-bar-striped active" role="progressbar">
-                  Waiting for server to finish processing bundle.
-                </div>
-              );
-            } else {
-              return (
-                <div className="bundle-upload-progress-bar progress-bar progress-bar-striped active" role="progressbar">
-                  Uploading {filename}. {progress}% completed.
-                </div>
-              );
-            }
+            var bundleUuid = value.uuid;
+            return (
+              <div id={PROGRESS_BAR_ID + bundleUuid} className='progressbar'><div id={PROGRESS_LABEL_ID + bundleUuid} className='progress-label'></div></div>
+            );
           })}
         </div>
 
