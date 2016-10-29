@@ -45,7 +45,7 @@
         <input id="id_password_confirm" class="form-control" name="confirm_password" placeholder="Password again" type="password" required>
     </div>
     <div class="form-group">
-            <label for="id_send_notifications">Send Notifications:<input id="id_send_notifications" class="form-control" name="send_notifications" type="checkbox" checked required> </label>
+            <label for="id_send_notifications">Send Notifications:<input id="id_send_notifications" class="form-control" name="send_notifications" type="checkbox" value="1" checked> </label>
     </div>
     <input type="hidden" name="success_uri" value="{% url 'account_signup_success' %}" />
     <input type="hidden" name="error_uri" value="{{ request.path }}" />
