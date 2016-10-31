@@ -65,10 +65,10 @@ var BundleUploader = React.createClass({
           value: 0,
           max: 100,
           create: function() {
-            progressLabel.text("Uploading " + file.name + ".\n" + "0% completed.");
+            progressLabel.text("Uploading " + createDefaultBundleName(file.name) + ".\n" + "0% completed.");
           },
           change: function() {
-            progressLabel.text("Uploading " + file.name + ".\n" + progressbar.progressbar("value") + "% completed.");
+            progressLabel.text("Uploading " + createDefaultBundleName(file.name) + ".\n" + progressbar.progressbar("value") + "% completed.");
           },
           complete: function() {
             progressLabel.text("Waiting for server to finish processing bundle.");
