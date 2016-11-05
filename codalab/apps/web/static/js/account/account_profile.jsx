@@ -85,10 +85,33 @@ var AccountProfile = React.createClass({
       <AccountProfileField {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Disk Used (bytes)" fieldKey="disk_used" readOnly />
       <AccountProfileField {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Time Quota" fieldKey="time_quota" readOnly />
       <AccountProfileField {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Time Used" fieldKey="time_used" readOnly />
+      <AccountProfileCheckbox {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Send all notifications" fieldKey="send_all_notifications"/>
+      <AccountProfileCheckbox {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Send only important notifications" fieldKey="send_some_notifications"/>
     </form>;
   }
 });
 
+var AccountProfileCheckbox = React.createClass({
+  getInitialState: function() {
+    return {ticked: true}
+  },
+  handleClick: function(cb) {
+    var newValue = !this.props.user.attributes[this.props.fieldKey]
+    this.props.onChange(this.props.fieldKey, newValue)
+  },
+  render: function() {
+    var inputId = "account_profile_" + this.props.fieldKey;
+    var ticked = this.props.user.attributes[this.props.fieldKey]
+    return <div className="form-group row">
+        <label htmlFor={inputId} className="col-sm-3 form-control-label">
+          {this.props.title}
+        </label>
+        <div className="col-sm-9">
+          <input type="checkbox" checked={ticked}></input>
+        </div>
+      </div>
+  } 
+});
 
 var AccountProfileField = React.createClass({
   propTypes: {
