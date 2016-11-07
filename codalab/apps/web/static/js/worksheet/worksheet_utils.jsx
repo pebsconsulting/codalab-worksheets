@@ -57,3 +57,91 @@ function buildTerminalCommand(args) {
   });
   return ret.join(' ');
 }
+
+function createAlertText(requestURL, responseText, solution) {
+  var alertText = "request failed: " + requestURL;
+  if (responseText) {
+    alertText += "\n\nserver response: " + responseText;
+  }
+  if (solution) {
+    alertText += "\n\npotential solution: " + solution;
+  }
+  return alertText;
+}
+
+
+// the five functions below are used for uplading files on the web. Some of them are the same as some functions on the CLI.
+const ARCHIVE_EXTS = ['.tar.gz', '.tgz', '.tar.bz2', '.zip', '.gz'];
+const NOT_NAME_CHAR_REGEX = /[^a-zA-Z0-9_\.\-]/ig;
+const BEGIN_NAME_REGEX = /[a-zA-Z_]/ig;
+
+// same as shorten_name in /lib/spec_util.py
+function shortenName(name) {
+  if (name.length <= 32) {
+    return name;
+  } else {
+    return name.substring(0, 15) + '..' + name.substring(name.length-15);
+  }
+}
+
+// same as path_is_archive in /lib/zip_util.py
+function pathIsArchive(name) {
+  for (var i = 0; i < ARCHIVE_EXTS.length; i++) {
+    if (name.endsWith(ARCHIVE_EXTS[i])) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// same as strip_archive_ext in /lib/zip_util.py
+function stripArchiveExt(name) {
+  for (var i = 0; i < ARCHIVE_EXTS.length; i++) {
+    if (name.endsWith(ARCHIVE_EXTS[i])) {
+      return name.substring(0, name.length - ARCHIVE_EXTS[i].length);
+    }
+  }
+  return name;
+}
+
+function getArchiveExt(name) {
+  for (var i = 0; i < ARCHIVE_EXTS.length; i++) {
+    if (name.endsWith(ARCHIVE_EXTS[i])) {
+      return name.substring(name.length - ARCHIVE_EXTS[i].length);
+    }
+  }
+  return "";
+}
+
+// same as create_default_name in /lib/spec_util.py
+function createDefaultBundleName(name) {
+  name = stripArchiveExt(name);
+  name = name.replace(NOT_NAME_CHAR_REGEX, '-');
+  name = name.replace(/\-+/ig, '-'); // Collapse '---' => '-'
+  var beginChar = name.charAt(0);
+  if (!beginChar.match(BEGIN_NAME_REGEX)) {
+    name = '_' + name;
+  }
+  name = shortenName(name);
+  return name;
+}
+
+function getDefaultBundleMetadata(name) {
+  return {
+    "data": [
+      {
+        "attributes": {
+          "bundle_type": "dataset",
+          "metadata": {
+            "description": "",
+            "license": "",
+            "name": createDefaultBundleName(name),
+            "source_url": "",
+            "tags": []
+          }
+        },
+        "type": "bundles"
+      }
+    ]
+  };
+}
