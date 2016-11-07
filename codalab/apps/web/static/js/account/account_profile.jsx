@@ -107,7 +107,7 @@ var AccountProfileCheckbox = React.createClass({
           {this.props.title}
         </label>
         <div className="col-sm-9">
-          <input type="checkbox" checked={ticked}></input>
+          <input type="checkbox" checked={ticked} onClick={this.handleClick}></input>
         </div>
       </div>
   } 
