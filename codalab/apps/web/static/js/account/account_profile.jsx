@@ -95,24 +95,28 @@ var AccountNotificationsCheckbox = React.createClass({
   getInitialState: function() {
     return {ticked: true};
   },
+  decodeNotifications: function(flag) {
+    var all = ((flag & 1) & 1) != 0;
+    var some = ((flag >> 1) & 1) != 0;
+    return [all, some];
+  },
+  encodeNotifications: function(all, some) {
+    return all+2*some;
+  },
   handleClick: function(cb) {
     var notifications_flag = this.props.user.attributes["send_notifications_flag"];
-    var all = notifications_flag & 1 != 0;
-    var some = notifications_flag >> 1 != 0;
-    var newValue = this.props.fieldKey=="all"?!all+2*some:all+2*!some
+    var notifications = this.decodeNotifications(notifications_flag)
+    var newValue = this.props.fieldKey=="all" ?
+      this.encodeNotifications(!notifications[0], notifications[1]):
+      this.encodeNotifications(notifications[0], !notifications[1]);
     this.props.onChange("send_notifications_flag", newValue);
   },
   render: function() {
     var inputId = "account_profile_" + this.props.fieldKey;
     var notifications_flag = this.props.user.attributes["send_notifications_flag"];
-    var all = notifications_flag & 1 != 0;
-    var some = notifications_flag >> 1 != 0;
-    var ticked = false;
-    if (this.props.fieldKey == "all") {
-      ticked = all;
-    } else {
-      ticked = some;
-    }
+    var notifications = this.decodeNotifications(notifications_flag)
+    var ticked = this.props.fieldKey=="all" ?
+      notifications[0] : notifications[1]
     return <div className="form-group row">
         <label htmlFor={inputId} className="col-sm-3 form-control-label">
           {this.props.title}
