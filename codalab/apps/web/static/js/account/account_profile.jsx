@@ -85,23 +85,29 @@ var AccountProfile = React.createClass({
       <AccountProfileField {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Disk Used (bytes)" fieldKey="disk_used" readOnly />
       <AccountProfileField {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Time Quota" fieldKey="time_quota" readOnly />
       <AccountProfileField {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Time Used" fieldKey="time_used" readOnly />
-      <AccountProfileCheckbox {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Send all notifications" fieldKey="send_all_notifications"/>
-      <AccountProfileCheckbox {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Send only important notifications" fieldKey="send_some_notifications"/>
+      <AccountNotificationsCheckbox {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Send all notifications" fieldKey="all"/>
+      <AccountNotificationsCheckbox {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Send only important notifications" fieldKey="some"/>
     </form>;
   }
 });
 
-var AccountProfileCheckbox = React.createClass({
+var AccountNotificationsCheckbox = React.createClass({
   getInitialState: function() {
-    return {ticked: true}
+    return {ticked: true};
   },
   handleClick: function(cb) {
-    var newValue = !this.props.user.attributes[this.props.fieldKey]
-    this.props.onChange(this.props.fieldKey, newValue)
+    var notifications_flag = this.props.user.attributes["send_notifications_flag"];
+    var all = notifications_flag&1;
+    var some = notifications_flag>>1;
+    var newValue = this.props.fieldKey=="all"?!all+2*some:all+2*!some
+    this.props.onChange("send_notifications_flag", newValue);
   },
   render: function() {
     var inputId = "account_profile_" + this.props.fieldKey;
-    var ticked = this.props.user.attributes[this.props.fieldKey]
+    var notifications_flag = this.props.user.attributes["send_notifications_flag"];
+    var all = notifications_flag&1;
+    var some = notifications_flag>>1;
+    var ticked = this.props.fieldKey=="all"?all:some;
     return <div className="form-group row">
         <label htmlFor={inputId} className="col-sm-3 form-control-label">
           {this.props.title}
