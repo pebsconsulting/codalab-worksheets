@@ -97,17 +97,22 @@ var AccountNotificationsCheckbox = React.createClass({
   },
   handleClick: function(cb) {
     var notifications_flag = this.props.user.attributes["send_notifications_flag"];
-    var all = notifications_flag&1;
-    var some = notifications_flag>>1;
+    var all = notifications_flag & 1 != 0;
+    var some = notifications_flag >> 1 != 0;
     var newValue = this.props.fieldKey=="all"?!all+2*some:all+2*!some
     this.props.onChange("send_notifications_flag", newValue);
   },
   render: function() {
     var inputId = "account_profile_" + this.props.fieldKey;
     var notifications_flag = this.props.user.attributes["send_notifications_flag"];
-    var all = notifications_flag&1;
-    var some = notifications_flag>>1;
-    var ticked = this.props.fieldKey=="all"?all:some;
+    var all = notifications_flag & 1 != 0;
+    var some = notifications_flag >> 1 != 0;
+    var ticked = false;
+    if (this.props.fieldKey == "all") {
+      ticked = all;
+    } else {
+      ticked = some;
+    }
     return <div className="form-group row">
         <label htmlFor={inputId} className="col-sm-3 form-control-label">
           {this.props.title}
@@ -159,7 +164,7 @@ var AccountProfileField = React.createClass({
     }
   },
   handleBlur: function(event) {
-    // Submit the data on blur if changed, interpreting empty input as null
+    // Submit the data on blur if changed, interpreting name_empty input as null
     var newValue = event.target.value || null;
     if (newValue !== this.value() || this.error()) {
       this.props.onChange(this.props.fieldKey, newValue);
