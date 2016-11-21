@@ -399,7 +399,7 @@ def maintenance(mode):
     """
     Begin or end maintenance (mode is 'begin' or 'end')
     """
-    modes = {'begin': '1', 'end' : '0'}
+    modes = {'begin': '1', 'end': '0'}
     if mode not in modes:
         print "Invalid mode. Valid values are 'begin' or 'end'"
         sys.exit(1)
@@ -413,6 +413,23 @@ def maintenance(mode):
         run('python manage.py config_gen')
 
     nginx_restart()
+
+@roles('web')
+@task
+def migrate_db(alembic_revision, git_tag=None):
+    """
+    Migrates database to the given alembic revision.
+    Can also specify a git tag to checkout first, since alembic histories
+    can differ depending on where we are in git history.
+    It is probably a good idea to turn begin maintenance mode and stop the
+    supervised processes before running this. We do not do so explicitly here
+    because you might want to deploy a different branch right after migrating.
+    """
+    with cd(env.deploy_codalab_cli_dir):
+        run('git fetch')
+        run('git checkout %s' % (git_tag or env.git_codalab_cli_tag))
+        run('git pull')
+        run('venv/bin/alembic upgrade {rev} || venv/bin/alembic downgrade {rev}'.format(rev=alembic_revision))
 
 @roles('web')
 @task
