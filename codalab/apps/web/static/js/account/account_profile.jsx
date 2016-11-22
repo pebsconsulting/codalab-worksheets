@@ -85,8 +85,8 @@ var AccountProfile = React.createClass({
       <AccountProfileField {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Disk Used (bytes)" fieldKey="disk_used" readOnly />
       <AccountProfileField {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Time Quota" fieldKey="time_quota" readOnly />
       <AccountProfileField {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Time Used" fieldKey="time_used" readOnly />
-      <AccountNotificationsCheckbox {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Send all notifications" fieldKey="all"/>
-      <AccountNotificationsCheckbox {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Send only important notifications" fieldKey="some"/>
+      <AccountNotificationsCheckbox {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Send me promotional and fun emails about codalab." fieldKey="all"/>
+      <AccountNotificationsCheckbox {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Send me important updates about my account and Codalab." fieldKey="some"/>
     </form>;
   }
 });
