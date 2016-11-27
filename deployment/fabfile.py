@@ -2,13 +2,13 @@
 Deployment for CodaLab Worksheets.
 Usage: create a deployment.config file.
 """
-
-import datetime
+from datetime import datetime
 import logging
 import logging.config
 import os
-from os.path import (abspath, dirname)
+import re
 import sys
+import time
 import yaml
 import json
 
@@ -413,6 +413,119 @@ def maintenance(mode):
         run('python manage.py config_gen')
 
     nginx_restart()
+
+
+@roles('web')
+@task
+def backup_db(backupdir='backup'):
+    """
+    Dump the MySQL tables.
+
+    |backupdir| specifies the path to the directory where the mysqldump
+    should be saved, relative to the HOME directory.
+
+    Usage:
+        venv/bin/fab using:deployment.config -f codalab-worksheets/deployment/fabfile.py config:wsprod backup_db:/codalabdata/backup
+    """
+    configuration = DeploymentConfig(env.cfg_label, env.cfg_path)
+    db_name = configuration.getBundleServiceDatabaseName()
+    db_user = configuration.getBundleServiceDatabaseUser()
+    db_password = configuration.getBundleServiceDatabasePassword()
+    dumpfile = os.path.join(backupdir, '{database}_{now:%Y_%m_%d_%H_%M_%S}.mysqldump'.format(
+        database=db_name, now=datetime.now()))
+    run('mysqldump --user={user} --password={password} '
+        '--single-transaction --quick {database} > {out}'.format(
+            database=db_name, user=db_user, password=db_password, out=dumpfile),
+        shell=True)
+    return dumpfile
+
+
+@roles('web')
+@task
+def rebuild_db(backupdir='backup'):
+    """
+    Rebuild the MySQL tables from scratch by mysqldump-ing the contents,
+    clearing out the data files, then reloading the data from the dump.
+    Useful for defragmenting the tables if innodb_file_per_table is off.
+    or to rebuild the tables after turning innodb_file_per_table on.
+
+    |backupdir| specifies the path to the directory where the mysqldump
+    should be saved, relative to the HOME directory.
+
+    Usage:
+        venv/bin/fab using:deployment.config -f codalab-worksheets/deployment/fabfile.py config:wsprod rebuild_db:backupdir=/tmp
+
+    Notes:
+    innodb_file_per_table is a boolean option for MySQL databases using the
+    InnoDB engine. When it is on, InnoDB stores each table as its own file
+    in the filesystem, and when it is off, all the tables are stored in a
+    single file (usually with the filename `ibdata1`). The former allows disk
+    space to be automatically reclaimed when tables are defragmented with
+    the `OPTIMIZE TABLE` command, while the latter allows some disk space
+    to be shared between tables. A full discussion of the advantages and
+    disadvantages of this option can be found in the MySQL documentation.
+    Enabling innodb_file_per_table after database creation will not
+    automatically create the per-table files. Issuing `ALTER TABLE` with
+    `ALGORITHM=COPY` for each table will create the files, but will not shrink
+    the `ibdata1` file correspondingly. Thus the only option for reclaiming
+    disk space after the fact is to use this rebuild procedure.
+    innodb_file_per_table is enabled by default in MySQL 5.6.6 and higher.
+    By default, the main MySQL configuration file is at `/etc/mysql/my.cnf`.
+    """
+    maintenance('begin')
+    supervisor('stop')
+
+    mysql_command = (
+        'mysql --user={user} --password={password} '
+        '--raw --silent --skip-column-names --no-auto-rehash '
+        '--execute="{query}"'
+    )
+
+    # Get the MySQL data directory
+    configuration = DeploymentConfig(env.cfg_label, env.cfg_path)
+    db_name = configuration.getBundleServiceDatabaseName()
+    db_user = configuration.getBundleServiceDatabaseUser()
+    db_password = configuration.getBundleServiceDatabasePassword()
+    dba_password = configuration.getDatabaseAdminPassword()
+    output = run(mysql_command.format(user='root',
+                                      password=dba_password,
+                                      query='SHOW VARIABLES LIKE \'datadir\''))
+    mysqldir = re.search(u'datadir\s(\S+)', output).group(1)
+
+    # Dump the MySQL tables
+    dumpfile = backup_db(backupdir)
+
+    # Drop entire database
+    run(mysql_command.format(user='root',
+                             password=dba_password,
+                             query='DROP DATABASE ' + db_name))
+
+    # Clean out uncommitted transactions and shutdown MySQL
+    run(mysql_command.format(user='root',
+                             password=dba_password,
+                             query='SET GLOBAL innodb_fast_shutdown = 0'.format(db_name)))
+    sudo('service mysql stop')
+
+    # Remove MySQL data files
+    for f in ['ibdata1', 'ib_logfile0', 'ib_logfile1']:
+        sudo('rm ' + os.path.join(mysqldir, f))
+
+    # Restart MySQL and wait for it to boot up
+    sudo('service mysql start')
+    time.sleep(2)
+
+    # Recreate database and load dumped data
+    cmds = ["CREATE DATABASE {0};".format(db_name),
+            "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'localhost' WITH GRANT OPTION;".format(db_name, db_user)]
+    run(mysql_command.format(user='root', password=dba_password, query=" ".join(cmds)))
+    run('mysql --user={user} --password={password} {database} < {infile}'.format(
+        database=db_name, user=db_user, password=db_password, infile=dumpfile),
+        shell=True)
+
+    # Restart services
+    supervisor('start')
+    maintenance('end')
+
 
 @roles('web')
 @task
