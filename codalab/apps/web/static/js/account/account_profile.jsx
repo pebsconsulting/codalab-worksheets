@@ -85,10 +85,34 @@ var AccountProfile = React.createClass({
       <AccountProfileField {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Disk Used (bytes)" fieldKey="disk_used" readOnly />
       <AccountProfileField {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Time Quota" fieldKey="time_quota" readOnly />
       <AccountProfileField {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Time Used" fieldKey="time_used" readOnly />
+      <AccountNotificationsCheckbox {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Send me only critical updates about my account." fieldKey="1"/>
+      <AccountNotificationsCheckbox {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Send me general updates about new features (once a month)." fieldKey="2"/>
     </form>;
   }
 });
 
+var AccountNotificationsCheckbox = React.createClass({
+  getInitialState: function() {
+    return {};
+  },
+  handleClick: function(cb) {
+    var notifications = this.props.user.attributes["notifications"];
+    this.props.onChange("notifications", parseInt(this.props.fieldKey));
+  },
+  render: function() {
+    var inputId = "account_profile_" + this.props.fieldKey;
+    var notifications = this.props.user.attributes["notifications"];
+    var checked = (parseInt(this.props.fieldKey) === notifications);
+    return <div className="form-group row">
+      <label htmlFor={inputId} className="col-sm-9 form-control-label">
+        {this.props.title}
+      </label>
+      <div className="col-sm-3">
+        <input type="checkbox" checked={checked} onClick={this.handleClick}></input>
+      </div>
+    </div>;
+  } 
+});
 
 var AccountProfileField = React.createClass({
   propTypes: {
@@ -130,7 +154,7 @@ var AccountProfileField = React.createClass({
     }
   },
   handleBlur: function(event) {
-    // Submit the data on blur if changed, interpreting empty input as null
+    // Submit the data on blur if changed, interpreting name_empty input as null
     var newValue = event.target.value || null;
     if (newValue !== this.value() || this.error()) {
       this.props.onChange(this.props.fieldKey, newValue);
@@ -141,8 +165,16 @@ var AccountProfileField = React.createClass({
 
     var fieldElement;
     if (this.props.readOnly) {
+      // Render values properly
+      var value = this.value();
+      var key = this.props.fieldKey;
+      if (key === 'disk_quota' || key === 'disk_used')
+        value = renderSize(value);
+      else if (key === 'time_quota' || key === 'time_used')
+        value = renderDuration(value);
+
       // Read-only fields only need a simple div
-      fieldElement = <div>{this.value()}</div>;
+      fieldElement = <div>{value}</div>;
     } else {
       var formStateIcon;
       if (this.error()) {
@@ -189,6 +221,5 @@ var AccountProfileField = React.createClass({
     </div>;
   }
 });
-
 
 React.render(<AccountProfile />, document.getElementById('account_profile_container'));
