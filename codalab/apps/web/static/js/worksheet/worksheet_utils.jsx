@@ -1,3 +1,45 @@
+// See worker.formatting in codalab-cli
+function renderDuration(s) {
+  // s: number of seconds
+  // Return a human-readable string.
+  // Example: 100 => "1m40s", 10000 => "2h46m"
+  var m = Math.floor(s / 60);
+  if (m == 0)
+    return s;
+
+  s -= m * 60;
+  var h = Math.floor(m / 60);
+  if (h == 0)
+    return m + 'm' + s + 's';
+
+  m -= h * 60;
+  var d = Math.floor(h / 24);
+  if (d == 0)
+    return h + 'h' + m + 'm';
+
+  h -= d * 24;
+  var y = Math.floor(d / 365);
+  if (y == 0)
+    return d + 'd' + h + 'h';
+
+  d -= y * 365;
+  return y + 'y' + d + 'd';
+}
+
+function renderSize(size) {
+  // size: number of bytes
+  // Return a human-readable string.
+  var units = ['', 'k', 'm', 'g', 't'];
+  for (var i = 0; i < units.length; i++) {
+    var unit = units[i];
+    if (size < 100 && size !== Math.floor(size))
+      return (Math.round(size * 10) / 10.0) + unit;
+    if (size < 1024)
+      return Math.round(size) + unit;
+    size /= 1024.0
+  }
+}
+
 function render_permissions(state) {
   // Render permissions:
   // - state.permission_str (what user has)

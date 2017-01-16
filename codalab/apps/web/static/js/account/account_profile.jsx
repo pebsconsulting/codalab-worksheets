@@ -85,46 +85,32 @@ var AccountProfile = React.createClass({
       <AccountProfileField {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Disk Used (bytes)" fieldKey="disk_used" readOnly />
       <AccountProfileField {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Time Quota" fieldKey="time_quota" readOnly />
       <AccountProfileField {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Time Used" fieldKey="time_used" readOnly />
-      <AccountNotificationsCheckbox {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Send me promotional and fun emails about codalab." fieldKey="all"/>
-      <AccountNotificationsCheckbox {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Send me important updates about my account and Codalab." fieldKey="some"/>
+      <AccountNotificationsCheckbox {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Send me only critical updates about my account." fieldKey="1"/>
+      <AccountNotificationsCheckbox {...this.props} user={this.state.user} errors={this.state.errors} onChange={this.handleChange} title="Send me general updates about new features (once a month)." fieldKey="2"/>
     </form>;
   }
 });
 
 var AccountNotificationsCheckbox = React.createClass({
   getInitialState: function() {
-    return {ticked: true};
-  },
-  decodeNotifications: function(flag) {
-    var all = ((flag & 1) & 1) != 0;
-    var some = ((flag >> 1) & 1) != 0;
-    return [all, some];
-  },
-  encodeNotifications: function(all, some) {
-    return all+2*some;
+    return {};
   },
   handleClick: function(cb) {
-    var notifications_flag = this.props.user.attributes["send_notifications_flag"];
-    var notifications = this.decodeNotifications(notifications_flag)
-    var newValue = this.props.fieldKey=="all" ?
-      this.encodeNotifications(!notifications[0], notifications[1]):
-      this.encodeNotifications(notifications[0], !notifications[1]);
-    this.props.onChange("send_notifications_flag", newValue);
+    var notifications = this.props.user.attributes["notifications"];
+    this.props.onChange("notifications", parseInt(this.props.fieldKey));
   },
   render: function() {
     var inputId = "account_profile_" + this.props.fieldKey;
-    var notifications_flag = this.props.user.attributes["send_notifications_flag"];
-    var notifications = this.decodeNotifications(notifications_flag)
-    var ticked = this.props.fieldKey=="all" ?
-      notifications[0] : notifications[1]
+    var notifications = this.props.user.attributes["notifications"];
+    var checked = (parseInt(this.props.fieldKey) === notifications);
     return <div className="form-group row">
-        <label htmlFor={inputId} className="col-sm-3 form-control-label">
-          {this.props.title}
-        </label>
-        <div className="col-sm-9">
-          <input type="checkbox" checked={ticked} onClick={this.handleClick}></input>
-        </div>
+      <label htmlFor={inputId} className="col-sm-9 form-control-label">
+        {this.props.title}
+      </label>
+      <div className="col-sm-3">
+        <input type="checkbox" checked={checked} onClick={this.handleClick}></input>
       </div>
+    </div>;
   } 
 });
 
@@ -179,8 +165,16 @@ var AccountProfileField = React.createClass({
 
     var fieldElement;
     if (this.props.readOnly) {
+      // Render values properly
+      var value = this.value();
+      var key = this.props.fieldKey;
+      if (key === 'disk_quota' || key === 'disk_used')
+        value = renderSize(value);
+      else if (key === 'time_quota' || key === 'time_used')
+        value = renderDuration(value);
+
       // Read-only fields only need a simple div
-      fieldElement = <div>{this.value()}</div>;
+      fieldElement = <div>{value}</div>;
     } else {
       var formStateIcon;
       if (this.error()) {
@@ -227,6 +221,5 @@ var AccountProfileField = React.createClass({
     </div>;
   }
 });
-
 
 React.render(<AccountProfile />, document.getElementById('account_profile_container'));
