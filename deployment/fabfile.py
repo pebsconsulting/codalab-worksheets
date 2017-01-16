@@ -289,7 +289,14 @@ def install():
     # Install Linux packages
     sudo('apt-get install -y git xclip python-virtualenv virtualenvwrapper zip')
     sudo('apt-get install -y python-dev libmysqlclient-dev libjpeg-dev')
-    sudo('apt-get install -y nginx supervisor')
+    sudo('apt-get install -y supervisor')
+
+    # Install latest stable version of NGINX
+    # https://www.nginx.com/resources/wiki/start/topics/tutorials/install/#ubuntu-ppa
+    sudo('apt-get install -y python-software-properties')  # ensures that we have add-apt-repository
+    sudo('add-apt-repository ppa:nginx/stable')
+    sudo('apt-get update')
+    sudo('apt-get install -y nginx')
 
     # Install Node.js
     # https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions
