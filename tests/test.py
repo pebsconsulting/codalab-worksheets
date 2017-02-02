@@ -1,146 +1,249 @@
-import unittest
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import Select
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.support import expected_conditions as EC
-import subprocess
+# -*- coding: utf-8 -*-
+"""End-to-end Selenium Testing
+
+These tests use Selenium WebDriver to automate common user actions on the codalab
+front end and test that they work as expected.
+
+Usage:
+    venv/bin/python tests/test.py
+
+When prompted follow prompt
+"""
+import getpass
 import random
-import time
+import string
+import unittest
+from datetime import datetime
 
-# TODO: don't call 'cl' to create temporary worksheets.  Go through the web interface.
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.support.ui import WebDriverWait
 
-class CodalabTestCase(unittest.TestCase):
 
-    def run_command(self, args, expected_exit_code=0):
-        try:
-            output = subprocess.check_output(args)
-            exitcode = 0
-        except subprocess.CalledProcessError, e:
-            output = e.output
-            exitcode = e.returncode
-        print '>> %s (exit code %s, expected %s)\n%s' % (args, exitcode, expected_exit_code, output)
-        assert expected_exit_code == exitcode, 'Exit codes don\'t match'
-        return output.rstrip()
+class BasicTest(unittest.TestCase):
+    """Main class that houses all the tests
+
+    Attributes:
+        driver (webdriver): the selenium webdriver that runs the tests.
+    """
+
+    TIMEOUT_SECONDS = 10
+    UPLOAD_TIMEOUT_SECONDS = 60
+    WORKSHEET_UUID_XPATH = '//*[@id="panel_content"]/table/tbody/tr[1]/td'
+    WORKSHEET_NAME_XPATH = '//*[@id="panel_content"]/table/tbody/tr[2]/td'
+    WORKSHEET_ITEM_XPATH = '//*[@id="worksheet_items"]/div/div/table/tbody/tr[%d]'
+    BUNDLE_UUID_XPATH = '//*[@id="panel_content"]/div/table/tbody/tr[1]/td'
+    BUNDLE_NAME_XPATH = '//*[@id="panel_content"]/div/table/tbody/tr[2]/td/a'
+    BUNDLE_CONTENTS_XPATH = '//*[@id="panel_content"]/div[3]/div/div[2]'
+    BUNDLE_STDOUT_XPATH = '//*[@id="panel_content"]/div[3]/div/div[1]'
+    DEFAULT_HOST = 'http://localhost:8000'
 
     def setUp(self):
-        self.browser = webdriver.Firefox()
-        self.addCleanup(self.browser.quit)
-        self.base_url = "http://localhost:8000/"
+        """Sets up the webdriver to run firefox. Can be changed later"""
+        self.driver = webdriver.Firefox()
 
-    def testBaseURL(self):
-        self.browser.get(self.base_url)
-        self.browser.maximize_window()
+        # Prompt user for connection details
+        self.host = raw_input('Host [%s]: ' % self.DEFAULT_HOST) or self.DEFAULT_HOST
+        self.username = raw_input('Username on %s: ' % self.host)
+        self.password = getpass.getpass('Password: ')
 
-        # Make sure that there is no error displayed on the page
-        self.assertNotIn('ERROR', self.browser.page_source)
-        # check title
-        self.assertIn('CodaLab - Home', self.browser.title)
+        # Generate a random name for a worksheet
+        entropy = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(5))
+        self.worksheet_suffix = 'testing-' + entropy
+        self.worksheet = self.username + '-' + self.worksheet_suffix
+        self.worksheet_uuid = None  # set below
 
-        for item in ['Worksheets', 'Competitions', 'Help', 'Example Worksheets', 'Latest Competitions']:
-            self.assertIn(item, self.browser.page_source)
+        self.bundles_created = []
 
-    def testWorksheetContent(self):
-        cl = 'cl'
-        self.browser.get(self.base_url)
-        self.browser.maximize_window()
-        
-        # create a temp worksheet for testing
-        selenium_test_worksheet_name = 'Codalab-UI-selenium-testing'
-        temp_file_name = 'cl-web-interface-testing.txt'
-        temp_worksheet_name = 'test-codalab-' + str(random.randint(0, 1000000))
-        temp_worksheet_title =  'The really long testing title for testing the automated testing of worksheets'
-        temp_worksheet_paragraph_content = "For running automated testing on the cli " * 7
-        self.created_worksheets = []
-        try:
-            selenium_test_worksheet_uuid = self.run_command([cl, 'new', selenium_test_worksheet_name])
-            self.created_worksheets.append(selenium_test_worksheet_name)
-            self.run_command(['touch', temp_file_name])
-            self.run_command([cl, 'work', selenium_test_worksheet_name])
-            # click the worksheet button on the top right of the main page
-            self.browser.find_element_by_link_text("Worksheets").click()
+    def step1_title(self):
+        """Tests that the title of the page is as expected"""
+        self.driver.get(self.host)
+        self.assertEqual(
+            'CodaLab - Home',
+            self.driver.title)
 
-            # find the worksheet that was just created
-            self.browser.implicitly_wait(4)
-            self.browser.get(self.browser.find_element_by_link_text(selenium_test_worksheet_name).get_attribute('href'))
+    # SKIPPED
+    def _skipped_step2_sign_up(self):
+        """Tests that users can sign up as expected"""
+        self.driver.get(self.host)
+        self.driver.find_element_by_partial_link_text("Sign Up").click()
+        WebDriverWait(self.driver, self.TIMEOUT_SECONDS).until(
+            ec.presence_of_element_located((By.ID, 'id_email')))
+        self.driver.find_element_by_id('id_email').send_keys('abc%s@abc.com' % self.entropy)
+        self.driver.find_element_by_id('id_login').send_keys(self.username)
+        self.driver.find_element_by_id('id_firstname').send_keys('John')
+        self.driver.find_element_by_id('id_lastname').send_keys('Doe')
+        self.driver.find_element_by_id('id_affiliation').send_keys('Stanford University')
+        self.driver.find_element_by_id('id_password').send_keys(self.password)
+        self.driver.find_element_by_id('id_password_confirm').send_keys(self.password)
+        self.driver.find_element_by_xpath('//*[@id="signup_form"]/button').click()
+        WebDriverWait(self.driver, self.TIMEOUT_SECONDS).until(ec.title_contains('Signup Success'))
+        raw_input("Press enter once you have verified the email.")
 
-            # wait for a sec to make sure that the AJAX calls have been completed.
-            # TODO: find a better and more selenium way to do it.
-            self.waitToLoad()
-            # Make sure that there is no error displayed on the page
-            self.assertNotIn('ERROR', self.browser.page_source)
+    def step3_login(self):
+        """Log the test user in"""
+        self.driver.get(self.host)
+        self.driver.find_element_by_partial_link_text("Sign In").click()
+        WebDriverWait(self.driver, self.TIMEOUT_SECONDS).until(
+            ec.presence_of_element_located((By.ID, 'id_login')))
+        self.driver.find_element_by_id('id_login').send_keys(self.username)
+        self.driver.find_element_by_id('id_password').send_keys(self.password)
+        self.driver.find_element_by_css_selector(".btn").click()
+        WebDriverWait(self.driver, self.TIMEOUT_SECONDS).until(
+            ec.presence_of_element_located((By.CLASS_NAME, 'jumbotron')))
 
-            self.worksheetActionBarHelper(temp_worksheet_name, temp_worksheet_title, temp_worksheet_paragraph_content, temp_file_name)
-            # check worksheet layout
-            self.worksheetLayoutCheckHelper(temp_worksheet_name, temp_worksheet_title)
+    def step4_create_new_worksheet(self):
+        """Tests that users are able to create a new worksheet"""
+        self.driver.find_element_by_partial_link_text('My Dashboard').click()
+        WebDriverWait(self.driver, self.TIMEOUT_SECONDS).until(
+            ec.presence_of_element_located((By.PARTIAL_LINK_TEXT, 'New Worksheet')))
+        self.driver.find_element_by_partial_link_text('New Worksheet').click()
+        WebDriverWait(self.driver, self.TIMEOUT_SECONDS).until(
+            ec.visibility_of_element_located((By.ID, 'new-worksheet-input')))
+        self.driver.find_element_by_id('new-worksheet-input').send_keys(self.worksheet_suffix)
+        self.driver.find_element_by_partial_link_text('Create').click()
+        WebDriverWait(self.driver, self.TIMEOUT_SECONDS).until(
+            ec.presence_of_element_located((By.CLASS_NAME, 'empty-worksheet')))
+        self.assertEquals(
+            self.driver.find_element_by_xpath(self.WORKSHEET_NAME_XPATH).text,
+            self.worksheet)
+        self.worksheet_uuid = self.driver.find_element_by_xpath(self.WORKSHEET_UUID_XPATH).text
 
-            # check worksheet sidepanel
-            self.worksheetSidePanelCheckHelper(temp_worksheet_name, temp_file_name)
+    def get_testing_worksheet(self):
+        """Internal function that navigates to the new testing worksheet"""
+        self.driver.get('{0.host}/worksheets/{0.worksheet_uuid}/'.format(self))
 
-            # check worksheet content
-            self.worksheetContentCheckHelper(temp_file_name, temp_worksheet_paragraph_content)
+    def step5_upload_file(self):
+        """Tests that we can upload a.txt and b.txt"""
+        self.get_testing_worksheet()
+        self.driver.find_element_by_partial_link_text("Upload").click()
+        print "Go to the browser window and select file codalab-worksheets/tests/a.txt " + \
+              "to upload (timeout in %d seconds)." % self.UPLOAD_TIMEOUT_SECONDS
+        WebDriverWait(self.driver, self.UPLOAD_TIMEOUT_SECONDS).until(
+            ec.text_to_be_present_in_element((By.ID, 'worksheet_items'), 'a.txt'))
 
-            # delete the temp-worksheet
-            action_bar = self.focusActionBar()
-            self.executeActionBarCommands(action_bar, 'cl wrm --force '+selenium_test_worksheet_name)
-            self.executeActionBarCommands(action_bar, 'cl wrm --force '+temp_worksheet_name)
-            # self.run_command([cl, 'wrm', '--force', selenium_test_worksheet_name])
-        except:
-            print "Error occured while testing. Removing temprary worksheets created for testing..."
-            for worksheet in self.created_worksheets:
-                self.run_command([cl, 'wrm', '--force', worksheet])
+        self.driver.find_element_by_partial_link_text("Upload").click()
+        print "Go to the browser window and select file codalab-worksheets/tests/b.txt " + \
+              "to upload (timeout in %d seconds)." % self.UPLOAD_TIMEOUT_SECONDS
+        WebDriverWait(self.driver, self.UPLOAD_TIMEOUT_SECONDS).until(
+            ec.text_to_be_present_in_element((By.ID, 'worksheet_items'), 'b.txt'))
 
-        self.run_command(['rm', temp_file_name])
+        # Click on row for a.txt (first item)
+        self.driver.find_element_by_xpath(self.WORKSHEET_ITEM_XPATH % 1).click()
+        WebDriverWait(self.driver, self.TIMEOUT_SECONDS).until(
+            ec.text_to_be_present_in_element((By.XPATH, self.BUNDLE_NAME_XPATH), 'a.txt'))
+        self.assertEqual(
+            self.driver.find_element_by_xpath(self.BUNDLE_CONTENTS_XPATH).text,
+            'hello\nworld')
+        self.bundles_created.append(
+            self.driver.find_element_by_xpath(self.BUNDLE_UUID_XPATH).text
+        )
 
+        # Click on row for b.txt (second item)
+        self.driver.find_element_by_xpath(self.WORKSHEET_ITEM_XPATH % 2).click()
+        WebDriverWait(self.driver, self.TIMEOUT_SECONDS).until(
+            ec.text_to_be_present_in_element((By.XPATH, self.BUNDLE_NAME_XPATH), 'b.txt'))
+        self.assertEqual(
+            self.driver.find_element_by_xpath(self.BUNDLE_CONTENTS_XPATH).text,
+            '4\n3\n2\n1')
+        self.bundles_created.append(
+            self.driver.find_element_by_xpath(self.BUNDLE_UUID_XPATH).text
+        )
 
-    def waitToLoad(self):
-        time.sleep(1)
+    def step6_run_bundle(self):
+        """Tests that we can create a run bundle using the interface"""
+        self.get_testing_worksheet()
 
-    def executeActionBarCommands(self, action_bar, command):
-        action_bar.send_keys(command)
-        action_bar.send_keys(Keys.ENTER)
-        self.waitToLoad()
+        # Open run creation modal
+        new_run_button = self.driver.find_element_by_partial_link_text("New Run")
+        new_run_button.click()
+        WebDriverWait(self.driver, self.TIMEOUT_SECONDS).until(
+            ec.visibility_of_element_located((By.ID, 'run-bundle-terminal-command')))
 
-    def focusActionBar(self):
-        action_bar = self.browser.find_element_by_id("ws_search")
-        action_bar.send_keys('c')
-        return action_bar
+        # Configure the run and submit it
+        self.driver.find_element_by_id('run-bundle-terminal-command')\
+            .send_keys('date; echo hello')
+        self.driver.find_element_by_partial_link_text("Run").click()
 
-    def refreshWorksheet(self):
-        worksheet = self.browser.find_element_by_id("worksheet")
-        worksheet.click()
-        worksheet.send_keys(Keys.SHIFT, 'r')
+        # Wait until panel reloads with the right bundle info and bundle is ready
+        WebDriverWait(self.driver, self.TIMEOUT_SECONDS).until(
+            ec.presence_of_element_located((By.CLASS_NAME, 'state-ready')))
 
-    def worksheetActionBarHelper(self, temp_worksheet_name, temp_worksheet_title, temp_worksheet_paragraph_content, temp_file_name):
-        action_bar = self.focusActionBar()
-        self.executeActionBarCommands(action_bar, 'cl new '+temp_worksheet_name)
-        self.created_worksheets.append(temp_worksheet_name)
-        action_bar = self.focusActionBar()
-        self.executeActionBarCommands(action_bar, 'cl wedit -t "'+temp_worksheet_title+'"')
-        self.executeActionBarCommands(action_bar, 'cl add -m "'+temp_worksheet_paragraph_content+'"')
-        self.run_command(['cl', 'work', temp_worksheet_name])
-        temp_file_uuid = self.run_command(['cl', 'upload', 'dataset', temp_file_name])
-        self.refreshWorksheet()
+        # Check correctness of content
+        self.assertEqual(
+            self.driver.find_element_by_xpath(self.BUNDLE_STDOUT_XPATH).text[-5:],
+            'hello')
+        # Check that the date is a parseable date
+        datetime.strptime(
+            self.driver.find_element_by_xpath(self.BUNDLE_STDOUT_XPATH).text[:-6],
+            '%a %b %d %H:%M:%S %Z %Y')
+        self.bundles_created.append(
+            self.driver.find_element_by_xpath(self.BUNDLE_UUID_XPATH).text
+        )
 
+    def step7_edit_source_save(self):
+        """Tests that we can view source and edit the source."""
+        self.get_testing_worksheet()
+        self.driver.find_element_by_css_selector('.btn-group > button:nth-child(2)').click()
+        WebDriverWait(self.driver, self.TIMEOUT_SECONDS).until(
+            ec.presence_of_element_located((By.ID, 'worksheet-editor')))
+        self.driver.find_element_by_id('worksheet-editor').send_keys("# Testing header 1\n")
+        self.driver.find_element_by_css_selector('.btn-group > button:nth-child(1)').click()
+        WebDriverWait(self.driver, self.TIMEOUT_SECONDS).until(
+            ec.presence_of_element_located((By.ID, 'testing-header-1')))
+        self.assertEqual(
+            self.driver.find_element_by_id('testing-header-1').tag_name,
+            'h1')
 
-    def worksheetContentCheckHelper(self, temp_file_name, temp_worksheet_paragraph_content):
-        # test paragraph content inserted at top of temp_worksheet
-        self.assertIn(temp_worksheet_paragraph_content, self.browser.page_source)
-        # check table in worksheet
-        table_content = ['uuid','name', temp_file_name, 'description', 'bundle_type', 'dataset', 'created', 'dependencies', 'command', 'data_size', '0','state', 'ready']
-        for item in table_content:
-            self.assertIn(item, self.browser.page_source)
+    def step8_cl_interface(self):
+        """Tests that we can use the web cl interace"""
+        self.get_testing_worksheet()
+        self.driver.find_element_by_id('command_line').click()
+        WebDriverWait(self.driver, self.TIMEOUT_SECONDS).until(
+            ec.presence_of_element_located((By.CLASS_NAME, 'actionbar-focus')))
 
-    def worksheetLayoutCheckHelper(self, temp_worksheet_name, temp_worksheet_title):
-        # check worksheet information
-        for item in ['name:', 'uuid:', 'owner:', 'permissions:', "Keyboard Shortcuts", 'view', 'source', temp_worksheet_name, temp_worksheet_title]:
-            self.assertIn(item, self.browser.page_source)
+        def cli_command(command, wait_for):
+            self.driver.find_element_by_id('command_line').send_keys(command + Keys.RETURN)
+            WebDriverWait(self.driver, self.TIMEOUT_SECONDS).until(
+                ec.text_to_be_present_in_element((By.ID, 'command_line'), wait_for))
 
-    def worksheetSidePanelCheckHelper(self, temp_worksheet_name, temp_file_name):
-        for item in ['name', 'uuid', 'owner', 'permissions', 'type', temp_worksheet_name]:
-            self.assertIn(item, self.browser.find_element_by_class_name('ws-panel').text)
+        # Try ls command
+        cli_command('ls', wait_for='a.txt')
+        cmd_out = self.driver.find_element_by_id('command_line').text.split()
+        cmd_out = cmd_out[cmd_out.index('a.txt'):]
+        self.assertTrue(
+            cmd_out[0] == 'a.txt' and
+            cmd_out[1] == self.username and
+            cmd_out[8] == 'b.txt' and
+            cmd_out[9] == self.username
+            )
 
-if __name__ == '__main__':
-    unittest.main(verbosity=2)
+        # Delete the bundles and worksheet!
+        for uuid in reversed(self.bundles_created):
+            # Don't delete by uuid or the wait condition may get confused and fail
+            cli_command('rm ^', wait_for=uuid)
+        # Force required because the worksheet still has some markdown on it
+        cli_command('wrm --force' + self.worksheet_uuid, wait_for=self.worksheet_uuid)
+
+    def _steps(self):
+        for name in sorted(dir(self)):
+            if name.startswith("step"):
+                yield name, getattr(self, name)
+
+    def test_steps(self):
+        """
+        Run all the steps in sequential order.
+
+        This is what actually gets called by the test runner.
+        """
+        for name, step in self._steps():
+            step()
+
+    def tearDown(self):
+        self.driver.close()
+        self.driver.quit()
+
+if __name__ == "__main__":
+    unittest.main()

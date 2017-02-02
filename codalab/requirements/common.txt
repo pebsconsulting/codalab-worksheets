@@ -11,3 +11,5 @@ django-config-gen==1.0.8
 
 # For running WSGI
 uWSGI==2.0.11.2
+
+selenium
