@@ -100,7 +100,7 @@ function createRow(bundle_info, bundleMetadataChanged, key, value) {
   else {
     return (<tr>
       <th><span>{key}</span></th>
-      <td><span>{value}</span></td>
+      <td><span>{String(value)}</span></td>
     </tr>);
   }
 }
