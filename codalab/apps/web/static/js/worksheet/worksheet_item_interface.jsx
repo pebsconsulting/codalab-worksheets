@@ -10,22 +10,6 @@ var WorksheetItem = React.createClass({
     throttledScrollToRow: undefined,
 
     capture_keys: function() {
-        // Move focus up one
-        Mousetrap.bind(['up', 'k'], function(e) {
-            if (this.props.subFocusIndex - 1 < 0)
-              this.props.setFocus(this.props.focusIndex - 1, 'end');  // Move out of this table
-            else
-              this.props.setFocus(this.props.focusIndex, this.props.subFocusIndex - 1);
-        }.bind(this), 'keydown');
-
-        // Move focus down one
-        Mousetrap.bind(['down', 'j'], function() {
-            if (this.props.subFocusIndex + 1 >= this._getItems().length)
-              this.props.setFocus(this.props.focusIndex + 1, 0);  // Move out of this table
-            else
-              this.props.setFocus(this.props.focusIndex, this.props.subFocusIndex + 1);
-        }.bind(this), 'keydown');
-
         // Open worksheet in same tab
         Mousetrap.bind(['enter'], function(e) {
             this.props.openWorksheet(this.refs['row' + this.props.subFocusIndex].props.uuid);
