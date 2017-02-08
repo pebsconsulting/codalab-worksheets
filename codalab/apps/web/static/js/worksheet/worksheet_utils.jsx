@@ -44,12 +44,45 @@ function render_permissions(state) {
   // Render permissions:
   // - state.permission_str (what user has)
   // - state.group_permissions (what other people have)
-  var permission_str = 'you(' + (state.permission_str || '?') + ')';
-  permission_str += (state.group_permissions || []).map(function(perm) {
-    return ' ' + perm.group_name + "(" + perm.permission_str + ")";
-  }).join('');
-  permission_str;
-  return permission_str;
+  
+  function permissionToClass(permission) {
+    var mapping = {
+      read: 'ws-permission-read',
+      all: 'ws-permission-all'
+    };
+
+    if (mapping.hasOwnProperty(permission)) {
+      return mapping[permission];
+    }
+
+    console.error('Invalid permission:', permission);
+    return '';
+  }
+
+  function wrapPermissionInColorSpan(permission) {
+    return (
+      <span className={permissionToClass(permission)}>
+        {permission}
+      </span>
+    );
+  }
+
+  return (
+    <div>
+      you({wrapPermissionInColorSpan(state.permission_str)})
+      {
+        (state.group_permissions || []).map(
+          function(perm) {
+            return (
+              <span>
+                {' ' + perm.group_name}({wrapPermissionInColorSpan(perm.permission_str)})
+              </span>
+            );
+          }
+        )
+      }
+    </div>
+  );
 }
 
 function shorten_uuid(uuid) {
