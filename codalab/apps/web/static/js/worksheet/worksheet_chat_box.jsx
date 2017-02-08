@@ -108,6 +108,6 @@ var WorksheetChatBox = React.createClass({
     return (
       <div id="chat_box">
       </div>
-      );
+    );
   }
 });

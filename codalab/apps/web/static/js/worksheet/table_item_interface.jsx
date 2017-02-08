@@ -170,4 +170,4 @@ var TableRow = React.createClass({
             </tr>
         );
     }
-})
+});

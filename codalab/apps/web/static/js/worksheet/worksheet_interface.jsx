@@ -662,6 +662,7 @@ var Worksheet = React.createClass({
                 {chat_box_display}
                 {chat_portal}
                 {context_menu_display}
+                <HelpButton></HelpButton>
                 <div id="worksheet_panel" className="actionbar-focus">
                     {worksheet_side_panel}
                     <div className="ws-container">
