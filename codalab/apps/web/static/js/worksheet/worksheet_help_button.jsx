@@ -191,29 +191,15 @@ var HelpButton = React.createClass({
           return this.state.state !== HELP_STATES.INITIAL;
       }.bind(this);
 
-      helpTextStyle.visibility = helpTextIsVisible() ? null : 'hidden';
-      messageBoxStyle.visibility = messageBoxIsVisible() ? null : 'hidden';
+      helpTextStyle.display = helpTextIsVisible() ? null : 'none';
+      messageBoxStyle.display = messageBoxIsVisible() ? null : 'none';
       containerStyle.backgroundColor = containerIsVisible() ? null : 'transparent';
-
-      var helpTextStyle = {
-          padding: '7px',
-          paddingLeft: '20px'
-      };
-
-/*
-      return (
-          <div style={containerStyle}>
-              <input type="text" style={messageStyle} />
-              <button style={helpButtonStyle} onClick={this.clickTransition()}>{this.helpButtonIcon}</button>
-          </div>
-      );
-    */
 
       return (
           <div style={containerStyle} className={['help-container']}>
-              <div style={helpTextStyle}>{this.helpTextMessage()}</div>
+              <div className={['help-text']} style={helpTextStyle}>{this.helpTextMessage()}</div>
               <div>
-                  <input style={messageBoxStyle} className={['help-message-box']} type="text" value={this.state.message} onChange={this.onMessageChange}/>
+                  <textarea style={messageBoxStyle} className={['help-message-box']} value={this.state.message} onChange={this.onMessageChange}/>
                   <button className={['help-button']} onClick={this.clickTransition}>{this.helpButtonIcon()}</button>
               </div>
           </div>
