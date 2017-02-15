@@ -96,6 +96,9 @@ class DeploymentConfig(object):
     def getAdminEmail(self):
         return self._svc_global['admin-email']
 
+    def getSupportEmail(self):
+        return self._svc_global['support-email']
+
     def getServiceName(self):
         """Gets the cloud service name."""
         return "{0}{1}".format(self.getServicePrefix(), self.label)
@@ -609,6 +612,7 @@ def _deploy():
         run('./cl config email/password %s' % email_info['password'])
         # Send notifications.
         run('./cl config server/admin_email %s' % cfg.getAdminEmail())
+        run('./cl config server/support_email %s' % cfg.getSupportEmail())
         run('./cl config server/instance_name %s' % cfg.label)
 
     # Update database

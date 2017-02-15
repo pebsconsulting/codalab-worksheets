@@ -131,49 +131,19 @@ var HelpButton = React.createClass({
     helpTextMessage: function() {
         switch (this.state.state) {
             case HELP_STATES.OPEN:
-                return 'Questions/Comments? Send us an email here or at codalab@gmail.com';
+                return 'Questions/Comments? Send us a message here.';
             case HELP_STATES.SENDING:
                 return 'Sending...';
             case HELP_STATES.FAILED:
                 return 'Something went wrong, please try again';
             case HELP_STATES.SUCCESS:
-                return 'Message sent! We\'ll get back to you soon!';
+                return 'Message sent! We\'ll get back to you soon by email!';
             default:
                 return '';
         }
     },
 
     render: function() {
-/*
-      var helpButtonStyle = {
-          width: '50px',
-          height: '50px',
-          borderRadius: '25px',
-          backgroundColor: 'rgb(115, 156, 185)',
-          color: 'white',
-          display: ['flex', '-webkit-flex'],
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '20px',
-          float: 'right',
-          margin: '3px',
-          boxShadow: 'none'
-      };
-      */
-
-
-/*
-      var messageStyle = {
-          width: '550px',
-          height: '45px',
-          float: 'left',
-          margin: '5px',
-          marginRight: '-30px',
-          padding: '3px',
-          border: 'none',
-          borderRadius: '15px'
-      };
-      */
 
       var helpTextStyle = {};
       var messageBoxStyle = {};
