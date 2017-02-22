@@ -69,9 +69,15 @@ var HelpButton = React.createClass({
     },
 
     clickTransition: function(e) {
+        e.preventDefault();
         switch (this.state.state) {
             case HELP_STATES.INITIAL:
-                this.setState({state: HELP_STATES.OPEN});
+                this.setState(
+                  {state: HELP_STATES.OPEN},
+                  function() {
+                    this.refs.messageBox.getDOMNode().focus(); 
+                  }
+                );
                 break;
             case HELP_STATES.OPEN:
                 if (this.state.message) {
@@ -183,7 +189,11 @@ var HelpButton = React.createClass({
           <div style={containerStyle} className={['help-container']}>
               <div style={helpTextStyle}>{this.helpTextMessage()}</div>
               <div>
-                  <input style={messageBoxStyle} className={['help-message-box']} type="text" value={this.state.message} onChange={this.onMessageChange}/>
+                  <textarea ref={'messageBox'}
+                            style={messageBoxStyle}
+                            className={['help-message-box']}
+                            value={this.state.message}
+                            onChange={this.onMessageChange} />
                   <button className={['help-button']} onClick={this.clickTransition}>{this.helpButtonIcon()}</button>
               </div>
           </div>
