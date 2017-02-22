@@ -591,21 +591,21 @@ var Worksheet = React.createClass({
         var disableWorksheetEditing = this.canEdit() ? '' : 'disabled';
         var sourceStr = editPermission ? 'Edit source' : 'View source';
         var editFeatures = (
-            <div className="edit-features">
+            <span className="edit-features">
                 <div className="btn-group">
                     <button className={viewClass} onClick={this.viewMode}>View</button>
                     <button className={rawClass} onClick={this.editMode}>{sourceStr}</button>
                 </div>
-            </div>
+            </span>
         );
 
         var editModeFeatures = (
-            <div className="edit-features">
+            <span className="edit-features">
                 <div className="btn-group">
                     <button className={viewClass} onClick={this.viewMode} disabled={disableWorksheetEditing}>Save</button>
                     <button className={viewClass} onClick={this.discardChanges}>Discard</button>
                 </div>
-            </div>
+            </span>
         );
 
         if (info && info.items.length) {
@@ -688,6 +688,107 @@ var Worksheet = React.createClass({
         var worksheet_display = this.state.editMode ? raw_display : items_display;
         var editButtons = this.state.editMode ? editModeFeatures : editFeatures;
 
+        // TODO Add code that governs the functionality of the select
+        // Uses this.state.ws.info.group_permissions.public --> check if this is right?
+      // Hit the API: /rest/api/worksheet-permissions/ with a POST request with the following params:
+      // worksheet: UUID, group: UUID, permission: 0, 1, 2
+      // TODO refactor into new file or component
+        var selectDisplay = function(permission_str) {
+            if (permission_str === 'all') {
+                return 'All: Everyone can see and change this worksheet';
+            } else if (permission_str === 'read') {
+                return 'Read: Everyone can see, but not change, this worksheet';
+            } else if (permission_str === 'none') {
+                return 'None: Not publically viewable';
+            } else {
+                console.error('Invalid permission: permission string: ' + permission);
+                return;
+            }
+        }.bind(this);
+        
+        var publicGroupPermission = function() {
+            var info = this.state.ws.info;
+            if (info) {
+                var group_permissions = info.group_permissions;
+                for (var m = 0; m < group_permissions.length; m++) {
+                    var group_permission = group_permissions[m];
+                    if (group_permission.group_name === 'public') {
+                        return group_permission.permission_str;
+                    }
+                }
+                // didn't find the public group in the permissions
+                // so permission is 'none'
+                return 'none';
+            }
+            return null;
+        }.bind(this);
+
+        var setPublicPermission = function(e) {
+            var onSuccess = function(data, status, jqXHR) {
+                // TODO: Think through two cases:
+              // gave public permission
+                var ws = _.extend({}, info);
+                var publicGroupIndex;
+                for (var m = 0; m < ws.info.group_permission.length; m++) {
+                    var group_permission = ws.info.group_permissions[m];
+                    if (group_permission.group_name === 'public') {
+                        publicGroupIndex = m;
+                    }
+                }
+                this.setState({
+                    ws: ws
+                });
+            }.bind(this);
+
+            var onError = function(jqXHR, status, error) {
+               console.error(jqXHR.responseText);
+            }.bind(this);
+
+            // TODO data
+            var permissionStrToInt = function(permissionStr) {
+                if(permissionStr === 'none') {
+                    return 0;
+                } else if (permissionStr === 'read') {
+                    return 1;
+                } else if (permissionStr === 'all') {
+                    return 2;
+                } else {
+                    return null;
+                }
+            };
+            var worksheetData = [{
+                worksheet: this.state.ws.uuid,
+                group_name: 'public',
+                permission: permissionStrToInt(e.target.value)
+            }];
+
+            $.ajax({
+                url: '/rest/api/worksheet-permissions',
+                type: 'POST',
+                data: worksheetData,
+                success: onSuccess,
+                error: onError,
+            });
+
+            var onSuccessBundles = function(data, status, jqXHR) {
+                // do nothing
+            }.bind(this);
+
+            var onErrorBundles = function(jqXHR, status, error) {
+                 console.error(jqXHR.responseText);
+            }.bind(this);
+
+            var bundlesData; // TODO CANCEL Should implement this all server side
+            
+            $.ajax({
+                url: '/rest/api/bundle-permissions',
+                type: 'POST',
+                data: bundlesData,
+                success: onSuccessBundles,
+                error: onErrorBundles,
+            });
+        }.bind(this);
+
         return (
             <div id="worksheet" className={searchClassName}>
                 {action_bar_display}
@@ -702,13 +803,26 @@ var Worksheet = React.createClass({
                             <div id="worksheet_content" className={editableClassName}>
                                 <div className="header-row">
                                     <div className="row">
-                                        <div className="col-sm-6 col-md-8">
+                                        <div className="col-sm-6 col-md-6">
                                           <h4 className='worksheet-title'><WorksheetEditableField canEdit={this.canEdit()} fieldName="title" value={info && info.title} uuid={info && info.uuid} onChange={this.refreshWorksheet} /></h4>
                                         </div>
-                                        <div className="col-sm-6 col-md-4">
+                                        <div className="col-sm-6 col-md-6">
                                             <div className="controls">
-                                                <a href="#" data-toggle="modal" data-target="#glossaryModal" className="glossary-link"><code>?</code> Keyboard Shortcuts</a>
+                                                <span className="select-public"> 
+                                                    {/* TODO add UI code here*/}
+                                                    {publicGroupPermission()}
+                                                    <select value={publicGroupPermission()}>
+            {['none', 'read', 'all'].map(function(elem) {
+              return (
+                <option value={elem}>
+                  {selectDisplay(elem)}
+                </option>
+              );
+            })}
+          </select>
+                                                </span>
                                                 {editButtons}
+                                                <a href="#" data-toggle="modal" data-target="#glossaryModal" className="glossary-link"><code>?</code> Keyboard Shortcuts</a>
                                             </div>
                                         </div>
                                     </div>
