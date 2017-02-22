@@ -100,7 +100,7 @@ function createRow(bundle_info, bundleMetadataChanged, key, value) {
   else {
     return (<tr>
       <th><span>{key}</span></th>
-      <td><span>{String(value)}</span></td>
+      <td><span>{typeof(value) === 'boolean' ? String(value) : value}</span></td>
     </tr>);
   }
 }
@@ -177,7 +177,7 @@ function renderHeader(bundle_info, bundleMetadataChanged) {
     {bundle_header}
     <table className="bundle-meta table">
       <tbody>
-        {rows}
+        {rows.map(function(elem) {return elem;})}
         <tr>
           <th><span>download</span></th>
           <td>
