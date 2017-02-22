@@ -18,17 +18,24 @@ var WorksheetSidePanel = React.createClass({
         $(window).resize(function(e) {
             self.resetPanel();
         });
+        var refreshWorksheetSidePanel = function() {
+            if (this.refs.hasOwnProperty('worksheet_info_side_panel')) {
+                this.refs.worksheet_info_side_panel.refreshWorksheet();
+            }
+        };
         this.debouncedRefreshBundleSidePanel = _.debounce(this.refreshBundleSidePanel, 200).bind(this);
+        this.debouncedRefreshWorksheetSidePanel = _.debounce(refreshWorksheetSidePanel, 200).bind(this);
     },
 
     refreshBundleSidePanel: function() {
-     if (this.refs.hasOwnProperty('bundle_info_side_panel')) {
-       this.refs.bundle_info_side_panel.refreshBundle();
-     }
-   },
+      if (this.refs.hasOwnProperty('bundle_info_side_panel')) {
+        this.refs.bundle_info_side_panel.refreshBundle();
+      }
+    },
 
     componentDidUpdate: function() {
       this.debouncedRefreshBundleSidePanel();
+      this.debouncedRefreshWorksheetSidePanel();
     },
 
     getFocus: function() {
@@ -125,6 +132,7 @@ var WorksheetSidePanel = React.createClass({
                                    key={'ws' + this.props.focusIndex}
                                    worksheet_info={worksheet_info}
                                    bundleMetadataChanged={this.props.bundleMetadataChanged}
+                                   ref="worksheet_info_side_panel"
                                  />;
           } else if (this.isFocusMarkup(focus)) {
             // Show nothing (maybe later show markdown just for fun?)
@@ -165,9 +173,34 @@ var WorksheetDetailSidePanel = React.createClass({
         return { };
     },
 
+    refreshWorksheet: function() {
+        var ws = this.props.worksheet_info;
+        var onSuccess = function(data, status, jqXHR) {
+            this.setState(data);
+        }.bind(this);
+        var onError = function(jqXHR, status, error) {
+            console.error(jqXHR.responseText);
+        }.bind(this);
+        $.ajax({
+            type: 'GET',
+            url: '/rest/api/worksheets/' + ws.uuid + '/',
+            success: onSuccess,
+            error: onError,
+        });
+    },
+
     render: function() {
       // Select the current worksheet or the subworksheet.
-      var worksheet = this.props.worksheet_info;
+      var worksheet = this.state;
+      var isEmptyObject = function(obj) {
+          // based on: http://stackoverflow.com/questions/4994201/is-object-empty
+          for (var key in obj) {
+              if (hasOwnProperty.call(obj, key)) return false;
+          }
+          return true;
+      };
+      if (isEmptyObject(worksheet)) worksheet = this.props.worksheet_info;
+
       if (!worksheet) return <div />;
 
       // Show brief summary of contents.
