@@ -136,7 +136,7 @@ var Worksheet = React.createClass({
         window.history.replaceState({uuid: this.state.ws.uuid}, '', window.location.pathname);
         $('body').addClass('ws-interface');
         $.ajax({
-        url: '/rest/api/users/',
+            url: '/rest/api/users/',
             dataType: 'json',
             cache: false,
             type: 'GET',
@@ -723,10 +723,20 @@ var Worksheet = React.createClass({
             return null;
         }.bind(this);
 
+        var publicGroupHasPermission = function() {
+          if (publicGroupPermission() === 'none') {
+            return false;
+          } else { // 'read' or 'none'
+            return true;
+          }
+        }
+
         var setPublicPermission = function(e) {
+            debugger;
+            e.preventDefault();
             var onSuccess = function(data, status, jqXHR) {
                 // TODO: Think through two cases:
-              // gave public permission
+                // gave public permission
                 var ws = _.extend({}, info);
                 var publicGroupIndex;
                 for (var m = 0; m < ws.info.group_permission.length; m++) {
@@ -744,7 +754,7 @@ var Worksheet = React.createClass({
                console.error(jqXHR.responseText);
             }.bind(this);
 
-            // TODO data
+          /*
             var permissionStrToInt = function(permissionStr) {
                 if(permissionStr === 'none') {
                     return 0;
@@ -756,20 +766,92 @@ var Worksheet = React.createClass({
                     return null;
                 }
             };
-            var worksheetData = [{
-                worksheet: this.state.ws.uuid,
-                group_name: 'public',
-                permission: permissionStrToInt(e.target.value)
-            }];
+            */
 
+            var eventValueToPermissionValue = function(value) {
+                if (value === 'on') {
+                    return 1;
+                } else if (value === 'off') {
+                    return 0;
+                } else {
+                    console.error('Invalid toggle state');
+                    return;
+                }
+            };
+
+          /*
+         => {
+                'data': {
+                    'id': '123',
+                    'type': 'bundles',
+                    'attributes': {
+                        'name': 'hello'
+                    },
+                    'relationships': {
+                        'owner': {
+                            'data': {
+                                'id': '345',
+                                'type': 'users'
+                            }
+                        }
+                    },
+                }
+            }
+                */
+            var worksheetData = [{
+                data: {
+                    type: 'worksheet-permissions',
+                    attributes: {
+                      permission: eventValueToPermissionValue(e.target.value),
+                    },
+                    relationships: {
+                      worksheet: {
+                        data: {
+                          type: 'worksheet',
+                          id: this.state.ws.uuid
+                        }
+                      },
+                      group: {
+                        data: {
+                          type: 'group',
+                          id: '0xc573c2c89326443a97e96edaf6443e51', // TODO don't hardcode
+                        }
+                      },
+                    },
+                }
+            }];
+          /*
+            {
+              'data': {
+                'relationships': {
+                  'worksheet': {
+                    'data': {
+                      'type': 'worksheet',
+                       'id': '0x555'
+                    }
+                  }
+                },
+                'attributes': {
+                  'permission': 2,
+                  'group_name': 'public'
+                },
+                'type': 'worksheet-permissions'
+              }
+            }
+            */
+
+
+            debugger;
             $.ajax({
-                url: '/rest/api/worksheet-permissions',
+                url: '/rest/worksheet-permissions',
                 type: 'POST',
-                data: worksheetData,
+                contentType: 'application/json',
+                data: JSON.stringify(worksheetData),
                 success: onSuccess,
                 error: onError,
             });
 
+          /*
             var onSuccessBundles = function(data, status, jqXHR) {
                 // do nothing
             }.bind(this);
@@ -778,8 +860,7 @@ var Worksheet = React.createClass({
                  console.error(jqXHR.responseText);
             }.bind(this);
 
-            var bundlesData; // TODO CANCEL Should implement this all server side
-            
+            var bundlesData;             
             $.ajax({
                 url: '/rest/api/bundle-permissions',
                 type: 'POST',
@@ -787,6 +868,7 @@ var Worksheet = React.createClass({
                 success: onSuccessBundles,
                 error: onErrorBundles,
             });
+            */
         }.bind(this);
 
         return (
@@ -811,15 +893,11 @@ var Worksheet = React.createClass({
                                                 <span className="select-public"> 
                                                     {/* TODO add UI code here*/}
                                                     {publicGroupPermission()}
-                                                    <select value={publicGroupPermission()}>
-            {['none', 'read', 'all'].map(function(elem) {
-              return (
-                <option value={elem}>
-                  {selectDisplay(elem)}
-                </option>
-              );
-            })}
-          </select>
+          Public:
+          <label className="switch">
+            <input type="checkbox" checked={publicGroupHasPermission()} onChange={setPublicPermission}/>
+            <div className={"slider round"}></div>
+          </label>
                                                 </span>
                                                 {editButtons}
                                                 <a href="#" data-toggle="modal" data-target="#glossaryModal" className="glossary-link"><code>?</code> Keyboard Shortcuts</a>
