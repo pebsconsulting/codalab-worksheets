@@ -798,7 +798,7 @@ var Worksheet = React.createClass({
                 }
             }
                 */
-            var worksheetData = [{
+            var worksheetData = {
                 data: {
                     type: 'worksheet-permissions',
                     attributes: {
@@ -807,19 +807,19 @@ var Worksheet = React.createClass({
                     relationships: {
                       worksheet: {
                         data: {
-                          type: 'worksheet',
+                          type: 'worksheets',
                           id: this.state.ws.uuid
                         }
                       },
                       group: {
                         data: {
-                          type: 'group',
+                          type: 'groups',
                           id: '0xc573c2c89326443a97e96edaf6443e51', // TODO don't hardcode
                         }
                       },
                     },
                 }
-            }];
+            };
           /*
             {
               'data': {
