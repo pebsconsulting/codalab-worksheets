@@ -577,6 +577,52 @@ var Worksheet = React.createClass({
         });
     },
 
+    /**
+     * |public_group_id|: UUID of the `public` group
+     * |permission|: permission integer (where 0 = none, 1 = read, 2 = all)
+     **/
+    addPermission: function(group_id, group_name, permission) {
+      var permission_str;
+      if (permission === 0) {
+        permission_str = 'none';
+      } else if (permission === 1) {
+        permission_str = 'read';
+      } else if (permission === 2) {
+        permission_str = 'all';
+      } else {
+        console.error('Invalid permission value: ' + permission);
+      }
+      
+      oldGroupPermissions = this.state.ws.info.group_permissions;
+      var newGroupPermission = {
+        group_name: group_name,
+        group_uuid: group_id,
+        id: 13,
+        permission: permission,
+        permission_str: permission_str
+      };
+      var newGroupPermissions = oldGroupPermissions.concat([newGroupPermission]);
+      this.setState({
+        ws: _.extend({}, this.state.ws, {
+          info: _.extend({}, this.state.ws.info, {
+            group_permissions: newGroupPermissions
+          })
+        })
+      });
+    },
+
+    removePermission: function(publicGroupIndex) {
+      var newGroupPermissions = JSON.parse(JSON.stringify(this.state.ws.info.group_permissions));
+      newGroupPermissions.splice(publicGroupIndex, 1);
+      this.setState({
+        ws: _.extend({}, this.state.ws, {
+          info: _.extend({}, this.state.ws.info, {
+            group_permissions: newGroupPermissions
+          })
+        })
+      });
+    },
+
     render: function() {
         this.setupEventHandlers();
         var info = this.state.ws.info;
@@ -688,189 +734,6 @@ var Worksheet = React.createClass({
         var worksheet_display = this.state.editMode ? raw_display : items_display;
         var editButtons = this.state.editMode ? editModeFeatures : editFeatures;
 
-        // TODO Add code that governs the functionality of the select
-        // Uses this.state.ws.info.group_permissions.public --> check if this is right?
-      // Hit the API: /rest/api/worksheet-permissions/ with a POST request with the following params:
-      // worksheet: UUID, group: UUID, permission: 0, 1, 2
-      // TODO refactor into new file or component
-        var selectDisplay = function(permission_str) {
-            if (permission_str === 'all') {
-                return 'All: Everyone can see and change this worksheet';
-            } else if (permission_str === 'read') {
-                return 'Read: Everyone can see, but not change, this worksheet';
-            } else if (permission_str === 'none') {
-                return 'None: Not publically viewable';
-            } else {
-                console.error('Invalid permission: permission string: ' + permission);
-                return;
-            }
-        }.bind(this);
-        
-        var publicGroupPermission = function() {
-            var info = this.state.ws.info;
-            if (info) {
-                var group_permissions = info.group_permissions;
-                for (var m = 0; m < group_permissions.length; m++) {
-                    var group_permission = group_permissions[m];
-                    if (group_permission.group_name === 'public') {
-                        return group_permission.permission_str;
-                    }
-                }
-                // didn't find the public group in the permissions
-                // so permission is 'none'
-                return 'none';
-            }
-            return null;
-        }.bind(this);
-
-        var publicGroupHasPermission = function() {
-          if (publicGroupPermission() === 'none') {
-            return false;
-          } else { // 'read' or 'none'
-            return true;
-          }
-        }
-
-        var setPublicPermission = function(e) {
-            debugger;
-            e.preventDefault();
-            var onSuccess = function(data, status, jqXHR) {
-                // TODO: Think through two cases:
-                // gave public permission
-                var ws = _.extend({}, info);
-                var publicGroupIndex;
-                for (var m = 0; m < ws.info.group_permission.length; m++) {
-                    var group_permission = ws.info.group_permissions[m];
-                    if (group_permission.group_name === 'public') {
-                        publicGroupIndex = m;
-                    }
-                }
-                this.setState({
-                    ws: ws
-                });
-            }.bind(this);
-
-            var onError = function(jqXHR, status, error) {
-               console.error(jqXHR.responseText);
-            }.bind(this);
-
-          /*
-            var permissionStrToInt = function(permissionStr) {
-                if(permissionStr === 'none') {
-                    return 0;
-                } else if (permissionStr === 'read') {
-                    return 1;
-                } else if (permissionStr === 'all') {
-                    return 2;
-                } else {
-                    return null;
-                }
-            };
-            */
-
-            var eventValueToPermissionValue = function(value) {
-                if (value === 'on') {
-                    return 1;
-                } else if (value === 'off') {
-                    return 0;
-                } else {
-                    console.error('Invalid toggle state');
-                    return;
-                }
-            };
-
-          /*
-         => {
-                'data': {
-                    'id': '123',
-                    'type': 'bundles',
-                    'attributes': {
-                        'name': 'hello'
-                    },
-                    'relationships': {
-                        'owner': {
-                            'data': {
-                                'id': '345',
-                                'type': 'users'
-                            }
-                        }
-                    },
-                }
-            }
-                */
-            var worksheetData = {
-                data: {
-                    type: 'worksheet-permissions',
-                    attributes: {
-                      permission: eventValueToPermissionValue(e.target.value),
-                    },
-                    relationships: {
-                      worksheet: {
-                        data: {
-                          type: 'worksheets',
-                          id: this.state.ws.uuid
-                        }
-                      },
-                      group: {
-                        data: {
-                          type: 'groups',
-                          id: '0xc573c2c89326443a97e96edaf6443e51', // TODO don't hardcode
-                        }
-                      },
-                    },
-                }
-            };
-          /*
-            {
-              'data': {
-                'relationships': {
-                  'worksheet': {
-                    'data': {
-                      'type': 'worksheet',
-                       'id': '0x555'
-                    }
-                  }
-                },
-                'attributes': {
-                  'permission': 2,
-                  'group_name': 'public'
-                },
-                'type': 'worksheet-permissions'
-              }
-            }
-            */
-
-
-            debugger;
-            $.ajax({
-                url: '/rest/worksheet-permissions',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(worksheetData),
-                success: onSuccess,
-                error: onError,
-            });
-
-          /*
-            var onSuccessBundles = function(data, status, jqXHR) {
-                // do nothing
-            }.bind(this);
-
-            var onErrorBundles = function(jqXHR, status, error) {
-                 console.error(jqXHR.responseText);
-            }.bind(this);
-
-            var bundlesData;             
-            $.ajax({
-                url: '/rest/api/bundle-permissions',
-                type: 'POST',
-                data: bundlesData,
-                success: onSuccessBundles,
-                error: onErrorBundles,
-            });
-            */
-        }.bind(this);
-
         return (
             <div id="worksheet" className={searchClassName}>
                 {action_bar_display}
@@ -890,15 +753,10 @@ var Worksheet = React.createClass({
                                         </div>
                                         <div className="col-sm-6 col-md-6">
                                             <div className="controls">
-                                                <span className="select-public"> 
-                                                    {/* TODO add UI code here*/}
-                                                    {publicGroupPermission()}
-          Public:
-          <label className="switch">
-            <input type="checkbox" checked={publicGroupHasPermission()} onChange={setPublicPermission}/>
-            <div className={"slider round"}></div>
-          </label>
-                                                </span>
+                                                <WorksheetPermissionToggle ws={this.state.ws}
+                                                                           addPermission={this.addPermission}
+                                                                           removePermission={this.removePermission}>
+                                                </WorksheetPermissionToggle>
                                                 {editButtons}
                                                 <a href="#" data-toggle="modal" data-target="#glossaryModal" className="glossary-link"><code>?</code> Keyboard Shortcuts</a>
                                             </div>
