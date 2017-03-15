@@ -149,7 +149,6 @@ var WorksheetPermissionToggle = React.createClass({
                   bundleUuids.push(item.id);
                 }
               }
-              // TODO
               var bundleJsons = bundleUuids.map(function(elem) {
                 return {
                   type: 'bundle-permissions',
@@ -194,14 +193,23 @@ var WorksheetPermissionToggle = React.createClass({
 //            });
         }.bind(this);
 
+        var publicGroupHasPermssionFlag = publicGroupHasPermission();
+        var publicClass;
+        var privateClass;
+        if (publicGroupHasPermssionFlag) {
+          publicClass = 'active';
+          privateClass = '';
+        } else {
+          publicClass = '';
+          privateClass = 'active';
+        }
+
         return (
-          <span className="select-public"> 
-            {publicGroupPermission()}
-            Public: {/* TODO should only render this if the user has all privileges on the worksheet*/}
-            <label className="switch">
-              <input type="checkbox" checked={publicGroupHasPermission()} onChange={setPublicPermission}/>
-              <div className={"slider round"}></div>
-            </label>
+          <span className="select-public edit-features"> 
+            <div className="btn-group">
+              <button className={publicClass} onClick={setPublicPermission}>Public</button>
+              <button className={privateClass} onClick={setPublicPermission}>Private</button>
+            </div>
           </span>
         );
     }
