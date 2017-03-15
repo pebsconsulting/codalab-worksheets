@@ -75,7 +75,7 @@ function render_permissions(state) {
           function(perm) {
             return (
               <span>
-                {' ' + perm.group_name}({wrapPermissionInColorSpan(perm.permission_str)})
+                {' '}{perm.group_name}{'('}{wrapPermissionInColorSpan(perm.permission_str)}{')'}
               </span>
             );
           }
