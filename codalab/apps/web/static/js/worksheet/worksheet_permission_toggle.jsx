@@ -77,7 +77,8 @@ var WorksheetPermissionToggle = React.createClass({
             var newPermissionValue = currentPermissionValue == 0 ? 1 : 0;
             */
             var newPermissionValue = getPublicGroupIndex(this.props.ws) === -1 ? 1 : 0;
-            e.preventDefault();
+            newPermissionValue = e.target.value === 'none' ? 0 : 1;
+//            e.preventDefault();
 
             var self = this;
 
@@ -122,6 +123,7 @@ var WorksheetPermissionToggle = React.createClass({
                // return index of public group, -1 if not present
 
                 var publicGroupIndex = getPublicGroupIndex(self.props.ws);
+                debugger;
                 if (publicGroupIndex != -1) {
                   // removing public access
                   self.props.removePermission(publicGroupIndex);
@@ -204,12 +206,26 @@ var WorksheetPermissionToggle = React.createClass({
           privateClass = 'active';
         }
 
+        var privacyOptions = [
+          {
+            value: 'read',
+            display: 'Public',
+          },
+          {
+            value: 'none',
+            display: 'Private',
+          },
+        ];
+
         return (
           <span className="select-public edit-features"> 
-            <div className="btn-group">
-              <button className={publicClass} onClick={setPublicPermission}>Public</button>
-              <button className={privateClass} onClick={setPublicPermission}>Private</button>
-            </div>
+            <select className="soflow" value={publicGroupPermission()} onChange={setPublicPermission}>
+              {privacyOptions.map(function(elem) {
+                return (
+                  <option value={elem.value}>{elem.display}</option>
+                )
+              })}
+            </select>
           </span>
         );
     }

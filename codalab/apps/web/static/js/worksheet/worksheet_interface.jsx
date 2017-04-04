@@ -597,7 +597,6 @@ var Worksheet = React.createClass({
       var newGroupPermission = {
         group_name: group_name,
         group_uuid: group_id,
-        id: 13,
         permission: permission,
         permission_str: permission_str
       };
@@ -734,6 +733,18 @@ var Worksheet = React.createClass({
         var worksheet_display = this.state.editMode ? raw_display : items_display;
         var editButtons = this.state.editMode ? editModeFeatures : editFeatures;
 
+        var worksheetPermissionToggle;
+        if (this.state.ws.info && this.state.ws.info.permission_str === 'all') {
+          worksheetPermissionToggle = (
+            <WorksheetPermissionToggle ws={this.state.ws}
+                                       addPermission={this.addPermission}
+                                       removePermission={this.removePermission}>
+            </WorksheetPermissionToggle>
+          );
+        } else {
+          worksheetPermissionToggle = null;
+        }
+
         return (
             <div id="worksheet" className={searchClassName}>
                 {action_bar_display}
@@ -753,10 +764,7 @@ var Worksheet = React.createClass({
                                         </div>
                                         <div className="col-sm-6 col-md-6">
                                             <div className="controls">
-                                                <WorksheetPermissionToggle ws={this.state.ws}
-                                                                           addPermission={this.addPermission}
-                                                                           removePermission={this.removePermission}>
-                                                </WorksheetPermissionToggle>
+                                                {worksheetPermissionToggle}
                                                 {editButtons}
                                                 <a href="#" data-toggle="modal" data-target="#glossaryModal" className="glossary-link"><code>?</code> Keyboard Shortcuts</a>
                                             </div>

@@ -89,6 +89,7 @@ var TableItem = React.createClass({
                         <thead>
                             <tr>
                                 {header_html}
+                                <th className='table-column-_dropdown'></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -110,6 +111,21 @@ var TableRow = React.createClass({
 
     handleClick: function() {
         this.props.updateRowIndex(this.props.rowIndex);
+    },
+
+    handleOptionButtonClick(event) {
+//        event.nativeEvent.stopImmediatePropagation();
+        event.preventDefault();
+        this.boundHandleContextMenu(event)
+    },
+
+    boundHandleContextMenu(event) {
+        this.props.handleContextMenu.bind(
+            null, this.props.bundleInfo.uuid,
+            this.props.focusIndex,
+            this.props.rowIndex,
+            this.props.bundleInfo.bundle_type === 'run'
+        )(event)
     },
 
     render: function() {
@@ -149,8 +165,13 @@ var TableRow = React.createClass({
         });
 
         return (
-            <tr className={focusedClass} onClick={this.handleClick} onContextMenu={this.props.handleContextMenu.bind(null, this.props.bundleInfo.uuid, this.props.focusIndex, this.props.rowIndex, this.props.bundleInfo.bundle_type === 'run')}>
+            <tr className={focusedClass} onClick={this.handleClick} onContextMenu={this.boundHandleContextMenu}>
                 {row_cells}
+                <td className="table-column-_dropdown">
+                    <div onClick={this.handleOptionButtonClick}>
+                        <span className="caret"></span>
+                    </div>
+                </td>
             </tr>
         );
     }
