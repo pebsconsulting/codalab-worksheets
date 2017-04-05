@@ -40,6 +40,65 @@ function renderSize(size) {
   }
 }
 
+/********** Public permission methods ***************/
+
+/**
+ * param worksheet object the represention of the worksheet kept in the 
+ *   top-level React component's state. `worksheet` may have an `info`
+ *   property, which would contain a `group_permissions` property, an
+ *   array of permissions. Each element in the array would have a
+ *   `group_name` and `permission_str` property. Here's an example:
+ *   worksheet = {
+ *     info: {
+ *       group_permissions: {
+ *         group_name: 'public',
+ *         permission_str: 'read',
+ *       }
+ *     }
+ *   }
+ * return int index of the group `public` in the `group_permissions`
+ *   array. If `public` is not present or the worksheet.info is undefined,
+ *   returns -1.
+ **/
+var getPublicGroupIndex = function(worksheet) {
+  if (!worksheet.info) return -1;
+  var groupPermissions = worksheet.info.group_permissions;
+  for (var m = 0; m < groupPermissions.length; m++) {
+    var groupPermission = groupPermissions[m];
+    if (groupPermission.group_name === 'public') {
+      return m;
+    }
+  }
+  return -1;
+};
+
+/**
+ * return string returns one of 'none', 'read', 'all', corresponding
+ *   to the permission of the `public` group.
+ **/
+var publicGroupPermission = function(worksheet) {
+  var publicGroupIndex = getPublicGroupIndex(worksheet)
+  if (publicGroupIndex === -1) {
+    return 'none';
+  } else {
+    return worksheet.info.group_permissions[publicGroupIndex].permission_str;
+  }
+};
+
+/**
+ * return boolean True if the public group has 'read' or 'all' access to
+ *   this worksheet. False otherwise.
+ **/
+var publicGroupHasPermission = function(worksheet) {
+  if (publicGroupPermission(worksheet) === 'none') {
+    return false;
+  } else { // 'read' or 'none'
+    return true;
+  }
+};
+
+/************ End: public permission methods **************/
+
 function render_permissions(state) {
   // Render permissions:
   // - state.permission_str (what user has)

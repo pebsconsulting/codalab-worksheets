@@ -648,7 +648,7 @@ var Worksheet = React.createClass({
             <span className="edit-features">
                 <div className="btn-group">
                     <button className={viewClass} onClick={this.viewMode} disabled={disableWorksheetEditing}>Save</button>
-                    <button className={viewClass} onClick={this.discardChanges}>Discard</button>
+                    <button className={viewClass} onClick={this.discardChanges}>Revert</button>
                 </div>
             </span>
         );
