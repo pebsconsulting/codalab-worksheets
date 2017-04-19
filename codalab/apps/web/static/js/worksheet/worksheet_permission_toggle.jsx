@@ -136,7 +136,7 @@ var WorksheetPermissionToggle = React.createClass({
         ];
 
         return (
-          <span className=""> 
+          <span className="select-public edit-features"> 
             <select className="soflow" value={publicGroupPermission(this.props.ws)} onChange={setPublicPermission}>
               {privacyOptions.map(function(elem) {
                 return (
