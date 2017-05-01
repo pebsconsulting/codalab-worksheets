@@ -616,7 +616,7 @@ var Worksheet = React.createClass({
 
         var raw_display = <div>
             Press ctrl-enter to save.
-            See <a href="https://github.com/codalab/codalab-worksheets/wiki/Worksheet-Markdown">markdown syntax</a>.
+            See <a target="_blank" href="https://github.com/codalab/codalab-worksheets/wiki/Worksheet-Markdown">markdown syntax</a>.
             <div id='worksheet-editor'>{rawWorksheet}</div>
             </div>;
 
