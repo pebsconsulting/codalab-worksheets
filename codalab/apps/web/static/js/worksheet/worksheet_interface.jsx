@@ -603,7 +603,7 @@ var Worksheet = React.createClass({
             <div className="edit-features">
                 <div className="btn-group">
                     <button className={viewClass} onClick={this.viewMode} disabled={disableWorksheetEditing}>Save</button>
-                    <button className={viewClass} onClick={this.discardChanges}>Discard</button>
+                    <button className={viewClass} onClick={this.discardChanges}>Discard Changes</button>
                 </div>
             </div>
         );
