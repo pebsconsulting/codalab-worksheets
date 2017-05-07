@@ -51,11 +51,17 @@ var Worksheet = React.createClass({
     },
 
     setFocus: function(index, subIndex, shouldScroll) {
+        console.log(this.state);
+        console.log(index, subIndex);
+        var info = this.state.ws.info;
+
+        console.log(this._numTableRows(info.items[index]));
         if (shouldScroll === undefined) shouldScroll = true;
         //console.log('setFocus', index, subIndex);
         var info = this.state.ws.info;
         // resolve to the last item that contains bundle(s)
         if (index === 'end') {
+            console.log('path 1');
             index = -1;
             for (var i = info.items.length - 1; i >= 0; i--) {
                 if (info.items[i].bundle_info) {
@@ -66,13 +72,16 @@ var Worksheet = React.createClass({
         }
         // resolve to the last row of the selected item
         if (subIndex === 'end') {
+            console.log('path 2');
             subIndex = (this._numTableRows(info.items[index]) || 1) - 1;
         }
         if (index < -1 || index >= info.items.length || subIndex < -1 || subIndex >= (this._numTableRows(info.items[index]) || 1)) {
+            console.log('path 3');
           console.log('out of bound')
           return;  // Out of bounds (note index = -1 is okay)
         }
         if (index !== -1) {
+            console.log('path 4');
             // index !== -1 means something is selected.
             // focusedBundleUuidList is a list of uuids of all bundles after the selected bundle (itself included)
             // Say the selected bundle has focusIndex 1 and subFocusIndex 2, then focusedBundleUuidList will include the uuids of
@@ -243,7 +252,8 @@ var Worksheet = React.createClass({
             var subFocusIndex = this.state.subFocusIndex;
             var wsItems = this.state.ws.info.items;
 
-            if (focusIndex >= 0 && wsItems[focusIndex].mode === 'table') {
+            var mode = wsItems[focusIndex].mode;
+            if (focusIndex >= 0 && (mode === 'table' || mode == 'search' || mode == 'wsearch')) {
                 // worksheet_item_interface and table_item_interface do the exact same thing anyway right now
                 if (subFocusIndex - 1 < 0) {
                     this.setFocus(focusIndex - 1, 'end'); // Move out of this table to the item above the current table
@@ -259,10 +269,16 @@ var Worksheet = React.createClass({
             var focusIndex = this.state.focusIndex;
             var subFocusIndex = this.state.subFocusIndex;
             var wsItems = this.state.ws.info.items;
-            if (focusIndex >= 0 && wsItems[focusIndex].mode === 'table') {
+            var mode = wsItems[focusIndex].mode;
+            console.log('_subFocusIndex', subFocusIndex);
+            if (focusIndex >= 0 && (mode === 'table' || mode == 'search' || mode == 'wsearch')) {
                 if (subFocusIndex + 1 >= wsItems[focusIndex].length) {
                     this.setFocus(focusIndex + 1, 0);
-                } else {
+                } else if (subFocusIndex + 1 >= wsItems[focusIndex].length - 1) {
+                    this.setFocus(focusIndex, 'end');
+                } else if (subFocusIndex == 'end') {
+                    this.sefFocus(focusIndex + 1, 0);
+                }else {
                     this.setFocus(focusIndex, subFocusIndex + 1);
                 }
             } else {
