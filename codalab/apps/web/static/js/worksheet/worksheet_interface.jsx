@@ -281,17 +281,20 @@ var Worksheet = React.createClass({
         if (!editMode) {
           // Going out of raw mode - save the worksheet.
           if (this.canEdit()) {
-            var info = this.state.ws.info;
             var editor = ace.edit('worksheet-editor');
             if (saveChanges) {
-              info.raw = editor.getValue().split('\n');
+              this.state.ws.info.raw = editor.getValue().split('\n');
             }
             var rawIndex = editor.getCursorPosition().row;
             this.setState({
                 editMode: editMode,
                 editorEnabled: false,
             });  // Needs to be after getting the raw contents
-            this.saveAndUpdateWorksheet(saveChanges, rawIndex);
+            if (saveChanges) {
+              this.saveAndUpdateWorksheet(saveChanges, rawIndex);
+            } else {
+              this.refreshWorksheet(undefined, rawIndex);
+            }
           } else {
             // Not allowed to edit the worksheet.
             this.setState({

@@ -33,17 +33,18 @@ var FileBrowser = React.createClass({
 
     updateFileBrowser: function(folder_path) {
       // folder_path is an absolute path
-      if (folder_path === undefined) folder_path = this.state.currentWorkingDirectory
+      if (folder_path === undefined) folder_path = this.state.currentWorkingDirectory;
       this.setState({currentWorkingDirectory: folder_path});
-      var url = '/rest/api/bundles/content/' + this.props.bundle_uuid + '/' + folder_path + '/';
+      var url = '/rest/bundles/' + this.props.bundle_uuid + '/contents/info/' + folder_path;
       $.ajax({
         type: 'GET',
         url: url,
+        data: {depth: 1, human_readable: 1},
         dataType: 'json',
         cache: false,
         success: function(data) {
           if (this.isMounted())
-            this.setState({'fileBrowserData': data});
+            this.setState({'fileBrowserData': data.data});
         }.bind(this),
         error: function(xhr, status, err) {
           this.setState({"fileBrowserData": {}});
@@ -195,7 +196,7 @@ var FileBrowserItem = React.createClass({
           file_location = this.props.index;
         }
         if (this.props.hasOwnProperty('size_str'))
-          size = this.props['size_str'];
+          size = this.props.size_str;
         // this.props.hasCheckbox is true in run_bundle_builder for the user to select bundle depedency
         // otherwise, it is always false
         var checkbox = this.props.hasCheckbox && this.props.type !== '..' ? (<input

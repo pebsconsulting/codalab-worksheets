@@ -6,7 +6,6 @@ var WorksheetContent = function() {
     function WorksheetContent(uuid) {
         this.uuid = uuid;
         this.info = null;  // Worksheet info
-        this.url = '/rest/api/worksheets/' + this.uuid + '/';
     }
 
     WorksheetContent.prototype.fetch = function(props) {
@@ -20,7 +19,7 @@ var WorksheetContent = function() {
 
         $.ajax({
             type: 'GET',
-            url: this.url,
+            url: '/rest/api/worksheets/' + this.uuid + '/',
             async: props.async,
             dataType: 'json',
             cache: false,
@@ -40,20 +39,13 @@ var WorksheetContent = function() {
         props = props || {};
         props.success = props.success || function(data){};
         props.error = props.error || function(xhr, status, err){};
-        var postdata = {
-            'name': this.info.name,
-            'uuid': this.info.uuid,
-            'owner_id': this.info.owner_id,
-            'lines': this.info.raw
-        };
         $('#save_error').hide();
         $.ajax({
             type: 'POST',
             cache: false,
-            url: this.url,
-            contentType: 'application/json; charset=utf-8',
+            url: '/rest/worksheets/' + this.uuid + '/raw',
             dataType: 'json',
-            data: JSON.stringify(postdata),
+            data: this.info.raw.join('\n'),
             success: function(data) {
                 console.log('Saved worksheet ' + this.info.uuid);
                 props.success(data);
