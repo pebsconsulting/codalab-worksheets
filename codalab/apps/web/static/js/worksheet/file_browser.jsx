@@ -33,17 +33,18 @@ var FileBrowser = React.createClass({
 
     updateFileBrowser: function(folder_path) {
       // folder_path is an absolute path
-      if (folder_path === undefined) folder_path = this.state.currentWorkingDirectory
+      if (folder_path === undefined) folder_path = this.state.currentWorkingDirectory;
       this.setState({currentWorkingDirectory: folder_path});
-      var url = '/rest/api/bundles/content/' + this.props.bundle_uuid + '/' + folder_path + '/';
+      var url = '/rest/bundles/' + this.props.bundle_uuid + '/contents/info/' + folder_path;
       $.ajax({
         type: 'GET',
         url: url,
+        data: {depth: 1, human_readable: 1},
         dataType: 'json',
         cache: false,
         success: function(data) {
           if (this.isMounted())
-            this.setState({'fileBrowserData': data});
+            this.setState({'fileBrowserData': data.data});
         }.bind(this),
         error: function(xhr, status, err) {
           this.setState({"fileBrowserData": {}});
@@ -174,6 +175,12 @@ var FileBrowserBreadCrumbs = React.createClass({
     }
 });
 
+var encodeBundleContentsPath = function(path) {
+  // Encode each segment of the path separately, because we want to escape
+  // everything (such as questions marks) EXCEPT slashes in the path.
+  return path.split('/').map(encodeURIComponent).join('/');
+};
+
 var FileBrowserItem = React.createClass({
     browseToFolder: function(path) {
         this.props.updateFileBrowser(path);
@@ -189,7 +196,7 @@ var FileBrowserItem = React.createClass({
           file_location = this.props.index;
         }
         if (this.props.hasOwnProperty('size_str'))
-          size = this.props['size_str'];
+          size = this.props.size_str;
         // this.props.hasCheckbox is true in run_bundle_builder for the user to select bundle depedency
         // otherwise, it is always false
         var checkbox = this.props.hasCheckbox && this.props.type !== '..' ? (<input
@@ -206,7 +213,7 @@ var FileBrowserItem = React.createClass({
             </span>
           );
         } else if (this.props.type == 'file') {
-          var file_link = '/rest/bundles/' + this.props.bundle_uuid + '/contents/blob/' + encodeURIComponent(file_location);
+          var file_link = '/rest/bundles/' + this.props.bundle_uuid + '/contents/blob/' + encodeBundleContentsPath(file_location);
           item = (
             <span className={this.props.type}>
                 <span className="glyphicon-file glyphicon" alt="More"></span>

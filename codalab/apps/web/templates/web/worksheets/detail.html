@@ -99,9 +99,9 @@
 
 {% block jsincludes %}
     {% if local_mathjax %}
-            <script src="{{ STATIC_URL }}bower_components/MathJax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+            <script id="mathjaxjs" src="{{ STATIC_URL }}bower_components/MathJax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     {% else %}
-            <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+            <script id="mathjaxjs" type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     {% endif %}
 
     {% if local_ace_editor %}
@@ -168,12 +168,14 @@
     {# ------- END JSX FILES  ------- #}
 
 <script>
-MathJax.Hub.Config({
-    tex2jax: {
+  document.querySelector('#mathjaxjs').addEventListener('load', function() {
+    MathJax.Hub.Config({
+      tex2jax: {
         skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
         inlineMath: [['$','$']]
-    }
-});
+      }
+    });
+  });
 </script>
 
 {% endblock jsincludes %}
