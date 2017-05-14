@@ -174,6 +174,12 @@ var FileBrowserBreadCrumbs = React.createClass({
     }
 });
 
+var encodeBundleContentsPath = function(path) {
+  // Encode each segment of the path separately, because we want to escape
+  // everything (such as questions marks) EXCEPT slashes in the path.
+  return path.split('/').map(encodeURIComponent).join('/');
+};
+
 var FileBrowserItem = React.createClass({
     browseToFolder: function(path) {
         this.props.updateFileBrowser(path);
@@ -206,7 +212,7 @@ var FileBrowserItem = React.createClass({
             </span>
           );
         } else if (this.props.type == 'file') {
-          var file_link = '/rest/bundles/' + this.props.bundle_uuid + '/contents/blob/' + encodeURIComponent(file_location);
+          var file_link = '/rest/bundles/' + this.props.bundle_uuid + '/contents/blob/' + encodeBundleContentsPath(file_location);
           item = (
             <span className={this.props.type}>
                 <span className="glyphicon-file glyphicon" alt="More"></span>
