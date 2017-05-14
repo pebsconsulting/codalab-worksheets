@@ -92,9 +92,22 @@ function createRow(bundle_info, bundleMetadataChanged, key, value) {
   // which can be edited.
   var editableMetadataFields = bundle_info.editable_metadata_fields;
   if (bundle_info.edit_permission && editableMetadataFields && editableMetadataFields.indexOf(key) != -1) {
+    var dataType;
+    switch (key) {
+      case 'tags':
+        dataType = 'list';
+        break;
+      case 'request_cpus':
+      case 'request_gpus':
+      case 'request_priority':
+        dataType = 'integer';
+        break;
+      default:
+        dataType = 'string';
+    }
     return (<tr>
       <th><span className="editable-key">{key}</span></th>
-      <td><BundleEditableField canEdit={true} fieldName={key} uuid={bundle_info.uuid} value={value} onChange={bundleMetadataChanged} /></td>
+      <td><BundleEditableField canEdit={true} dataType={dataType} fieldName={key} uuid={bundle_info.uuid} value={value} onChange={bundleMetadataChanged} /></td>
     </tr>);
   }
   else {
@@ -111,7 +124,6 @@ function renderMetadata(bundle_info, bundleMetadataChanged) {
 
   // Sort the metadata by key.
   var keys = [];
-  var editableMetadataFields = bundle_info.editable_metadata_fields;
   for (var property in metadata) {
     if (metadata.hasOwnProperty(property))
       keys.push(property);

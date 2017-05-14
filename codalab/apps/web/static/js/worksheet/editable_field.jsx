@@ -1,10 +1,15 @@
 var EditableField = React.createClass({
   propTypes: {
     value: React.PropTypes.any,
+    method: React.PropTypes.string,
     url: React.PropTypes.string.isRequired,
     buildParams: React.PropTypes.func.isRequired,
     onChange: React.PropTypes.func,
     canEdit: React.PropTypes.bool.isRequired
+  },
+
+  defaultProps: {
+    method: 'POST'
   },
 
   componentDidMount: function() {
@@ -15,6 +20,10 @@ var EditableField = React.createClass({
       value: this.props.value,
       url: this.props.url,
       emptytext: $('<div/>').text('<none>').html(),
+      ajaxOptions: {
+        method: this.props.method,
+        contentType: 'application/json; charset=UTF-8'
+      },
       params: function(params) {
         return JSON.stringify(this.props.buildParams(params));
       }.bind(this),
@@ -55,38 +64,79 @@ var WorksheetEditableField = React.createClass({
     fieldName: React.PropTypes.string
   },
   buildParams: function(params) {
-    return {
-      worksheet_uuid: this.props.uuid,
-      raw_command: {
-        k: this.props.fieldName,
-        v: params.value,
-        action: 'worksheet-edit'
-      }
+    var payload = {
+      data: [{
+        id: this.props.uuid,
+        type: 'worksheets',
+        attributes: {},
+      }]
     };
+    payload.data[0].attributes[this.props.fieldName] = params.value;
+    return payload;
   },
   render: function () {
     return (
-      <EditableField {...this.props} url="/rest/api/worksheets/command/" buildParams={this.buildParams} />
+      <EditableField
+        {...this.props}
+        url="/rest/worksheets"
+        method="PATCH"
+        buildParams={this.buildParams} />
     );
   }
 });
 
 var BundleEditableField = React.createClass({
   propTypes: {
-    uuid: React.PropTypes.string,
-    metadata: React.PropTypes.object,
-    fieldName: React.PropTypes.string
+    uuid: React.PropTypes.string.isRequired,
+    fieldName: React.PropTypes.string.isRequired,
+    dataType: React.PropTypes.oneOf(['string', 'list', 'integer']),
+  },
+  defaultProps: {
+    dataType: 'string',
   },
   buildParams: function(params) {
-    var newMetadata = {};
-    newMetadata[this.props.fieldName] = params.value;
+    var parsedValue;
+    switch (this.props.dataType) {
+      case 'string':
+        parsedValue = params.value;
+        break;
+      case 'list':
+        parsedValue = params.value.split(/\s*[\s,|]\s*/);
+        break;
+      case 'integer':
+        parsedValue = parseInt(params.value);
+        break;
+    }
+    var metadataUpdate = {};
+    metadataUpdate[this.props.fieldName] = parsedValue;
     return {
-      metadata: newMetadata
+      data: [{
+        id: this.props.uuid,
+        type: 'bundles',
+        attributes: {
+          metadata: metadataUpdate
+        }
+      }]
     };
   },
   render: function () {
+    var serializedValue;
+    switch (this.props.dataType) {
+      case 'string':
+      case 'integer':
+        serializedValue = this.props.value;
+        break;
+      case 'list':
+        serializedValue = this.props.value.join(' | ');
+        break;
+    }
     return (
-      <EditableField {...this.props} url={"/rest/api/bundles/" + this.props.uuid + "/"} buildParams={this.buildParams} />
+      <EditableField
+        {...this.props}
+        value={serializedValue}
+        url={"/rest/bundles"}
+        method="PATCH"
+        buildParams={this.buildParams} />
     );
   }
 });
