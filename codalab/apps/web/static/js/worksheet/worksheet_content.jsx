@@ -41,10 +41,11 @@ var WorksheetContent = function() {
         props.error = props.error || function(xhr, status, err){};
         $('#save_error').hide();
         $.ajax({
-            type: 'POST',
+            type: 'PUT',
             cache: false,
             url: '/rest/worksheets/' + this.uuid + '/raw',
             dataType: 'json',
+            contentType: 'text/plain; charset=UTF-8',
             data: this.info.raw.join('\n'),
             success: function(data) {
                 console.log('Saved worksheet ' + this.info.uuid);
