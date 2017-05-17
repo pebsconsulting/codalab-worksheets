@@ -49,19 +49,14 @@ var WorksheetActionBar = React.createClass({
       history: true,
       keydown: function (event, terminal) {
         if (event.keyCode === 67 && event.ctrlKey) {
-          console.log(event);
           terminal.exec('', false);
           terminal.update(-1, terminal.get_prompt() + terminal.get_command());
           terminal.set_command('');
-          event.stopPropagation();
           event.preventDefault();
         }
         if (event.keyCode === 27) { // esc
           terminal.focus(false);
         }
-      },
-      keymap: function (event, terminal) {
-        console.log(event);
       },
       onBlur: function (term) {
         if (term.data('resizing')) {
