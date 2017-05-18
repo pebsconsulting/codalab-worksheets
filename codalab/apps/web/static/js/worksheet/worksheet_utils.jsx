@@ -42,7 +42,7 @@ function renderDate(epochSeconds) {
   // Return a human-readable string.
   var dt = new Date(epochSeconds * 1000);
   var year = dt.getFullYear();
-  var month = dt.getMonth();
+  var month = dt.getMonth() + 1;
   var date = dt.getDate();
   var hour = dt.getHours();
   var min = dt.getMinutes();
