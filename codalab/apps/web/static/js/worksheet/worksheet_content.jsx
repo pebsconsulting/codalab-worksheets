@@ -19,7 +19,7 @@ var WorksheetContent = function() {
 
         $.ajax({
             type: 'GET',
-            url: '/rest/api/worksheets/' + this.uuid + '/',
+            url: '/rest/interpret/worksheet/' + this.uuid,
             async: props.async,
             dataType: 'json',
             cache: false,

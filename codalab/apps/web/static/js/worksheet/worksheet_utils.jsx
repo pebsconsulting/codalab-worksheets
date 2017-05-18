@@ -5,25 +5,50 @@ function renderDuration(s) {
   // Example: 100 => "1m40s", 10000 => "2h46m"
   var m = Math.floor(s / 60);
   if (m == 0)
-    return s;
+    return Math.round(s*10)/10 + 's';
 
   s -= m * 60;
   var h = Math.floor(m / 60);
   if (h == 0)
-    return m + 'm' + s + 's';
+    return Math.round(m) + 'm' + Math.round(s) + 's';
 
   m -= h * 60;
   var d = Math.floor(h / 24);
   if (d == 0)
-    return h + 'h' + m + 'm';
+    return Math.round(h) + 'h' + Math.round(m) + 'm';
 
   h -= d * 24;
   var y = Math.floor(d / 365);
   if (y == 0)
-    return d + 'd' + h + 'h';
+    return Math.round(d) + 'd' + Math.round(h) + 'h';
 
   d -= y * 365;
-  return y + 'y' + d + 'd';
+  return Math.round(y) + 'y' + Math.round(d) + 'd';
+}
+
+/**
+ * Pad given integer x with leading zeros to produce string with numDigits.
+ * @param x           number to convert to string
+ * @param numDigits   number of characters desired
+ */
+function padInt(x, numDigits) {
+  var s = String(Math.round(x));
+  var prefix = new Array(numDigits - s.length + 1).join('0');
+  return prefix + s;
+}
+
+function renderDate(epochSeconds) {
+  // epochSeconds: unix timestamp
+  // Return a human-readable string.
+  var dt = new Date(epochSeconds * 1000);
+  var year = dt.getFullYear();
+  var month = dt.getMonth();
+  var date = dt.getDate();
+  var hour = dt.getHours();
+  var min = dt.getMinutes();
+  var sec = dt.getSeconds();
+  return year + '-' + padInt(month, 2) + '-' + padInt(date, 2) + ' ' +
+         padInt(hour, 2) + ':' + padInt(min, 2) + ':' + padInt(sec, 2);
 }
 
 function renderSize(size) {
@@ -40,10 +65,56 @@ function renderSize(size) {
   }
 }
 
+function renderFormat(value, type) {
+  switch (type) {
+    case 'list':
+      return value.join(' | ');
+    case 'date':
+      return renderDate(value);
+    case 'size':
+      return renderSize(value);
+    case 'duration':
+      return renderDuration(value);
+    case 'bool':
+      return String(value);
+    default:
+      return value;
+  }
+}
+
+function serializeBool(formatted) {
+  switch (formatted) {
+    case 'true':
+      return true;
+    case 'false':
+      return false;
+    default:
+      return Boolean(parseInt(formatted));
+  }
+}
+
+function serializeFormat(formatted, type) {
+  // Formatted fields like size and duration are validated server-side.
+  switch (type) {
+    case 'list':
+      return formatted.split(/\s*[\s,|]\s*/);
+    case 'bool':
+      return serializeBool(formatted);
+    case 'int':
+      return parseInt(formatted);
+    case 'float':
+      return parseFloat(formatted);
+    default:
+      return formatted;
+  }
+}
+
+
 function render_permissions(state) {
   // Render permissions:
-  // - state.permission_str (what user has)
+  // - state.permission_spec (what user has)
   // - state.group_permissions (what other people have)
+  if (!state.permission_spec) return;
   
   function permissionToClass(permission) {
     var mapping = {
@@ -69,17 +140,15 @@ function render_permissions(state) {
 
   return (
     <div>
-      you({wrapPermissionInColorSpan(state.permission_str)})
+      you({wrapPermissionInColorSpan(state.permission_spec)})
       {
-        (state.group_permissions || []).map(
-          function(perm) {
+        _.map(state.group_permissions || [], function(perm) {
             return (
               <span>
-                {' '}{perm.group_name}{'('}{wrapPermissionInColorSpan(perm.permission_str)}{')'}
+                {' '}{perm.group_name}{'('}{wrapPermissionInColorSpan(perm.permission_spec)}{')'}
               </span>
             );
-          }
-        )
+        })
       }
     </div>
   );

@@ -41,7 +41,7 @@ var WorksheetChatPortalInterface = React.createClass({
 
   componentDidMount: function() {
     $.ajax({
-      url: '/rest/api/chatbox/',
+      url: '/rest/chats',
       dataType: 'json',
       cache: false,
       type: 'GET',
@@ -63,8 +63,8 @@ var WorksheetChatPortalInterface = React.createClass({
     for (var i = 0; i < chat_list.length; i++) {
       var target = '';
       var chat = chat_list[i];
-      if (chat.recipient_user_id === this.props.userInfo.system_user_id ||
-        chat.recipient_user_id === this.props.userInfo.root_user_id) {
+      if (chat.recipient_user_id === this.state.systemUserId ||
+        chat.recipient_user_id === this.state.rootUserId) {
         target = chat.sender_user_id;
       } else {
         target = chat.recipient_user_id;
@@ -83,7 +83,7 @@ var WorksheetChatPortalInterface = React.createClass({
 
   handleAnswerChat: function(recipientUserId, msg) {
     $.ajax({
-      url: '/rest/api/chatbox/',
+      url: '/rest/chats',
       dataType: 'json',
       type: 'POST',
       data: {
@@ -205,9 +205,9 @@ var WorksheetChatPortalChat = React.createClass({
     var hour = time.split(' ')[1];
     time = date + ', ' + hour;
     var sender_user_id = this.props.chat.sender_user_id;
-    if (sender_user_id === this.props.userInfo.system_user_id) {
+    if (sender_user_id === this.state.systemUserId) {
       sender_user_id = 'System';
-    } else if (sender_user_id === this.props.userInfo.root_user_id) {
+    } else if (sender_user_id === this.state.rootUserId) {
       sender_user_id = 'Admin';
     }
     var target = <span className='chat-portal-chat-target'>

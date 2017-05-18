@@ -129,7 +129,7 @@ var WorksheetActionBar = React.createClass({
     return $.ajax({
       type: 'POST',
       cache: false,
-      url: '/rest/api/worksheets/command/',
+      url: '/rest/cli/command',
       contentType: "application/json; charset=utf-8",
       dataType: 'json',
       data: JSON.stringify({
@@ -139,8 +139,7 @@ var WorksheetActionBar = React.createClass({
     }).done(function (data) {
       // data := {
       //     structured_result: { ... },
-      //     output: string,
-      //     exception: string
+      //     output: string
       // }
 
       // The bundle service can respond with instructions back to the UI.
@@ -162,7 +161,7 @@ var WorksheetActionBar = React.createClass({
     $.ajax({
       type: 'POST',
       cache: false,
-      url: '/rest/api/worksheets/command/',
+      url: '/rest/cli/command',
       contentType: "application/json; charset=utf-8",
       dataType: 'json',
       data: JSON.stringify({

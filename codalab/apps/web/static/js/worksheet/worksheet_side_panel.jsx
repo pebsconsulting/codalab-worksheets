@@ -141,8 +141,7 @@ var WorksheetSidePanel = React.createClass({
             var bundle_info = this.getBundleInfo(focus);
             if (bundle_info) {
               side_panel_details = <Bundle
-                                     key={'table' + this.props.focusIndex + ',' + this.props.subFocusIndex}
-                                     bundle_uuid={bundle_info.uuid}
+                                     uuid={bundle_info.uuid}
                                      bundleMetadataChanged={this.props.bundleMetadataChanged}
                                      ref="bundle_info_side_panel"
                                    />;
@@ -168,6 +167,7 @@ var WorksheetSidePanel = React.createClass({
 ////////////////////////////////////////////////////////////
 
 // When selecting a worksheet.
+// TODO: use /rest/worksheets/ end point
 var WorksheetDetailSidePanel = React.createClass({
     getInitialState: function() {
         return { };
@@ -183,7 +183,7 @@ var WorksheetDetailSidePanel = React.createClass({
         }.bind(this);
         $.ajax({
             type: 'GET',
-            url: '/rest/api/worksheets/' + ws.uuid + '/',
+            url: '/rest/interpret/worksheet/' + ws.uuid,
             success: onSuccess,
             error: onError,
         });

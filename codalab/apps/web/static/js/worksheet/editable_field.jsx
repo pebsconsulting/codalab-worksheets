@@ -89,26 +89,14 @@ var BundleEditableField = React.createClass({
   propTypes: {
     uuid: React.PropTypes.string.isRequired,
     fieldName: React.PropTypes.string.isRequired,
-    dataType: React.PropTypes.oneOf(['string', 'list', 'integer']),
+    dataType: React.PropTypes.string,
   },
   defaultProps: {
     dataType: 'string',
   },
   buildParams: function(params) {
-    var parsedValue;
-    switch (this.props.dataType) {
-      case 'string':
-        parsedValue = params.value;
-        break;
-      case 'list':
-        parsedValue = params.value.split(/\s*[\s,|]\s*/);
-        break;
-      case 'integer':
-        parsedValue = parseInt(params.value);
-        break;
-    }
     var metadataUpdate = {};
-    metadataUpdate[this.props.fieldName] = parsedValue;
+    metadataUpdate[this.props.fieldName] = serializeFormat(params.value, this.props.dataType);
     return {
       data: [{
         id: this.props.uuid,
@@ -120,20 +108,10 @@ var BundleEditableField = React.createClass({
     };
   },
   render: function () {
-    var serializedValue;
-    switch (this.props.dataType) {
-      case 'string':
-      case 'integer':
-        serializedValue = this.props.value;
-        break;
-      case 'list':
-        serializedValue = this.props.value.join(' | ');
-        break;
-    }
     return (
       <EditableField
         {...this.props}
-        value={serializedValue}
+        value={renderFormat(this.props.value, this.props.dataType)}
         url={"/rest/bundles"}
         method="PATCH"
         buildParams={this.buildParams} />
