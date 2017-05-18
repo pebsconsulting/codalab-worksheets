@@ -35,8 +35,13 @@ var Bundle = React.createClass({
    * Fetch bundle data and update the state of this component.
    */
   refreshBundle: function() {
-    // Clear error messages from previous refresh.
-    this.setState({errorMessages: []});
+    // Clear contents and error messages from previous refresh.
+    this.setState({
+      errorMessages: [],
+      fileContents: null,
+      stdout: null,
+      stderr: null,
+    });
 
     // Fetch metadata
     $.ajax({
