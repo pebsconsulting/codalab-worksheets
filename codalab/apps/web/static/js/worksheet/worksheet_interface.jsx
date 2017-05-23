@@ -165,7 +165,7 @@ var Worksheet = React.createClass({
         this.toggleEditMode(true);
     },
     handleActionBarFocus: function(event) {
-    //    this.setState({activeComponent: 'action'});
+        this.setState({activeComponent: 'action'});
         // just scroll to the top of the page.
         // Add the stop() to keep animation events from building up in the queue
         // See also scrollTo* methods
@@ -176,7 +176,7 @@ var Worksheet = React.createClass({
     handleActionBarBlur: function(event) {
         // explicitly close term because we're leaving the action bar
         // $('#command_line').terminal().focus(false);
-        // this.setState({activeComponent: 'list'});
+        this.setState({activeComponent: 'list'});
         $('#command_line').data('resizing', null);
         $('#worksheet_panel').removeClass('actionbar-focus').removeAttr('style');
         $('#ws_search').removeAttr('style');

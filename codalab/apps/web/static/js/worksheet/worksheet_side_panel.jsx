@@ -18,13 +18,11 @@ var WorksheetSidePanel = React.createClass({
         $(window).resize(function(e) {
             self.resetPanel();
         });
-        var refreshWorksheetSidePanel = function() {
-            if (this.refs.hasOwnProperty('worksheet_info_side_panel')) {
-                this.refs.worksheet_info_side_panel.refreshWorksheet();
-            }
-        };
+    },
+
+    componentWillMount: function() {
         this.debouncedRefreshBundleSidePanel = _.debounce(this.refreshBundleSidePanel, 200).bind(this);
-        this.debouncedRefreshWorksheetSidePanel = _.debounce(refreshWorksheetSidePanel, 200).bind(this);
+        this.debouncedRefreshWorksheetSidePanel = _.debounce(this.refreshWorksheetSidePanel, 200).bind(this);
     },
 
     refreshBundleSidePanel: function() {
@@ -33,7 +31,17 @@ var WorksheetSidePanel = React.createClass({
       }
     },
 
+    refreshWorksheetSidePanel: function() {
+      if (this.refs.hasOwnProperty('worksheet_info_side_panel')) {
+          this.refs.worksheet_info_side_panel.refreshWorksheet();
+      }
+    },
+
     componentDidUpdate: function() {
+      console.log(this.debouncedRefreshBundleSidePanel);
+      console.log(this.debouncedRefreshWorksheetSidePanel);
+      console.log(typeof this.debouncedRefreshBundleSidePanel);
+      console.log(typeof this.debouncedRefreshWorksheetSidePanel);
       this.debouncedRefreshBundleSidePanel();
       this.debouncedRefreshWorksheetSidePanel();
     },
