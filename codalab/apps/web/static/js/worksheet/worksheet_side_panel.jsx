@@ -38,10 +38,6 @@ var WorksheetSidePanel = React.createClass({
     },
 
     componentDidUpdate: function() {
-      console.log(this.debouncedRefreshBundleSidePanel);
-      console.log(this.debouncedRefreshWorksheetSidePanel);
-      console.log(typeof this.debouncedRefreshBundleSidePanel);
-      console.log(typeof this.debouncedRefreshWorksheetSidePanel);
       this.debouncedRefreshBundleSidePanel();
       this.debouncedRefreshWorksheetSidePanel();
     },
