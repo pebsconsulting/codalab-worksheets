@@ -43,7 +43,15 @@ var Worksheet = React.createClass({
           return item.interpreted.items.length;
         if (item.mode == 'search') {
           var subitem = item.interpreted.items[0];
-          return subitem != null ? subitem.bundle_info.length : null;
+          if (!subitem) {
+            return null;
+          } else if (subitem.mode === 'table') {
+            return subitem != null ? subitem.bundle_info.length : null;
+          } else if (subitem.mode === 'markup') {
+            return 1;
+          } else {
+            console.error('error');
+          }
         }
       } else {
         return null;
@@ -244,7 +252,10 @@ var Worksheet = React.createClass({
             var subFocusIndex = this.state.subFocusIndex;
             var wsItems = this.state.ws.info.items;
 
-            if (focusIndex >= 0 && wsItems[focusIndex].mode === 'table') {
+            if (focusIndex >= 0 && (
+                    wsItems[focusIndex].mode === 'table' ||
+                    wsItems[focusIndex].mode === 'search' ||
+                    wsItems[focusIndex].mode === 'wsearch' )) {
                 // worksheet_item_interface and table_item_interface do the exact same thing anyway right now
                 if (subFocusIndex - 1 < 0) {
                     this.setFocus(focusIndex - 1, 'end'); // Move out of this table to the item above the current table
@@ -260,8 +271,11 @@ var Worksheet = React.createClass({
             var focusIndex = this.state.focusIndex;
             var subFocusIndex = this.state.subFocusIndex;
             var wsItems = this.state.ws.info.items;
-            if (focusIndex >= 0 && wsItems[focusIndex].mode === 'table') {
-                if (subFocusIndex + 1 >= wsItems[focusIndex].length) {
+            if (focusIndex >= 0 && (
+                  wsItems[focusIndex].mode === 'table' ||
+                  wsItems[focusIndex].mode === 'search' ||
+                  wsItems[focusIndex].mode === 'wsearch' )) {
+                if (subFocusIndex + 1 >= this._numTableRows(wsItems[focusIndex])) {
                     this.setFocus(focusIndex + 1, 0);
                 } else {
                     this.setFocus(focusIndex, subFocusIndex + 1);
