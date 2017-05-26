@@ -200,7 +200,7 @@ var FileBrowserItem = React.createClass({
         var checkbox = this.props.hasCheckbox && this.props.type !== '..' ? (<input
           className="run-bundle-check-box"
           type="checkbox"
-          onChange={this.props.handleCheckbox.bind(this, this.props.uuid, this.props.bundle_name, file_location)}
+          onChange={this.props.handleCheckbox.bind(this, this.props.bundle_uuid, this.props.bundle_name, file_location)}
         />) : null;
         if (this.props.type == 'directory' || this.props.type == '..') {
           item = (
@@ -211,7 +211,7 @@ var FileBrowserItem = React.createClass({
             </span>
           );
         } else if (this.props.type == 'file') {
-          var file_link = '/rest/bundles/' + this.props.uuid + '/contents/blob/' + encodeBundleContentsPath(file_location);
+          var file_link = '/rest/bundles/' + this.props.bundle_uuid + '/contents/blob/' + encodeBundleContentsPath(file_location);
           item = (
             <span className={this.props.type}>
                 <span className="glyphicon-file glyphicon" alt="More"></span>

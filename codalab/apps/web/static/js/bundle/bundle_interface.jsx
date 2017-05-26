@@ -120,7 +120,7 @@ var Bundle = React.createClass({
     if (bundleInfo && bundleInfo.uuid) {  // when metadata has been loaded
       var fileBrowser = '';
       if (bundleInfo.fileContents == null) {  // if bundle is not just a single file
-        fileBrowser = <FileBrowser uuid={this.state.uuid} />;
+        fileBrowser = <FileBrowser uuid={bundleInfo.uuid} />;
       }
 
       // Configure the callback for user-enacted changes to bundle metadata.
