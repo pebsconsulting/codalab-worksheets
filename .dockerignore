@@ -1,3 +1,4 @@
+.git/
 venv/
 codalab/config/generated
 codalab/apps/web/node_modules/
