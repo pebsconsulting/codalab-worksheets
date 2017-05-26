@@ -16,6 +16,14 @@ var FileBrowser = React.createClass({
       }
     },
 
+    componentDidUpdate(prevProps, prevState) {
+      if (prevProps.uuid != this.props.uuid) {
+        // Reset and fire off an asynchronous fetch for new data
+        this.setState({fileBrowserData: {}});
+        this.updateFileBrowser('');
+      }
+    },
+
     componentWillMount: function() {
       if (!this.props.startCollapsed) {
         this.setState({isVisible: true});
@@ -31,6 +39,7 @@ var FileBrowser = React.createClass({
     },
 
     updateFileBrowser: function(folder_path) {
+      console.log('loading ' + this.props.uuid);
       // folder_path is an absolute path
       if (folder_path === undefined) folder_path = this.state.currentWorkingDirectory;
       this.setState({currentWorkingDirectory: folder_path});
@@ -42,8 +51,12 @@ var FileBrowser = React.createClass({
         dataType: 'json',
         cache: false,
         success: function(data) {
-          if (this.isMounted())
+          if (data.data.type == 'directory') {
             this.setState({'fileBrowserData': data.data});
+            $('.file-browser').show();
+          } else {
+            $('.file-browser').hide();
+          }
         }.bind(this),
         error: function(xhr, status, err) {
           this.setState({"fileBrowserData": {}});
