@@ -5,7 +5,7 @@ echo '### Installing Python dependencies (via pip)...'
 script_dir="$( cd "$( dirname "$0" )" && pwd )"
 venv=${VENV:-"venv"}
  
-default_requirements="$script_dir/codalab/requirements/common.txt"
+default_requirements="$script_dir/requirements.txt"
  
 python=$(which ${PYTHON:-python2.7})
 if [ ! -f $python ]; then

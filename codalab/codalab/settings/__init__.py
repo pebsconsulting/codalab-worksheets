@@ -1,28 +1,17 @@
-import json
-
 from configurations import importer
 if not importer.installed:
     importer.install()
 
 from configurations import Settings
-from configurations.utils import uppercase_attributes
-import os, sys, pkgutil, subprocess
-from os.path import abspath, basename, dirname, join, normpath
-import json
-import codalab
+import os
+import random
+import sys
+
 
 class Base(Settings):
-    # Load config file (okay if it doesn't exist).
-    # These settings are used for two purposes:
-    # - config_gen: generating deployment files (supervisord.conf, nginx.conf, etc.)
-    # - configuration for the actual Django app
-    # TODO: in the future, we should decouple these two.
-    home_path = os.getenv('CODALAB_HOME', os.path.join(os.getenv('HOME'), '.codalab'))
-    config_path = os.path.join(home_path, 'website-config.json')
-    if os.path.exists(config_path):
-        config = json.loads(open(config_path).read())
-    else:
-        config = {}
+    SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
+    PROJECT_APP_DIR = os.path.dirname(SETTINGS_DIR)
+    PROJECT_DIR = os.path.dirname(PROJECT_APP_DIR)
 
     STARTUP_ENV = {
         'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'],
@@ -33,38 +22,16 @@ class Base(Settings):
     CODALAB_VERSION = '0.2.8'
 
     ############################################################
-    ### For config_gen
 
-    SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
-    PROJECT_APP_DIR = os.path.dirname(SETTINGS_DIR)
-    PROJECT_DIR = os.path.dirname(PROJECT_APP_DIR)
-    CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR, 'config', 'templates')
-    CONFIG_GEN_GENERATED_DIR = os.path.join(PROJECT_DIR, 'config', 'generated')
-
-    # nginx
-    SSL_PORT = config.get('SSL_PORT')
-    SSL_CERTIFICATE = config.get('SSL_CERTIFICATE')
-    SSL_CERTIFICATE_KEY = config.get('SSL_CERTIFICATE_KEY')
-    SSL_ALLOWED_HOSTS = config.get('SSL_ALLOWED_HOSTS')
     # Hosts/domain names that are valid for this site; required if DEBUG is False
     # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-    ALLOWED_HOSTS = config.get('ALLOWED_HOSTS', [])
-    SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME', 'localhost')
-    PORT = os.environ.get('CONFIG_HTTP_PORT', 8000)
-    MAINTENANCE_MODE = os.environ.get('MAINTENANCE_MODE', 0)
+    ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', None)
+    if ALLOWED_HOSTS is not None:
+        ALLOWED_HOSTS = ALLOWED_HOSTS.split(':')
 
-    # uwsgi
-    DJANGO_USE_UWSGI = config.get('DJANGO_USE_UWSGI')
-    VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV', None)
-
-    # supervisord.conf
-    LOGS_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'logs'))
-    BACKUP_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'backup'))
-    # Bundle service location, used in config generation.
-    BUNDLE_SERVICE_CODE_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'codalab-cli'))
-    BUNDLE_SERVICE_VIRTUAL_ENV = os.path.join(BUNDLE_SERVICE_CODE_PATH, 'venv')
-
-    ############################################################
+    # Not really used anywhere in this frontend application, but Django
+    # requires this to be defined so here it is.
+    SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', ''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)]))
 
     # Local time zone for this installation. Choices can be found here:
     # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -122,9 +89,6 @@ class Base(Settings):
         'compressor.finders.CompressorFinder',
     )
 
-    # Make this unique, and don't share it with anybody.
-    SECRET_KEY = config.get('django', {}).get('secret-key', '+3_81$xxm9@3p5*wo3qpm7-4i2ixc8y4dl7do$p3-y63ynhxob')
-
     # List of callables that know how to import templates from various sources.
     TEMPLATE_LOADERS = (
         'django.template.loaders.filesystem.Loader',
@@ -165,9 +129,6 @@ class Base(Settings):
 
     OPTIONAL_APPS = []
     INTERNAL_IPS = []
-
-    # Django Analytical configuration
-    #GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-42847758-1'
 
     # Compress Configuration
     COMPRESS_PRECOMPILERS = (
@@ -244,17 +205,6 @@ class Base(Settings):
                     cls.INSTALLED_APPS += (a,)
         if hasattr(cls, 'EXTRA_MIDDLEWARE_CLASSES'):
             cls.MIDDLEWARE_CLASSES += cls.EXTRA_MIDDLEWARE_CLASSES
-        cls.STARTUP_ENV.update({ 'CONFIG_HTTP_PORT': cls.PORT,
-                                 'CONFIG_SERVER_NAME': cls.SERVER_NAME })
-        if cls.SERVER_NAME not in cls.ALLOWED_HOSTS:
-            cls.ALLOWED_HOSTS.append(cls.SERVER_NAME)
-
-    @classmethod
-    def post_setup(cls):
-        if not hasattr(cls,'PORT'):
-            raise AttributeError("PORT environmenment variable required")
-        if not hasattr(cls,'SERVER_NAME'):
-            raise AttributeError("SERVER_NAME environment variable required")
 
 ############################################################
 
