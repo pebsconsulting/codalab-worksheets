@@ -39,7 +39,6 @@ var FileBrowser = React.createClass({
     },
 
     updateFileBrowser: function(folder_path) {
-      console.log('loading ' + this.props.uuid);
       // folder_path is an absolute path
       if (folder_path === undefined) folder_path = this.state.currentWorkingDirectory;
       this.setState({currentWorkingDirectory: folder_path});
