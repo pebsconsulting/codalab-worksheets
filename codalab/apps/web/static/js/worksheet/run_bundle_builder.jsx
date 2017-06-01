@@ -35,7 +35,7 @@ var RunBundleBuilder = React.createClass({
 
   handleDependencySelection: function(bundle_uuid, bundle_name, path, e) {
     var newDep = {
-      'bundle_uuid': bundle_uuid,
+      "uuid": bundle_uuid,
       'bundle_name': bundle_name,
       'path': path
     };
@@ -50,7 +50,7 @@ var RunBundleBuilder = React.createClass({
       // remove a dependency
       var removedDepIndex = null;
       selectedDependencies = selectedDependencies.filter(function(ele, i) {
-        depEqual = ele.bundle_uuid === newDep.bundle_uuid && ele.bundle_name === newDep.bundle_name && ele.path === newDep.path;
+        depEqual = ele.uuid === newDep.uuid && ele.bundle_name === newDep.bundle_name && ele.path === newDep.path;
         if (depEqual)
           removedDepIndex = i;
         return !depEqual;
@@ -90,7 +90,7 @@ var RunBundleBuilder = React.createClass({
     for (var i = 0; i < dependencyKeyList.length; i++) {
       var key = dependencyKeyList[i];
       var target = selectedDependencies[i];
-      var shortUuid = shorten_uuid(target.bundle_uuid);
+      var shortUuid = shorten_uuid(target.uuid);
       target = target.path === '' ? shortUuid : shortUuid + '/' + target.path;
       clCommand.push(key + ':' + target);
     }
@@ -271,7 +271,7 @@ var RunBundleTerminal = React.createClass({
     </div>
     );
     var depedencies = this.props.selectedDependencies.map(function(d, i) {
-      var short_uuid = shorten_uuid(d.bundle_uuid);
+      var short_uuid = shorten_uuid(d.uuid);
       var target = d.path === '' ? d.bundle_name : d.bundle_name + '/' + d.path
       return (<div className='run-bundle-terminal-item'>
          <input type='text' className='run-bundle-terminal-input' value={this.props.dependencyKeyList[i]} onChange={this.props.handleKeyChange.bind(this, i)}></input>

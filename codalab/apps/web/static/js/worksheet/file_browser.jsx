@@ -1,4 +1,3 @@
-
 var FileBrowser = React.createClass({
     getInitialState: function() {
       return {
@@ -35,11 +34,11 @@ var FileBrowser = React.createClass({
       // folder_path is an absolute path
       if (folder_path === undefined) folder_path = this.state.currentWorkingDirectory;
       this.setState({currentWorkingDirectory: folder_path});
-      var url = '/rest/bundles/' + this.props.bundle_uuid + '/contents/info/' + folder_path;
+      var url = '/rest/bundles/' + this.props.uuid + '/contents/info/' + folder_path;
       $.ajax({
         type: 'GET',
         url: url,
-        data: {depth: 1, human_readable: 1},
+        data: {depth: 1},
         dataType: 'json',
         cache: false,
         success: function(data) {
@@ -55,7 +54,7 @@ var FileBrowser = React.createClass({
 
     render: function() {
         var items = [];
-        if (this.state.fileBrowserData.contents) {
+        if (this.state.fileBrowserData && this.state.fileBrowserData.contents) {
           // Parent directory (..)
           if (this.state.currentWorkingDirectory) {
             items.push(<FileBrowserItem key=".." index=".."type=".." updateFileBrowser={this.updateFileBrowser} currentWorkingDirectory={this.state.currentWorkingDirectory} />);
@@ -74,7 +73,7 @@ var FileBrowser = React.createClass({
           entities.forEach(function(item) {
             if (item.type == 'directory')
               items.push(<FileBrowserItem
-                bundle_uuid={self.props.bundle_uuid}
+                bundle_uuid={self.props.uuid}
                 bundle_name={self.props.bundle_name}
                 key={item.name}
                 index={item.name}
@@ -90,13 +89,12 @@ var FileBrowser = React.createClass({
           entities.forEach(function(item) {
             if (item.type != 'directory')
               items.push(<FileBrowserItem
-                bundle_uuid={self.props.bundle_uuid}
+                bundle_uuid={self.props.uuid}
                 bundle_name={self.props.bundle_name}
                 key={item.name}
                 index={item.name}
                 type={item.type}
                 size={item.size}
-                size_str={item.size_str}
                 link={item.link}
                 updateFileBrowser={self.updateFileBrowser}
                 currentWorkingDirectory={self.state.currentWorkingDirectory}
@@ -122,12 +120,12 @@ var FileBrowser = React.createClass({
         // this.props.hasCheckbox is true in run_bundle_builder for the user to select bundle depedency
         // In other cases, it is false
         if (this.props.hasCheckbox) {
-          var url = "/bundles/" + this.props.bundle_uuid;
-          var short_uuid = shorten_uuid(this.props.bundle_uuid);
+          var url = "/bundles/" + this.props.uuid;
+          var short_uuid = shorten_uuid(this.props.uuid);
           checkbox = (<input
             type="checkbox"
             className="run-bundle-check-box"
-            onChange={this.props.handleCheckbox.bind(this, this.props.bundle_uuid, this.props.bundle_name, '')}
+            onChange={this.props.handleCheckbox.bind(this, this.props.uuid, this.props.bundle_name, '')}
             />);
           header = (
             <div className="collapsible-header inline-block">
@@ -195,14 +193,14 @@ var FileBrowserItem = React.createClass({
         } else {
           file_location = this.props.index;
         }
-        if (this.props.hasOwnProperty('size_str'))
-          size = this.props.size_str;
+        if (this.props.hasOwnProperty('size'))
+          size = renderSize(this.props.size);
         // this.props.hasCheckbox is true in run_bundle_builder for the user to select bundle depedency
         // otherwise, it is always false
         var checkbox = this.props.hasCheckbox && this.props.type !== '..' ? (<input
           className="run-bundle-check-box"
           type="checkbox"
-          onChange={this.props.handleCheckbox.bind(this, this.props.bundle_uuid, this.props.bundle_name, file_location)}
+          onChange={this.props.handleCheckbox.bind(this, this.props.uuid, this.props.bundle_name, file_location)}
         />) : null;
         if (this.props.type == 'directory' || this.props.type == '..') {
           item = (
@@ -213,7 +211,7 @@ var FileBrowserItem = React.createClass({
             </span>
           );
         } else if (this.props.type == 'file') {
-          var file_link = '/rest/bundles/' + this.props.bundle_uuid + '/contents/blob/' + encodeBundleContentsPath(file_location);
+          var file_link = '/rest/bundles/' + this.props.uuid + '/contents/blob/' + encodeBundleContentsPath(file_location);
           item = (
             <span className={this.props.type}>
                 <span className="glyphicon-file glyphicon" alt="More"></span>

@@ -43,7 +43,15 @@ var Worksheet = React.createClass({
           return item.interpreted.items.length;
         if (item.mode == 'search') {
           var subitem = item.interpreted.items[0];
-          return subitem != null ? subitem.bundle_info.length : null;
+          if (!subitem) {
+            return null;
+          } else if (subitem.mode === 'table') {
+            return subitem != null ? subitem.bundle_info.length : null;
+          } else if (subitem.mode === 'markup') {
+            return 1;
+          } else {
+            console.error('error');
+          }
         }
       } else {
         return null;
@@ -136,14 +144,16 @@ var Worksheet = React.createClass({
         window.history.replaceState({uuid: this.state.ws.uuid}, '', window.location.pathname);
         $('body').addClass('ws-interface');
         $.ajax({
-        url: '/rest/api/users/',
+        url: '/rest/user',
             dataType: 'json',
             cache: false,
             type: 'GET',
             success: function(data) {
-                this.setState({
-                    userInfo: data.user_info
-                });
+              var userInfo = data.data.attributes;
+              userInfo.user_id = data.data.id;
+              this.setState({
+                userInfo: userInfo
+              });
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(xhr.responseText);
@@ -168,7 +178,6 @@ var Worksheet = React.createClass({
         this.setState({activeComponent: 'action'});
         // just scroll to the top of the page.
         // Add the stop() to keep animation events from building up in the queue
-        // See also scrollTo* methods
         $('#worksheet_panel').addClass('actionbar-focus');
         $('#command_line').data('resizing', null);
         $('body').stop(true).animate({scrollTop: 0}, 250);
@@ -243,7 +252,10 @@ var Worksheet = React.createClass({
             var subFocusIndex = this.state.subFocusIndex;
             var wsItems = this.state.ws.info.items;
 
-            if (focusIndex >= 0 && wsItems[focusIndex].mode === 'table') {
+            if (focusIndex >= 0 && (
+                    wsItems[focusIndex].mode === 'table' ||
+                    wsItems[focusIndex].mode === 'search' ||
+                    wsItems[focusIndex].mode === 'wsearch' )) {
                 // worksheet_item_interface and table_item_interface do the exact same thing anyway right now
                 if (subFocusIndex - 1 < 0) {
                     this.setFocus(focusIndex - 1, 'end'); // Move out of this table to the item above the current table
@@ -259,8 +271,11 @@ var Worksheet = React.createClass({
             var focusIndex = this.state.focusIndex;
             var subFocusIndex = this.state.subFocusIndex;
             var wsItems = this.state.ws.info.items;
-            if (focusIndex >= 0 && wsItems[focusIndex].mode === 'table') {
-                if (subFocusIndex + 1 >= wsItems[focusIndex].length) {
+            if (focusIndex >= 0 && (
+                  wsItems[focusIndex].mode === 'table' ||
+                  wsItems[focusIndex].mode === 'search' ||
+                  wsItems[focusIndex].mode === 'wsearch' )) {
+                if (subFocusIndex + 1 >= this._numTableRows(wsItems[focusIndex])) {
                     this.setFocus(focusIndex + 1, 0);
                 } else {
                     this.setFocus(focusIndex, subFocusIndex + 1);
@@ -315,11 +330,11 @@ var Worksheet = React.createClass({
       var startTime = new Date().getTime();
       var self = this;
       var queryParams = Object.keys(bundleUuids).map(function(bundle_uuid) {
-        return 'bundle_uuid=' + bundle_uuid;
+        return 'uuid=' + bundle_uuid;
       }).join('&');
       $.ajax({
         type: "GET",
-        url: "/rest/api/worksheets/" + worksheetUuid + "/?" + queryParams,
+        url: "/rest/interpret/worksheet/" + worksheetUuid + '?' + queryParams,
         dataType: 'json',
         cache: false,
         success: function(worksheet_content) {
@@ -636,8 +651,8 @@ var Worksheet = React.createClass({
                     setFocus={this.setFocus}
                 />
             );
-        // chat_box only appears if ENABLE_CHAT flag is on in website-config.json and the current user is NOT root user
-        var chat_box_display = info && info.enable_chat && this.state.userInfo && !this.state.userInfo.is_root_user ? (
+        // chat_box only appears if enable_chat flag is on in config.json and user is authenticated
+        var chat_box_display = info && info.enable_chat && this.state.userInfo ? (
                 <WorksheetChatBox
                     ws={this.state.ws}
                     focusIndex={this.state.focusIndex}
@@ -646,8 +661,8 @@ var Worksheet = React.createClass({
                 />
             ): null;
 
-        // chat_portal only appears if ENABLE_CHAT flag is on in website-config.json and the current user is root user
-        var chat_portal = info && info.enable_chat && this.state.userInfo && this.state.userInfo.is_root_user ? (
+        // chat_portal only appears if enable_chat flag is on in config.json and user is authenticated
+        var chat_portal = info && info.enable_chat && this.state.userInfo ? (
                 <WorksheetChatPortal
                     userInfo={this.state.userInfo}
                 />

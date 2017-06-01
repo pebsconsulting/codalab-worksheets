@@ -48,7 +48,7 @@ var WorksheetChatBox = React.createClass({
     var userInfo = this.props.userInfo;
     if (userInfo === null) return;
     $.ajax({
-      url: '/rest/api/chatbox/',
+      url: '/rest/chats',
       dataType: 'json',
       cache: false,
       type: 'GET',
@@ -63,16 +63,20 @@ var WorksheetChatBox = React.createClass({
           var sender = '';
           if (chat.sender_user_id === userInfo.user_id) {
             sender = 'You';
-          } else if (chat.sender_user_id === userInfo.system_user_id) {
+          } else if (chat.sender_user_id === chats.system_user_id) {
             sender = 'System';
-          } else if (chat.sender_user_id === userInfo.root_user_id) {
+          } else if (chat.sender_user_id === chats.root_user_id) {
             sender = 'Admin';
           } else {
             sender = chat.sender_user_id;
           }
           $("#chat_box").chatbox("option", "boxManager").addMsg(sender, chat.message);
         }
-        this.setState({numOfChatHistory: chats.length});
+        this.setState({
+          numOfChatHistory: chats.length,
+          systemUserId: chats.system_user_id,
+          rootUserId: chats.root_user_id,
+        });
       }.bind(this),
       error: function(xhr, status, err) {
         console.error(xhr.responseText);
@@ -84,10 +88,10 @@ var WorksheetChatBox = React.createClass({
     chatbox.boxManager.addMsg(user, msg);
     this.setState({numOfChatHistory: this.state.numOfChatHistory + 1});
     $.ajax({
-      url: '/rest/api/chatbox/',
+      url: '/rest/chats',
       data: {
         senderUserId: this.props.userId,
-        recipientUserId: this.props.userInfo.system_user_id,
+        recipientUserId: this.state.systemUserId,
         message: msg,
         worksheetId: this.state.worksheetId,
         bundleId: this.state.bundleId,
