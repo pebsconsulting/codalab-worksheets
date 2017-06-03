@@ -48,6 +48,12 @@ var WorksheetActionBar = React.createClass({
       prompt: 'CodaLab> ',
       history: true,
       keydown: function (event, terminal) {
+        if (event.keyCode === 67 && event.ctrlKey) { // 67 is 'c' keycode
+          terminal.exec('', false);
+          terminal.update(-1, terminal.get_prompt() + terminal.get_command());
+          terminal.set_command('');
+          event.preventDefault();
+        }
         if (event.keyCode === 27) { // esc
           terminal.focus(false);
         }

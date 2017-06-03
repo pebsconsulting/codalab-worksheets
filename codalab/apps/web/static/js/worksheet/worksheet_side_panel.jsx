@@ -18,18 +18,22 @@ var WorksheetSidePanel = React.createClass({
         $(window).resize(function(e) {
             self.resetPanel();
         });
-        var refreshWorksheetSidePanel = function() {
-            if (this.refs.hasOwnProperty('worksheet_info_side_panel')) {
-                this.refs.worksheet_info_side_panel.refreshWorksheet();
-            }
-        };
+    },
+
+    componentWillMount: function() {
         this.debouncedRefreshBundleSidePanel = _.debounce(this.refreshBundleSidePanel, 200).bind(this);
-        this.debouncedRefreshWorksheetSidePanel = _.debounce(refreshWorksheetSidePanel, 200).bind(this);
+        this.debouncedRefreshWorksheetSidePanel = _.debounce(this.refreshWorksheetSidePanel, 200).bind(this);
     },
 
     refreshBundleSidePanel: function() {
       if (this.refs.hasOwnProperty('bundle_info_side_panel')) {
         this.refs.bundle_info_side_panel.refreshBundle();
+      }
+    },
+
+    refreshWorksheetSidePanel: function() {
+      if (this.refs.hasOwnProperty('worksheet_info_side_panel')) {
+          this.refs.worksheet_info_side_panel.refreshWorksheet();
       }
     },
 
