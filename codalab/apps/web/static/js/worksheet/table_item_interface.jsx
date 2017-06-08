@@ -25,6 +25,7 @@ var TableItem = React.createClass({
             var bundleInfo = this.refs['row' + this.props.subFocusIndex].props.bundleInfo;
             if (bundleInfo.args != null) {
                 $('#command_line').terminal().insert(bundleInfo.args);
+                e.preventDefault();
                 this.props.focusActionBar();
             }
         }.bind(this), 'keydown');

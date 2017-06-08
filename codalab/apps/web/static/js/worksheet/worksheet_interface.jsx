@@ -516,7 +516,12 @@ var Worksheet = React.createClass({
                       console.error('Can\'t map raw index ' + rawIndexAfterEditMode + ' to item index pair');
                       focusIndexPair = [0, 0];  // Fall back to default
                     }
-                    this.setFocus(focusIndexPair[0], focusIndexPair[1]);
+
+                    if (focusIndexPair === null) { // happens in the case of an empty worksheet
+                      this.setFocus(-1, 0);
+                    } else {
+                      this.setFocus(focusIndexPair[0], focusIndexPair[1]);
+                    }
                   } else if (this.state.numOfBundles !== -1 && numOfBundles > this.state.numOfBundles) {
                       // If the number of bundles increases then the focus should be on the new bundles.
                       this.setFocus('end', 'end');

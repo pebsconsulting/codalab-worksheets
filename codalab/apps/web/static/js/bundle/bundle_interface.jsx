@@ -118,11 +118,6 @@ var Bundle = React.createClass({
   render: function() {
     var bundleInfo = this.state;
     if (bundleInfo && bundleInfo.uuid) {  // when metadata has been loaded
-      var fileBrowser = '';
-      if (bundleInfo.fileContents == null) {  // if bundle is not just a single file
-        fileBrowser = <FileBrowser bundle_uuid={this.state.uuid} />;
-      }
-
       // Configure the callback for user-enacted changes to bundle metadata.
       // If it is the bundle detail side panel, it should call refreshWorksheet,
       // which is passed in as this.props.bundleMetadataChanged.
@@ -133,7 +128,7 @@ var Bundle = React.createClass({
         {renderHeader(bundleInfo, bundleMetadataChanged)}
         {renderDependencies(bundleInfo)}
         {renderContents(bundleInfo)}
-        {fileBrowser}
+        <FileBrowser uuid={this.state.uuid} />
         {renderMetadata(bundleInfo, bundleMetadataChanged)}
         {renderHostWorksheets(bundleInfo)}
       </div>);

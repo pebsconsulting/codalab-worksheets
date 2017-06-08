@@ -30,6 +30,7 @@
     "MathJax": "^2.7.1",
     "ace-builds": "^1.2.3",
     "jquery-ui": "^1.11.4",
+    "eventEmitter": "^4.3.0",
     "jquery.terminal": "^1.4.0",
     "jsonapi-datastore": "^0.4.0-beta"
   },
