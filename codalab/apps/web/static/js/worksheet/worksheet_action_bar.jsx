@@ -74,8 +74,8 @@ var WorksheetActionBar = React.createClass({
         }
         self.props.handleFocus();
       },
-      completion: function (terminal, lastToken, callback) {
-        var command = terminal.get_command();
+      completion: function (lastToken, callback) {
+        var command = this.get_command();
 
         self.completeCommand(command).then(function (completions) {
           callback(completions);
