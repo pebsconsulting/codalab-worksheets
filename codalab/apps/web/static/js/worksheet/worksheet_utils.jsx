@@ -3,6 +3,10 @@ function renderDuration(s) {
   // s: number of seconds
   // Return a human-readable string.
   // Example: 100 => "1m40s", 10000 => "2h46m"
+  if (s == null)  {
+    return '<none>'
+  }
+
   var m = Math.floor(s / 60);
   if (m == 0)
     return Math.round(s*10)/10 + 's';
@@ -110,7 +114,7 @@ function serializeFormat(formatted, type) {
 }
 
 
-function render_permissions(state) {
+function renderPermissions(state) {
   // Render permissions:
   // - state.permission_spec (what user has)
   // - state.group_permissions (what other people have)

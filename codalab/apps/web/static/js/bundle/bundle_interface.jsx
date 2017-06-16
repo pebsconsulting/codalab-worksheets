@@ -47,7 +47,10 @@ var Bundle = React.createClass({
     $.ajax({
       type: 'GET',
       url: '/rest/bundles/' + this.props.uuid,
-      data: {include_display_metadata: 1},
+      data: {
+        include_display_metadata: 1,
+        include: 'owner,group_permissions,host_worksheets',
+      },
       dataType: 'json',
       cache: false,
       context: this,  // automatically bind `this` in all callbacks
@@ -176,7 +179,7 @@ function createRow(bundleInfo, bundleMetadataChanged, key, value) {
   // which can be edited.
   var editableMetadataFields = bundleInfo.editableMetadataFields;
   var fieldType = bundleInfo.metadataType;
-  if (bundleInfo.permission > 0 && editableMetadataFields && editableMetadataFields.indexOf(key) != -1) {
+  if (bundleInfo.permission > 1 && editableMetadataFields && editableMetadataFields.indexOf(key) != -1) {
     return (<tr>
       <th><span className="editable-key">{key}</span></th>
       <td><BundleEditableField canEdit={true} dataType={fieldType[key]} fieldName={key} uuid={bundleInfo.uuid} value={value} onChange={bundleMetadataChanged} /></td>
@@ -228,8 +231,9 @@ function renderHeader(bundleInfo, bundleMetadataChanged) {
   rows.push(createRow(bundleInfo, bundleMetadataChanged, 'uuid', bundleInfo.uuid));
   rows.push(createRow(bundleInfo, bundleMetadataChanged, 'name', bundleInfo.metadata.name));
   rows.push(createRow(bundleInfo, bundleMetadataChanged, 'description', bundleInfo.metadata.description));
-  rows.push(createRow(bundleInfo, bundleMetadataChanged, 'owner', bundleInfo.owner.user_name));
-  rows.push(createRow(bundleInfo, bundleMetadataChanged, 'permissions', render_permissions(bundleInfo)));
+  rows.push(createRow(bundleInfo, bundleMetadataChanged, 'owner', (bundleInfo.owner == null) ? '<anonymous>' : bundleInfo.owner.user_name));
+  rows.push(createRow(bundleInfo, bundleMetadataChanged, 'is_anonymous', renderFormat(bundleInfo.is_anonymous, 'bool')));
+  rows.push(createRow(bundleInfo, bundleMetadataChanged, 'permissions', renderPermissions(bundleInfo)));
   rows.push(createRow(bundleInfo, bundleMetadataChanged, 'created', bundleInfo.metadata.created));
   rows.push(createRow(bundleInfo, bundleMetadataChanged, 'data_size', bundleInfo.metadata.data_size));
   if (bundleInfo.bundle_type == 'run') {

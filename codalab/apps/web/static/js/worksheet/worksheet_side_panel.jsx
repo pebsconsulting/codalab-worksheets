@@ -260,8 +260,8 @@ var WorksheetDetailSidePanel = React.createClass({
                 <tr><th>uuid</th><td>{worksheet.uuid}</td></tr>
                 <tr><th>name</th><td><WorksheetEditableField canEdit={true} fieldName="name" value={worksheet.name} uuid={worksheet.uuid} onChange={this.props.bundleMetadataChanged} /></td></tr>
                 <tr><th>title</th><td><WorksheetEditableField canEdit={true} fieldName="title" value={worksheet.title} uuid={worksheet.uuid} onChange={this.props.bundleMetadataChanged} /></td></tr>
-                <tr><th>owner</th><td>{worksheet.owner_name}</td></tr>
-                <tr><th>permissions</th><td>{render_permissions(worksheet)}</td></tr>
+                <tr><th>owner</th><td>{(worksheet.owner_name == null) ? '<anonymous>' : worksheet.owner_name}</td></tr>
+                <tr><th>permissions</th><td>{renderPermissions(worksheet)}</td></tr>
               </table>
               {bundles_html}
           </div>
