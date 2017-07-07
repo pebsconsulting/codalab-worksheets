@@ -31,7 +31,7 @@
     "ace-builds": "^1.2.3",
     "jquery-ui": "^1.11.4",
     "eventEmitter": "^4.3.0",
-    "jquery.terminal": "^1.4.0",
+    "jquery.terminal": "1.4.2",
     "jsonapi-datastore": "^0.4.0-beta",
     "keyboardevent-key-polyfill": "^1.1.0"
   },
