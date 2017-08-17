@@ -26,9 +26,6 @@ COPY . /opt/codalab-worksheets
 ENV CODALAB_HOME=/home/codalab
 RUN cd /opt/codalab-worksheets && ./setup.sh
 
-# Export the static files as a volume
-VOLUME ["/opt/codalab-worksheets/codalab/apps/web/static"]
-
 EXPOSE 2700
 
 WORKDIR /opt/codalab-worksheets/codalab

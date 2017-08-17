@@ -162,7 +162,7 @@ var WorksheetSidePanel = React.createClass({
               {run_bundle_builder}
               {new_worksheet}
             </div>
-              {side_panel_details}
+            {side_panel_details}
           </div>
         );
     }

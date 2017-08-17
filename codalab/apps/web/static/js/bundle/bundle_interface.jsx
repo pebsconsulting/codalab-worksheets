@@ -23,7 +23,7 @@ var Bundle = React.createClass({
       data: {
         head: 50,
         tail: 50,
-        truncation_text: '\n... Truncated. Click link above to see full file. ...\n\n'
+        truncation_text: '\n... [truncated] ...\n\n'
       },
       dataType: 'text',
       cache: false,
@@ -35,14 +35,6 @@ var Bundle = React.createClass({
    * Fetch bundle data and update the state of this component.
    */
   refreshBundle: function() {
-    // Clear contents and error messages from previous refresh.
-    this.setState({
-      errorMessages: [],
-      fileContents: null,
-      stdout: null,
-      stderr: null,
-    });
-
     // Fetch metadata
     $.ajax({
       type: 'GET',
@@ -67,7 +59,10 @@ var Bundle = React.createClass({
       $("#bundle-loading-icon").hide();
     }).fail(function(xhr, status, err) {
       this.setState({
-        errorMessages: self.state.errorMessages.concat([xhr.responseText])
+        errorMessages: self.state.errorMessages.concat([xhr.responseText]),
+        fileContents: null,
+        stdout: null,
+        stderr: null,
       });
     });
 
@@ -86,17 +81,22 @@ var Bundle = React.createClass({
       if (!info) return;
       if (info.type === 'file' || info.type === 'link') {
         return this.fetchFileSummary(this.props.uuid, '/').then(function(blob) {
-          this.setState({fileContents: blob});
+          this.setState({fileContents: blob, stdout: null, stderr: null});
         });
       } else if (info.type === 'directory') {
+        // Get stdout/stderr (important to set things to null).
         var fetchRequests = [];
-        info.contents.forEach(function(entry) {
-          if ((entry.name === 'stdout' || entry.name === 'stderr') && (entry.type === 'file' || entry.type === 'link')) {
-            fetchRequests.push(this.fetchFileSummary(this.props.uuid, '/' + entry.name).then(function(blob) {
+        ['stdout', 'stderr'].forEach(function (name) {
+          if (info.contents.some((entry) => entry.name === name)) {
+            fetchRequests.push(this.fetchFileSummary(this.props.uuid, '/' + name).then(function(blob) {
               var stateUpdate = {};
-              stateUpdate[entry.name] = blob;
+              stateUpdate[name] = blob;
               this.setState(stateUpdate);
             }));
+          } else {
+            var stateUpdate = {};
+            stateUpdate[name] = null;
+            this.setState(stateUpdate);
           }
         }.bind(this));
         return $.when(fetchRequests);
@@ -120,6 +120,7 @@ var Bundle = React.createClass({
 
   render: function() {
     var bundleInfo = this.state;
+    console.log('render', bundleInfo);
     if (bundleInfo && bundleInfo.uuid) {  // when metadata has been loaded
       // Configure the callback for user-enacted changes to bundle metadata.
       // If it is the bundle detail side panel, it should call refreshWorksheet,
