@@ -1,4 +1,3 @@
-
 /*
 Main worksheet page, which displays information about a single worksheet.
 Consists of three main components:
@@ -50,7 +49,7 @@ var Worksheet = React.createClass({
           } else if (subitem.mode === 'markup') {
             return 1;
           } else {
-            console.error('error');
+            console.error('Error in _numTableRows');
           }
         }
       } else {
@@ -156,8 +155,8 @@ var Worksheet = React.createClass({
               });
             }.bind(this),
             error: function(xhr, status, err) {
-                console.error(xhr.responseText);
-            }.bind(this)
+              console.error(xhr.responseText);
+            }.bind(this),
         });
     },
 
@@ -183,7 +182,7 @@ var Worksheet = React.createClass({
         $('body').stop(true).animate({scrollTop: 0}, 250);
     },
     handleActionBarBlur: function(event) {
-        // explicitly close term because we're leaving the action bar
+        // explicitly close terminal because we're leaving the action bar
         // $('#command_line').terminal().focus(false);
         this.setState({activeComponent: 'list'});
         $('#command_line').data('resizing', null);
@@ -255,7 +254,7 @@ var Worksheet = React.createClass({
             if (focusIndex >= 0 && (
                     wsItems[focusIndex].mode === 'table' ||
                     wsItems[focusIndex].mode === 'search' ||
-                    wsItems[focusIndex].mode === 'wsearch' )) {
+                    wsItems[focusIndex].mode === 'wsearch')) {
                 // worksheet_item_interface and table_item_interface do the exact same thing anyway right now
                 if (subFocusIndex - 1 < 0) {
                     this.setFocus(focusIndex - 1, 'end'); // Move out of this table to the item above the current table
@@ -434,8 +433,8 @@ var Worksheet = React.createClass({
               }
 
               if (rawIndex === undefined) {
-                  console.error('Can\'t map %s (focusIndex %d, subFocusIndex %d) to raw index', focusIndexPair, this.state.focusIndex, this.state.subFocusIndex);
-                  return;
+                console.error('Can\'t map %s (focusIndex %d, subFocusIndex %d) to raw index', focusIndexPair, this.state.focusIndex, this.state.subFocusIndex);
+                return;
               }
               if (cursorColumnPosition === undefined)
                 cursorColumnPosition = editor.session.getLine(rawIndex).length;  // End of line
@@ -594,9 +593,9 @@ var Worksheet = React.createClass({
                 $('#save_error').show();
                 $("#worksheet-message").html(xhr.responseText).addClass('alert-danger alert').show();
                 if (fromRaw) {
-                    this.toggleEditMode(true);
+                  this.toggleEditMode(true);
                 }
-            }
+            }.bind(this),
         });
     },
 

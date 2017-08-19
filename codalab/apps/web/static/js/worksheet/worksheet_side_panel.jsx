@@ -3,7 +3,7 @@ Shows the side panel which contains information about the current bundle or
 worksheet (with the focus).
 */
 
-var WorksheetSidePanel = React.createClass({
+let WorksheetSidePanel = React.createClass({
     getInitialState: function() {
         return {};
     },
@@ -108,8 +108,6 @@ var WorksheetSidePanel = React.createClass({
     },
 
     render: function() {
-        //console.log('WorksheetSidePanel.render');
-
         var bundle_uploader = <BundleUploader
           ws={this.props.ws}
           refreshWorksheet={this.props.bundleMetadataChanged}
@@ -126,7 +124,7 @@ var WorksheetSidePanel = React.createClass({
         />;
 
         var focus = this.getFocus();
-        var side_panel_details = '';
+        var side_panel_details = null;
         if (focus) {
           if (this.isFocusWorksheet(focus)) {
             // Show worksheet (either main worksheet or subworksheet)

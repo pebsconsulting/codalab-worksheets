@@ -22,7 +22,7 @@
 </div>
 
 <div id="worksheet_container">
-    <!-- worksheet html wil go here-->
+    <!-- worksheet html will go here-->
 </div>
 <div id="save_progress" class="progress-message">
     <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Saving...
@@ -112,6 +112,8 @@
 
     {# https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.js #}
     <script>
+      let STATIC_URL = "{{ STATIC_URL }}";
+
       // Fix for poshytip: https://github.com/vitalets/x-editable/issues/496
       $.fn.poshytip = { defaults: null };
     </script>

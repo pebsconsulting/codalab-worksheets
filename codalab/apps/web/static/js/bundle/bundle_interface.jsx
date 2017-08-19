@@ -1,13 +1,32 @@
-var Bundle = React.createClass({
+/**
+ * The `Bundle` class is actually used in two places: (i) the standalone bundle
+ * page and (ii) the side panel.  There is some switching logic
+ */
+
+let isStandalonePage = document.getElementById('bundle-content');
+
+let Bundle = React.createClass({
   propTypes: {
     uuid: React.PropTypes.string.isRequired,      // uuid of bundle to load
     bundleMetadataChanged: React.PropTypes.func,  // callback on metadata change
   },
 
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       errorMessages: [],
+      bundleInfo: null,
+      fileContents: null,
+      stdout: null,
+      stderr: null,
     };
+  },
+
+  componentWillReceiveProps: function (nextProps) {
+    if (this.props.uuid !== nextProps.uuid) {
+      // Just clear the error messages and not the actual contents, so that in
+      // the side panel, the page doesn't flicker.
+      this.setState({errorMessages: []});
+    }
   },
 
   /**
@@ -16,7 +35,7 @@ var Bundle = React.createClass({
    * @param path  path within the bundle
    * @return  jQuery Deferred object
    */
-  fetchFileSummary: function(uuid, path) {
+  fetchFileSummary: function (uuid, path) {
     return $.ajax({
       type: 'GET',
       url: '/rest/bundles/' + uuid + '/contents/blob' + path,
@@ -34,8 +53,8 @@ var Bundle = React.createClass({
   /**
    * Fetch bundle data and update the state of this component.
    */
-  refreshBundle: function() {
-    // Fetch metadata
+  refreshBundle: function () {
+    // Fetch bundle metadata
     $.ajax({
       type: 'GET',
       url: '/rest/bundles/' + this.props.uuid,
@@ -46,27 +65,17 @@ var Bundle = React.createClass({
       dataType: 'json',
       cache: false,
       context: this,  // automatically bind `this` in all callbacks
-    }).then(function(response) {
-      if(this.isMounted()){
-        // Normalize JSON API doc into simpler object
-        var bundle = new JsonApiDataStore().sync(response);
-        $.extend(bundle, {
-          editableMetadataFields: response.data.meta.editable_metadata_keys,
-          metadataType: response.data.meta.metadata_type,
-        });
-        this.setState(bundle);
-      }
-      $("#bundle-loading-icon").hide();
-    }).fail(function(xhr, status, err) {
-      this.setState({
-        errorMessages: self.state.errorMessages.concat([xhr.responseText]),
-        fileContents: null,
-        stdout: null,
-        stderr: null,
-      });
+    }).then(function (response) {
+      // Normalize JSON API doc into simpler object
+      const bundleInfo = new JsonApiDataStore().sync(response);
+      bundleInfo.editableMetadataFields = response.data.meta.editable_metadata_keys;
+      bundleInfo.metadataType = response.data.meta.metadata_type;
+      this.setState({bundleInfo: bundleInfo});
+    }).fail(function (xhr, status, err) {
+      this.setState({bundleInfo: null, fileContents: null, stdout: null, stderr: null, errorMessages: this.state.errorMessages.concat([xhr.responseText])});
     });
 
-    // Fetch contents
+    // Fetch bundle contents
     $.ajax({
       type: 'GET',
       url: '/rest/bundles/' + this.props.uuid + '/contents/info/',
@@ -76,11 +85,11 @@ var Bundle = React.createClass({
       dataType: 'json',
       cache: false,
       context: this,  // automatically bind `this` in all callbacks
-    }).then(function(data) {
-      var info = data.data;
+    }).then(function (response) {
+      const info = response.data;
       if (!info) return;
       if (info.type === 'file' || info.type === 'link') {
-        return this.fetchFileSummary(this.props.uuid, '/').then(function(blob) {
+        return this.fetchFileSummary(this.props.uuid, '/').then(function (blob) {
           this.setState({fileContents: blob, stdout: null, stderr: null});
         });
       } else if (info.type === 'directory') {
@@ -88,7 +97,7 @@ var Bundle = React.createClass({
         var fetchRequests = [];
         ['stdout', 'stderr'].forEach(function (name) {
           if (info.contents.some((entry) => entry.name === name)) {
-            fetchRequests.push(this.fetchFileSummary(this.props.uuid, '/' + name).then(function(blob) {
+            fetchRequests.push(this.fetchFileSummary(this.props.uuid, '/' + name).then(function (blob) {
               var stateUpdate = {};
               stateUpdate[name] = blob;
               this.setState(stateUpdate);
@@ -101,50 +110,51 @@ var Bundle = React.createClass({
         }.bind(this));
         return $.when(fetchRequests);
       }
-    }).fail(function(xhr, status, err) {
-      if (xhr.status != 404) {  // not found errors are normal if contents aren't available
-        this.setState({
-          errorMessages: this.state.errorMessages.concat([xhr.responseText])
-        });
+    }).fail(function (xhr, status, err) {
+      // 404 Not Found errors are normal if contents aren't available yet, so ignore them
+      if (xhr.status != 404) {
+        this.setState({bundleInfo: null, fileContents: null, stdout: null, stderr: null, errorMessages: this.state.errorMessages.concat([xhr.responseText])});
       }
     });
   },
 
-  componentWillMount: function() {
-    if (!this.props.bundleMetadataChanged) {
-      // if it is the bundle detail page, not the bundle detail side panel
+  componentDidMount: function () {
+    if (isStandalonePage) {
       this.refreshBundle();
-      $('.page-header').hide();
     }
   },
 
-  render: function() {
-    var bundleInfo = this.state;
-    console.log('render', bundleInfo);
-    if (bundleInfo && bundleInfo.uuid) {  // when metadata has been loaded
-      // Configure the callback for user-enacted changes to bundle metadata.
-      // If it is the bundle detail side panel, it should call refreshWorksheet,
-      // which is passed in as this.props.bundleMetadataChanged.
-      var bundleMetadataChanged = this.props.bundleMetadataChanged || this.refreshBundle;
+  render: function () {
+    const bundleInfo = this.state.bundleInfo;
+    if (!bundleInfo) {
+      // Error
+      if (this.state.errorMessages.length > 0) {
+        return renderErrorMessages(this.state.errorMessages);
+      }
 
-      return (<div id="panel_content">
-        {renderErrorMessages(this.state.errorMessages)}
-        {renderHeader(bundleInfo, bundleMetadataChanged)}
-        {renderDependencies(bundleInfo)}
-        {renderContents(bundleInfo)}
-        <FileBrowser uuid={this.state.uuid} />
-        {renderMetadata(bundleInfo, bundleMetadataChanged)}
-        {renderHostWorksheets(bundleInfo)}
-      </div>);
-    } else {
-      return null;
+      // Still loading
+      return <div id="bundle-message" class="bundle-detail">
+          <img src={`${STATIC_URL}img/Preloader_Small.gif`}/> Loading bundle...
+      </div>;
     }
+
+    const bundleMetadataChanged = isStandalonePage ? this.refreshBundle : this.props.bundleMetadataChanged;
+
+    return (<div id="panel_content">
+      {renderErrorMessages(this.state.errorMessages)}
+      {renderHeader(bundleInfo, bundleMetadataChanged)}
+      {renderDependencies(bundleInfo)}
+      {renderContents(bundleInfo, this.state.fileContents, this.state.stdout, this.state.stderr)}
+      <FileBrowser uuid={bundleInfo.uuid} />
+      {renderMetadata(bundleInfo, bundleMetadataChanged)}
+      {renderHostWorksheets(bundleInfo)}
+    </div>);
   }
 });
 
 function renderErrorMessages(messages) {
   return <div id="bundle-error-messages">
-    {messages.map(function(message) {
+    {messages.map(message => {
       return <div className="alert alert-danger alert-dismissable">{message}</div>;
     })}
   </div>;
@@ -154,7 +164,7 @@ function renderDependencies(bundleInfo) {
   var dependencies_table = [];
   if (!bundleInfo.dependencies || bundleInfo.dependencies.length == 0) return <div/>;
 
-  bundleInfo.dependencies.forEach(function(dep, i) {
+  bundleInfo.dependencies.forEach(function (dep, i) {
     var dep_bundle_url = "/bundles/" + dep.parent_uuid;
     dependencies_table.push(<tr>
       <td>
@@ -269,7 +279,7 @@ function renderHeader(bundleInfo, bundleMetadataChanged) {
     {bundleHeader}
     <table className="bundle-meta table">
       <tbody>
-        {rows.map(function(elem) {return elem;})}
+        {rows.map(function (elem) {return elem;})}
         <tr>
           <th><span>download</span></th>
           <td>
@@ -285,39 +295,39 @@ function renderHeader(bundleInfo, bundleMetadataChanged) {
   </div>);
 }
 
-function renderContents(bundleInfo) {
+function renderContents(bundleInfo, fileContents, stdout, stderr) {
   var stdoutHtml = '';
-  if (bundleInfo.stdout) {
-    var stdout_url = '/rest/bundles/' + bundleInfo.uuid + '/contents/blob/stdout';
+  if (stdout) {
+    var stdoutUrl = '/rest/bundles/' + bundleInfo.uuid + '/contents/blob/stdout';
     stdoutHtml = (<div>
-      <span><a href={stdout_url} target="_blank">stdout</a></span>
+      <span><a href={stdoutUrl} target="_blank">stdout</a></span>
       &nbsp;
       <span className="collapsible-header">&#x25BE;</span>
       <div className="collapsible-content bundle-meta">
-        <pre>{bundleInfo.stdout}</pre>
+        <pre>{stdout}</pre>
       </div>
     </div>);
   }
 
   var stderrHtml = '';
-  if (bundleInfo.stderr) {
+  if (stderr) {
     var stderr_url = '/rest/bundles/' + bundleInfo.uuid + '/contents/blob/stderr';
     stderrHtml = (<div>
-      <span><a href={stderr_url} target="_blank">stderr</a></span>
+      <span><a href={stderrUrl} target="_blank">stderr</a></span>
       &nbsp;
       <span className="collapsible-header">&#x25BE;</span>
       <div className="collapsible-content bundle-meta">
-        <pre>{bundleInfo.stderr}</pre>
+        <pre>{stderr}</pre>
       </div>
     </div>);
   }
 
   var contentsHtml = '';
-  if (bundleInfo.fileContents) {
+  if (fileContents) {
     contentsHtml = (<div>
       <div className="collapsible-header"><span><p>contents &#x25BE;</p></span></div>
       <div className="collapsible-content bundle-meta">
-        <pre>{bundleInfo.fileContents}</pre>
+        <pre>{fileContents}</pre>
       </div>
     </div>);
   }
@@ -333,7 +343,7 @@ function renderHostWorksheets(bundleInfo) {
   if (!bundleInfo.host_worksheets) return <div/>;
 
   var hostWorksheetRows = [];
-  bundleInfo.host_worksheets.forEach(function(worksheet) {
+  bundleInfo.host_worksheets.forEach(function (worksheet) {
     var hostWorksheetUrl = "/worksheets/" + worksheet.uuid;
     hostWorksheetRows.push(<tr>
       <td>
@@ -357,10 +367,9 @@ function renderHostWorksheets(bundleInfo) {
   );
 }
 
-if (document.getElementById('bundle-content')) {
+if (isStandalonePage) {
   // Extract bundle UUID from URI path.
   var uuid = window.location.pathname.match(/^\/?bundles\/([^\/]*)/i)[1];
 
-  // Bundle is also used by WorksheetSidePanel, whereas bundle-content only exists on the bundle page
   React.render(<Bundle uuid={uuid} />, document.getElementById('bundle-content'));
 }

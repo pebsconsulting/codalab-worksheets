@@ -30,7 +30,7 @@ Worksheet page (./apps/web/templates/web/worksheets/detail.html)
       react WorksheetItem (./apps/web/static/js/worksheet/worksheet_item_interface.jsx)
 
 Bundle page (./apps/web/templates/web/bundles/detail.html)
-  react Bundle (./apps/web/static/js/bundle/bundle_interface.jsx)
+  react Bundle (./apps/web/static/js/bundle/bundle_interface.jsx) [also used for WorksheetDetailSidePanel]
 
 Utilities
   react CheckboxMixin, GoToBundleMixin (./apps/web/static/js/worksheet/ws_mixins.jsx)

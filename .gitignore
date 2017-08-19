@@ -17,6 +17,7 @@ codalab/apps/web/static/css/imports.css
 codalab/apps/web/node_modules/
 codalab/apps/web/static/dist
 codalab/apps/web/static/bower_components
+codalab/apps/web/package-lock.json
 
 venv/
 
