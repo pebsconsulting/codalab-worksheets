@@ -169,7 +169,6 @@ let WorksheetSidePanel = React.createClass({
 ////////////////////////////////////////////////////////////
 
 // When selecting a worksheet.
-// TODO: use /rest/worksheets/ end point
 var WorksheetDetailSidePanel = React.createClass({
     getInitialState: function() {
         return { };
@@ -185,8 +184,9 @@ var WorksheetDetailSidePanel = React.createClass({
       }.bind(this);
       $.ajax({
           type: 'GET',
-          //url: '/rest/interpret/worksheet/' + ws.uuid,
-          url: '/rest/worksheet/' + ws.uuid,
+          url: '/rest/interpret/worksheet/' + ws.uuid,
+          // TODO: migrate to using main API
+          // url: '/rest/worksheets/' + ws.uuid,
           success: onSuccess,
           error: onError,
       });

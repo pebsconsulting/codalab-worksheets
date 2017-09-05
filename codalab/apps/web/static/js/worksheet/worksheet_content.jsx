@@ -19,8 +19,9 @@ var WorksheetContent = function() {
 
         $.ajax({
             type: 'GET',
-            //url: '/rest/interpret/worksheet/' + this.uuid,
-            url: '/rest/worksheet/' + this.uuid,
+            url: '/rest/interpret/worksheet/' + this.uuid,
+            // TODO: migrate to using main API
+            // url: '/rest/worksheets/' + ws.uuid,
             async: props.async,
             dataType: 'json',
             cache: false,
