@@ -1,6 +1,5 @@
-
-var ACTIONBAR_MINIMIZE_HEIGHT = 30;
-var ACTIONBAR_DRAGHEIGHT = 350;
+const ACTIONBAR_MINIMIZE_HEIGHT = 30;
+const ACTIONBAR_DRAGHEIGHT = 350;
 
 var WorksheetActionBar = React.createClass({
   focustype: 'worksheet', // keep track of what the user has focused on worksheet item
@@ -39,7 +38,7 @@ var WorksheetActionBar = React.createClass({
         if (!isEnabled) {
           terminal.disable();
         }
-        self.props.refreshWorksheet();
+        self.props.reloadWorksheet();
       });
     }, {
       greetings: 'Click here to enter commands (e.g., help, run \'<bash command>\', rm <bundle>, kill <bundle>, etc.).',

@@ -195,7 +195,7 @@ var Worksheet = React.createClass({
         window.onpopstate = function(event) {
             if (event.state == null) return;
             this.setState({ws: new WorksheetContent(event.state.uuid)});
-            this.refreshWorksheet();
+            this.reloadWorksheet();
         }.bind(this);
 
         Mousetrap.reset();
@@ -226,7 +226,7 @@ var Worksheet = React.createClass({
         });
 
         Mousetrap.bind(['shift+r'], function(e) {
-            this.refreshWorksheet();
+            this.reloadWorksheet();
             return false;
         }.bind(this));
 
@@ -307,7 +307,7 @@ var Worksheet = React.createClass({
             if (saveChanges) {
               this.saveAndUpdateWorksheet(saveChanges, rawIndex);
             } else {
-              this.refreshWorksheet(undefined, rawIndex);
+              this.reloadWorksheet(undefined, rawIndex);
             }
           } else {
             // Not allowed to edit the worksheet.
@@ -339,7 +339,7 @@ var Worksheet = React.createClass({
         success: function(worksheet_content) {
           if (this.state.isUpdatingBundles) {
             if (worksheet_content.items) {
-              self.refreshWorksheet(worksheet_content.items);
+              self.reloadWorksheet(worksheet_content.items);
             }
             var endTime = new Date().getTime();
             var guaranteedDelayTime = Math.min(3000, numTrials * 1000);
@@ -498,8 +498,8 @@ var Worksheet = React.createClass({
     // More spefically, all items that don't contain run bundles that need updating are null.
     // Also, a non-null item could contain a list of bundle_infos, which represent a list of bundles. Usually not all of them need updating.
     // The bundle_infos for bundles that don't need updating are also null.
-    // If rawIndexAfterEditMode is defined, this refreshWorksheet is called right after toggling editMode. It should resolve rawIndex to (focusIndex, subFocusIndex) pair.
-    refreshWorksheet: function(partialUpdateItems, rawIndexAfterEditMode) {
+    // If rawIndexAfterEditMode is defined, this reloadWorksheet is called right after toggling editMode. It should resolve rawIndex to (focusIndex, subFocusIndex) pair.
+    reloadWorksheet: function(partialUpdateItems, rawIndexAfterEditMode) {
         if (partialUpdateItems === undefined) {
           $('#update_progress').show();
           this.setState({updating: true});
@@ -568,12 +568,12 @@ var Worksheet = React.createClass({
     },
 
     openWorksheet: function(uuid) {
-      // Change to a different worksheet. This does not call refreshWorksheet().
+      // Change to a different worksheet. This does not call reloadWorksheet().
       this.setState({ws: new WorksheetContent(uuid)});
 
       // Note: this is redundant if we're doing 'cl work' from the action bar,
       // but is necessary if triggered in other ways.
-      this.refreshWorksheet();
+      this.reloadWorksheet();
 
       // Create a new entry in the browser history with new URL.
       window.history.pushState({uuid: this.state.ws.uuid}, '', '/worksheets/' + uuid + '/');
@@ -585,7 +585,7 @@ var Worksheet = React.createClass({
         this.state.ws.saveWorksheet({
             success: function(data) {
                 this.setState({updating: false});
-                this.refreshWorksheet(undefined, rawIndex);
+                this.reloadWorksheet(undefined, rawIndex);
             }.bind(this),
             error: function(xhr, status, err) {
                 this.setState({updating: false});
@@ -649,7 +649,7 @@ var Worksheet = React.createClass({
                     handleFocus={this.handleActionBarFocus}
                     handleBlur={this.handleActionBarBlur}
                     active={this.state.activeComponent == 'action'}
-                    refreshWorksheet={this.refreshWorksheet}
+                    reloadWorksheet={this.reloadWorksheet}
                     openWorksheet={this.openWorksheet}
                     editMode={this.editMode}
                     setFocus={this.setFocus}
@@ -682,7 +682,7 @@ var Worksheet = React.createClass({
                     focusIndex={this.state.focusIndex}
                     subFocusIndex={this.state.subFocusIndex}
                     setFocus={this.setFocus}
-                    refreshWorksheet={this.refreshWorksheet}
+                    reloadWorksheet={this.reloadWorksheet}
                     openWorksheet={this.openWorksheet}
                     focusActionBar={this.focusActionBar}
                     ensureIsArray={this.ensureIsArray}
@@ -701,7 +701,7 @@ var Worksheet = React.createClass({
                     focusIndex={this.state.focusIndex}
                     subFocusIndex={this.state.subFocusIndex}
                     uploadBundle={this.uploadBundle}
-                    bundleMetadataChanged={this.refreshWorksheet}
+                    bundleMetadataChanged={this.reloadWorksheet}
                     escCount={this.state.escCount}
                     userInfo={this.state.userInfo}
                 />
@@ -725,7 +725,7 @@ var Worksheet = React.createClass({
                                 <div className="header-row">
                                     <div className="row">
                                         <div className="col-sm-6 col-md-8">
-                                          <h4 className='worksheet-title'><WorksheetEditableField canEdit={this.canEdit()} fieldName="title" value={info && info.title} uuid={info && info.uuid} onChange={this.refreshWorksheet} /></h4>
+                                          <h4 className='worksheet-title'><WorksheetEditableField canEdit={this.canEdit()} fieldName="title" value={info && info.title} uuid={info && info.uuid} onChange={this.reloadWorksheet} /></h4>
                                         </div>
                                         <div className="col-sm-6 col-md-4">
                                             <div className="controls">

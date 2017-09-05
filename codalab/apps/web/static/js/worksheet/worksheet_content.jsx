@@ -13,18 +13,20 @@ var WorksheetContent = function() {
         props = props || {};
         props.success = props.success || function(data){};
         props.error = props.error || function(xhr, status, err){};
-        if (props.async === undefined){
+        if (props.async === undefined) {
             props.async = true;
         }
 
         $.ajax({
             type: 'GET',
-            url: '/rest/interpret/worksheet/' + this.uuid,
+            //url: '/rest/interpret/worksheet/' + this.uuid,
+            url: '/rest/worksheet/' + this.uuid,
             async: props.async,
             dataType: 'json',
             cache: false,
             success: function(info) {
                 this.info = info;
+                console.log('FFFFF fetch info', info);
                 props.success(this.info);
             }.bind(this),
             error: function(xhr, status, err) {

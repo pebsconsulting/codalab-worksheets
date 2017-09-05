@@ -47,39 +47,39 @@ var TableItem = React.createClass({
         var tableClassName = (this.props.focused ? 'table focused' : 'table');
         var item = this.props.item;
         var canEdit = this.props.canEdit;
-        var bundle_info = item.bundle_info;
-        var header_items = item.interpreted[0];
-        var column_classes = header_items.map(function(item, index) {
+        var bundleInfo = item.bundle_info;
+        var headerItems = item.interpreted[0];
+        var columnClasses = headerItems.map(function(item, index) {
             return 'table-column-' + encodeURIComponent(item).replace("%", "_").replace(/[^-_A-Za-z0-9]/g, "_");
         });
-        var header_html = header_items.map(function(item, index) {
-            return <th key={index} className={column_classes[index]}>{item}</th>;
+        var headerHtml = headerItems.map(function(item, index) {
+            return <th key={index} className={columnClasses[index]}>{item}</th>;
         });
-        var row_items = item.interpreted[1];  // Array of {header: value, ...} objects
-        var column_with_hyperlinks = [];
-        Object.keys(row_items[0]).forEach(function(x) {
-            if (row_items[0][x] && row_items[0][x]['path'])
-                column_with_hyperlinks.push(x);
+        var rowItems = item.interpreted[1];  // Array of {header: value, ...} objects
+        var columnWithHyperlinks = [];
+        Object.keys(rowItems[0]).forEach(function(x) {
+            if (rowItems[0][x] && rowItems[0][x]['path'])
+                columnWithHyperlinks.push(x);
         });
-        var body_rows_html = row_items.map(function(row_item, row_index) {
-            var row_ref = 'row' + row_index;
-            var row_focused = self.props.focused && (row_index == self.props.subFocusIndex);
-            var url = '/bundles/' + bundle_info[row_index].uuid;
+        var bodyRowsHtml = rowItems.map(function(rowItem, rowIndex) {
+            var rowRef = 'row' + rowIndex;
+            var rowFocused = self.props.focused && (rowIndex == self.props.subFocusIndex);
+            var url = '/bundles/' + bundleInfo[rowIndex].uuid;
             return <TableRow
-                     key={row_index}
-                     ref={row_ref}
-                     item={row_item}
-                     rowIndex={row_index}
-                     focused={row_focused}
+                     key={rowIndex}
+                     ref={rowRef}
+                     item={rowItem}
+                     rowIndex={rowIndex}
+                     focused={rowFocused}
                      focusIndex={self.props.focusIndex}
                      url={url}
-                     bundleInfo={bundle_info[row_index]}
-                     uuid={bundle_info[row_index].uuid}
-                     headerItems={header_items}
-                     columnClasses={column_classes}
+                     bundleInfo={bundleInfo[rowIndex]}
+                     uuid={bundleInfo[rowIndex].uuid}
+                     headerItems={headerItems}
+                     columnClasses={columnClasses}
                      canEdit={canEdit}
                      updateRowIndex={self.updateRowIndex}
-                     columnWithHyperlinks={column_with_hyperlinks}
+                     columnWithHyperlinks={columnWithHyperlinks}
                      handleContextMenu={self.props.handleContextMenu}
                    />;
         });
@@ -89,11 +89,11 @@ var TableItem = React.createClass({
                     <table className={tableClassName}>
                         <thead>
                             <tr>
-                                {header_html}
+                                {headerHtml}
                             </tr>
                         </thead>
                         <tbody>
-                            {body_rows_html}
+                            {bodyRowsHtml}
                         </tbody>
                     </table>
                 </div>
@@ -115,43 +115,43 @@ var TableRow = React.createClass({
 
     render: function() {
         var focusedClass = this.props.focused ? 'focused' : '';
-        var row_items = this.props.item;
-        var column_classes = this.props.columnClasses;
-        var base_url = this.props.url;
+        var rowItems = this.props.item;
+        var columnClasses = this.props.columnClasses;
+        var baseUrl = this.props.url;
         var uuid = this.props.uuid;
-        var column_with_hyperlinks = this.props.columnWithHyperlinks;
-        var row_cells = this.props.headerItems.map(function(header_key, col) {
-            var row_content = row_items[header_key];
+        var columnWithHyperlinks = this.props.columnWithHyperlinks;
+        var rowCells = this.props.headerItems.map(function (headerKey, col) {
+            var rowContent = rowItems[headerKey];
 
             // See if there's a link
             var url;
             if (col == 0) {
-              url = base_url;
-            } else if (column_with_hyperlinks.indexOf(header_key) != -1) {
-              url = '/rest/bundles/' + uuid + '/contents/blob' + row_content['path'];
-              if ('text' in row_content) {
-                row_content = row_content['text'];
+              url = baseUrl;
+            } else if (columnWithHyperlinks.indexOf(headerKey) != -1) {
+              url = '/rest/bundles/' + uuid + '/contents/blob' + rowContent['path'];
+              if ('text' in rowContent) {
+                rowContent = rowContent['text'];
               } else {
                 // In case text doesn't exist, content will default to basename of the path
                 // indexing 1 here since the path always starts with '/'
-                row_content = row_content['path'].split('/')[1];
+                rowContent = rowContent['path'].split('/')[1];
               }
             }
             if (url)
-              row_content = <a href={url} className="bundle-link" target="_blank">{row_content}</a>;
+              rowContent = <a href={url} className="bundle-link" target="_blank">{rowContent}</a>;
             else
-              row_content = row_content + '';
+              rowContent = rowContent + '';
 
             return (
-              <td key={col} className={column_classes[col]}>
-                {row_content}
+              <td key={col} className={columnClasses[col]}>
+                {rowContent}
               </td>
             );
         });
 
         return (
             <tr className={focusedClass} onClick={this.handleClick} onContextMenu={this.props.handleContextMenu.bind(null, this.props.bundleInfo.uuid, this.props.focusIndex, this.props.rowIndex, this.props.bundleInfo.bundle_type === 'run')}>
-                {row_cells}
+                {rowCells}
             </tr>
         );
     }

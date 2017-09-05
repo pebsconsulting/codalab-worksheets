@@ -22,7 +22,7 @@ let WorksheetSidePanel = React.createClass({
 
     componentWillMount: function() {
         this.debouncedRefreshBundleSidePanel = _.debounce(this.refreshBundleSidePanel, 200).bind(this);
-        this.debouncedRefreshWorksheetSidePanel = _.debounce(this.refreshWorksheetSidePanel, 200).bind(this);
+        this.debouncedRefreshWorksheetSidePanel = _.debounce(this.reloadWorksheetSidePanel, 200).bind(this);
     },
 
     refreshBundleSidePanel: function() {
@@ -31,9 +31,9 @@ let WorksheetSidePanel = React.createClass({
       }
     },
 
-    refreshWorksheetSidePanel: function() {
+    reloadWorksheetSidePanel: function() {
       if (this.refs.hasOwnProperty('worksheet_info_side_panel')) {
-          this.refs.worksheet_info_side_panel.refreshWorksheet();
+          this.refs.worksheet_info_side_panel.reloadWorksheet();
       }
     },
 
@@ -110,7 +110,7 @@ let WorksheetSidePanel = React.createClass({
     render: function() {
         var bundle_uploader = <BundleUploader
           ws={this.props.ws}
-          refreshWorksheet={this.props.bundleMetadataChanged}
+          reloadWorksheet={this.props.bundleMetadataChanged}
         />;
 
         var run_bundle_builder = <RunBundleBuilder
@@ -175,20 +175,21 @@ var WorksheetDetailSidePanel = React.createClass({
         return { };
     },
 
-    refreshWorksheet: function() {
-        var ws = this.props.worksheet_info;
-        var onSuccess = function(data, status, jqXHR) {
-            this.setState(data);
-        }.bind(this);
-        var onError = function(jqXHR, status, error) {
-            console.error(jqXHR.responseText);
-        }.bind(this);
-        $.ajax({
-            type: 'GET',
-            url: '/rest/interpret/worksheet/' + ws.uuid,
-            success: onSuccess,
-            error: onError,
-        });
+    reloadWorksheet: function () {
+      var ws = this.props.worksheet_info;
+      var onSuccess = function(result, status, xhr) {
+        this.setState(result);
+      }.bind(this);
+      var onError = function(xhr, status, error) {
+        console.error(xhr.responseText);
+      }.bind(this);
+      $.ajax({
+          type: 'GET',
+          //url: '/rest/interpret/worksheet/' + ws.uuid,
+          url: '/rest/worksheet/' + ws.uuid,
+          success: onSuccess,
+          error: onError,
+      });
     },
 
     render: function() {

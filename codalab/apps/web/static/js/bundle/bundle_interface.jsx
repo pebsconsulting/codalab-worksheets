@@ -311,7 +311,7 @@ function renderContents(bundleInfo, fileContents, stdout, stderr) {
 
   var stderrHtml = '';
   if (stderr) {
-    var stderr_url = '/rest/bundles/' + bundleInfo.uuid + '/contents/blob/stderr';
+    var stderrUrl = '/rest/bundles/' + bundleInfo.uuid + '/contents/blob/stderr';
     stderrHtml = (<div>
       <span><a href={stderrUrl} target="_blank">stderr</a></span>
       &nbsp;

@@ -1,4 +1,3 @@
-
 /*
 Displays the list of items on the worksheet page.
 A worksheet item is an interpreted items (either a contiguous block of markup
@@ -70,7 +69,7 @@ var WorksheetItemList = React.createClass({
       } else if (type === ContextMenuEnum.command.DETACH_BUNDLE) {
         var uuidToIndex = this.bundleUuidToIndex();
         if (uuidToIndex[uuid].length > 1) {
-          // if a bundle appears more than once in the current worksheet
+          // if a bundle appears more than once in the current worksheet, take the last one
           for (var i = uuidToIndex[uuid].length - 1; i >= 0; i--) {
             var indices = uuidToIndex[uuid][i];
             if (indices[0] === focusIndex && indices[1] === subFocusIndex)
@@ -99,7 +98,7 @@ var WorksheetItemList = React.createClass({
         if (info && info.items.length > 0) {
             var worksheet_items = [];
             info.items.forEach(function(item, index) {
-                var focused = (index == this.props.focusIndex);
+                var focused = (index === this.props.focusIndex);
                 var props = {
                   item: item,
                   version: this.props.version,
@@ -138,7 +137,7 @@ var addWorksheetItems = function(props, worksheet_items) {
     var item = props.item;
 
     // Unpack search item into a table.
-    if (item.mode == 'search') {
+    if (item.mode === 'search') {
       var subitem = item.interpreted.items[0];
       if (!subitem) {
         subitem = {'interpreted': '(no results)', 'mode': 'markup'};

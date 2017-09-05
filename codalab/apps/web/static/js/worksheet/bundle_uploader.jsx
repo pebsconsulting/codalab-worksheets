@@ -97,7 +97,7 @@ var BundleUploader = React.createClass({
              },
              success: function (data, status, jqXHR) {
                self.clearUploading(fileEntryKey);
-               self.props.refreshWorksheet();
+               self.props.reloadWorksheet();
              },
              error: function (jqHXR, status, error) {
                self.clearUploading(fileEntryKey);
