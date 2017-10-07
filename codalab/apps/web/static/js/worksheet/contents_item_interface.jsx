@@ -16,6 +16,11 @@ var ContentsItem = React.createClass({
 
     render: function() {
         var className = 'type-contents' + (this.props.focused ? ' focused' : '');
+        if (!this.props.item.interpreted) {
+            return (
+              <div></div>
+            );
+        }
         var contents = this.props.item.interpreted.join('');
         var bundleInfo = this.props.item.bundle_info;
         return(
