@@ -108,10 +108,13 @@ let WorksheetSidePanel = React.createClass({
     },
 
     render: function() {
-        var bundle_uploader = <BundleUploader
-          ws={this.props.ws}
-          reloadWorksheet={this.props.bundleMetadataChanged}
-        />;
+        var bundle_uploader = null;
+        if (this.props.userInfo) {
+          bundle_uploader = <BundleUploader
+            ws={this.props.ws}
+            reloadWorksheet={this.props.bundleMetadataChanged}
+          />;
+        }
 
         var run_bundle_builder = <RunBundleBuilder
           ws={this.props.ws}
