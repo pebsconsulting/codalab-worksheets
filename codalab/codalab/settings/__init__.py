@@ -54,6 +54,9 @@ class Base(Settings):
     # If you set this to False, Django will not use timezone-aware datetimes.
     USE_TZ = True
 
+    # Where to find the config file templates (for nginx, not django)
+    CONFIG_GEN_TEMPLATES_DIR=os.path.join(os.path.dirname(PROJECT_DIR),'templates')
+
     # Absolute filesystem path to the directory that will hold user-uploaded files.
     # Example: "/var/www/example.com/media/"
     MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
