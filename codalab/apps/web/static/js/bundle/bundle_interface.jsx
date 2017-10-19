@@ -95,19 +95,21 @@ let Bundle = React.createClass({
       } else if (info.type === 'directory') {
         // Get stdout/stderr (important to set things to null).
         var fetchRequests = [];
+        var stateUpdate = {
+          fileContents: null
+        };
         ['stdout', 'stderr'].forEach(function (name) {
           if (info.contents.some((entry) => entry.name === name)) {
             fetchRequests.push(this.fetchFileSummary(this.props.uuid, '/' + name).then(function (blob) {
-              var stateUpdate = {};
               stateUpdate[name] = blob;
-              this.setState(stateUpdate);
             }));
           } else {
-            var stateUpdate = {};
             stateUpdate[name] = null;
-            this.setState(stateUpdate);
           }
         }.bind(this));
+        $.when.apply($, fetchRequests).then(() => {
+          this.setState(stateUpdate);
+        });
         return $.when(fetchRequests);
       }
     }).fail(function (xhr, status, err) {
