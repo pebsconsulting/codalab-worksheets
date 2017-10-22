@@ -2,6 +2,26 @@ var SAMPLE_WORKSHEET_TEXT = '-worksheetname';
 var NAME_REGEX = /^[a-zA-Z_][a-zA-Z0-9_\.\-]*$/i;
 
 var NewWorksheet = React.createClass({
+  propTypes: {
+    // should be one of 'DEFAULT', 'SIGN_IN_REDIRECT', or 'DISABLED'.
+    // 'DEFAULT': the user can access the new worksheet modal.
+    // 'SIGN_IN_REDIRECT': the user is redirected to the sign in page.
+    // 'DISABLED': the button is grayed out and cannot be clicked.
+    clickAction: React.PropTypes
+      .oneOf(['DEFAULT', 'SIGN_IN_REDIRECT', 'DISABLED'])
+      .isRequired,
+
+    // a worksheet object; bundles are run on this worksheet.
+    ws: React.PropTypes.object.isRequired,
+
+    // optional; a userInfo object; contains information about
+    // the logged in user
+    userInfo: React.PropTypes.object,
+
+    // a callback function that's used as a hack to
+    // support escape key functionality
+    escCount: React.PropTypes.number.isRequired
+  },
 
   getInitialState: function() {
     return {
@@ -83,12 +103,31 @@ var NewWorksheet = React.createClass({
       />
     );
 
-    var new_worksheet_button = (
+    /*** creating newWorksheetButton ***/
+    var typeProp, handleClickProp;
+    switch (this.props.clickAction) {
+      case 'DEFAULT':
+        handleClickProp = this.toggleNewWorksheet;
+        typeProp = 'primary';
+        break;
+      case 'SIGN_IN_REDIRECT':
+        handleClickProp = createHandleRedirectFn(this.props.ws.info ? this.props.ws.info.uuid : null);
+        typeProp = 'primary';
+        break;
+      case 'DISABLED':
+        handleClickProp = null;
+        typeProp = 'disabled';
+        break;
+      default:
+        break;
+    }
+
+    var newWorksheetButton = (
       <Button
         text='New Worksheet'
-        type='primary'
+        type={typeProp}
         width={120}
-        handleClick={this.toggleNewWorksheet}
+        handleClick={handleClickProp}
         flexibleSize={true}
       />
     );
@@ -106,7 +145,7 @@ var NewWorksheet = React.createClass({
             {create_button}
           </div>
         </div>
-        {new_worksheet_button}
+        {newWorksheetButton}
       </div>
       );
   }

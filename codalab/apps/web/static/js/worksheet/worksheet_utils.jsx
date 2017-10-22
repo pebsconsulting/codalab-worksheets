@@ -293,3 +293,12 @@ function getDefaultBundleMetadata(name) {
     ]
   };
 }
+
+function createHandleRedirectFn(worksheetUuid) {
+  return function (e) {
+    e.stopPropagation();
+    e.preventDefault();
+
+    window.location.href = "/account/login?next=" + encodeURIComponent("/worksheets/" + worksheetUuid);
+  }
+}

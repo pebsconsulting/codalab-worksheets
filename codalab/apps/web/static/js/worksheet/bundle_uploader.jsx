@@ -1,6 +1,24 @@
 const PROGRESS_BAR_ID = "progressbar-";
 const PROGRESS_LABEL_ID = "progressbar-label-";
+
 var BundleUploader = React.createClass({
+  propTypes: {
+    // should be one of 'DEFAULT', 'SIGN_IN_REDIRECT', or 'DISABLED'.
+    // 'DEFAULT': the user can upload a file when clicking on the
+    //   upload button.
+    // 'SIGN_IN_REDIRECT': the user is redirected to the sign in page.
+    // 'DISABLED': the button is grayed out and cannot be clicked.
+    clickAction: React.PropTypes
+      .oneOf(['DEFAULT', 'SIGN_IN_REDIRECT', 'DISABLED'])
+      .isRequired,
+
+    // a worksheet object; bundles are uploaded to this worksheet.
+    ws: React.PropTypes.object.isRequired,
+
+    // a callback function that's called after a bundle is uploaded
+    // to show the newly loaded worksheet
+    reloadWorksheet: React.PropTypes.func.isRequired,
+  },
   getInitialState: function() {
     // Maintain a table of the currently uploading bundles.
     // The `uploading` table maps from arbitrary string keys to Web API File objects.
@@ -120,17 +138,36 @@ var BundleUploader = React.createClass({
     $(this.refs.fileDialog.getDOMNode()).trigger('click');
   },
   render: function () {
+    var typeProp, handleClickProp;
+    switch (this.props.clickAction) {
+      case 'DEFAULT':
+        handleClickProp = this.openFileDialog;
+        typeProp = 'primary';
+        break;
+      case 'SIGN_IN_REDIRECT':
+        handleClickProp = createHandleRedirectFn(this.props.ws.info ? this.props.ws.info.uuid : null);
+        typeProp = 'primary';
+        break;
+      case 'DISABLED':
+        handleClickProp = null;
+        typeProp = 'disabled';
+        break;
+      default:
+        break;
+    }
+
     var uploadButton = (
       <Button
         text='Upload'
-        type='primary'
-        handleClick={this.openFileDialog}
+        type={typeProp}
+        handleClick={handleClickProp}
         className="active"
         id="upload-bundle-button"
         ref="button"
         flexibleSize={true}
       />
     );
+
     return (
       <div className='inline-block'>
         {uploadButton}

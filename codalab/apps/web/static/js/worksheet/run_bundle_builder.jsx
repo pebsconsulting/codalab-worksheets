@@ -1,4 +1,20 @@
 var RunBundleBuilder = React.createClass({
+  propTypes: {
+    // should be one of 'DEFAULT', 'SIGN_IN_REDIRECT', or 'DISABLED'.
+    // 'DEFAULT': the user can access the run bundle builder modal.
+    // 'SIGN_IN_REDIRECT': the user is redirected to the sign in page.
+    // 'DISABLED': the button is grayed out and cannot be clicked.
+    clickAction: React.PropTypes
+      .oneOf(['DEFAULT', 'SIGN_IN_REDIRECT', 'DISABLED'])
+      .isRequired,
+
+    // a worksheet object; bundles are run on this worksheet.
+    ws: React.PropTypes.object.isRequired,
+
+    // a callback function that's used as a hack to
+    // support escape key functionality
+    escCount: React.PropTypes.number.isRequired,
+  },
 
   getInitialState: function() {
     return {
@@ -147,11 +163,30 @@ var RunBundleBuilder = React.createClass({
       />
     );
 
-    var run_bundle_button = (
+    /*** creating runBundleButton ***/
+    var typeProp, handleClickProp;
+    switch (this.props.clickAction) {
+      case 'DEFAULT':
+        handleClickProp = this.toggleBuilder;
+        typeProp = 'primary';
+        break;
+      case 'SIGN_IN_REDIRECT':
+        handleClickProp = createHandleRedirectFn(this.props.ws.info ? this.props.ws.info.uuid : null);
+        typeProp = 'primary';
+        break;
+      case 'DISABLED':
+        handleClickProp = null;
+        typeProp = 'disabled';
+        break;
+      default:
+        break;
+    }
+
+    var runBundleButton = (
       <Button
         text='New Run'
-        type='primary'
-        handleClick={this.toggleBuilder}
+        type={typeProp}
+        handleClick={handleClickProp}
         flexibleSize={true}
       />
     );
@@ -181,7 +216,7 @@ var RunBundleBuilder = React.createClass({
             {run_button}
           </div>
         </div>
-        {run_bundle_button}
+        {runBundleButton}
       </div>
       );
   }
