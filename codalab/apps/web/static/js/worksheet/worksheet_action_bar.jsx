@@ -1,5 +1,5 @@
 const ACTIONBAR_MINIMIZE_HEIGHT = 30;
-const ACTIONBAR_DRAGHEIGHT = 350;
+let ACTIONBAR_DRAGHEIGHT = 350;
 
 var WorksheetActionBar = React.createClass({
   focustype: 'worksheet', // keep track of what the user has focused on worksheet item
