@@ -66,6 +66,31 @@ var ContextMenu = React.createClass({
   },
 
   render: function(){
+    var bundleMap, runBundleMap;
+
+    if (!this.props.userInfo) {
+      bundleMap = {};
+      runBundleMap = {};
+    } else if (this.props.userInfo &&
+        ((this.props.ws.info && !this.props.ws.info.edit_permission) ||
+         !this.props.ws.info)) {
+      bundleMap = {
+        'Add to my home worksheet': [ContextMenuEnum.command.ADD_BUNDLE_TO_HOMEWORKSHEET, ['add', 'bundle']]
+      };
+      runBundleMap = bundleMap;
+    } else {
+      bundleMap = {
+        'Remove bundle permanently': [ContextMenuEnum.command.REMOVE_BUNDLE, ['rm']],
+        'Detach from this worksheet': [ContextMenuEnum.command.DETACH_BUNDLE, ['detach']],
+        'Add to my home worksheet': [ContextMenuEnum.command.ADD_BUNDLE_TO_HOMEWORKSHEET, ['add', 'bundle']]
+      };
+      runBundleMap = _.extend({}, bundleMap, {'Kill this run bundle': [ContextMenuEnum.command.KILL_BUNDLE, ['kill']]});
+    }
+
+    let labelMap = {}
+    labelMap[ContextMenuEnum.type.RUN] = runBundleMap;
+    labelMap[ContextMenuEnum.type.BUNDLE] = bundleMap;
+
     if (!this.state.type) {
       return null;
     }
