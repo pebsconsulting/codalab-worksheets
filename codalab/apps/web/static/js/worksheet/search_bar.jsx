@@ -51,11 +51,11 @@ function updateCurrentQuery(query) {
   };
 };
 
-function receiveQueryResults(response) {
+function receiveQueryResults(query, results) {
   // TODO parse response
-  let results;
   return {
     type: RECEIVE_QUERY_RESULTS,
+    query,
     results
   };
 }
@@ -65,12 +65,14 @@ function searchQuery(query) {
   return (dispatch) => {
     dispatch(updateCurrentQuery(query));
 
-    return fetch(`/rest/worksheets/${query}`, {
+    return fetch(`/rest/worksheets?keywords=${query}`, {
       credentials: 'same-origin'
-    }) // TODO use the right endpoint
-      .then(response => {
-        console.log("searchQuery response:", response);
-        receiveQueryResults(response);
+    }).then(
+        (response) => response.json(),
+        (error) => console.log("error: ", error)
+      )
+      .then(json => {
+        dispatch(receiveQueryResults(query, json));
       });
   }
 }
@@ -88,19 +90,31 @@ const search = (state = initialState, action) => {
         state,
         {
           queries: {
-            [state.query]: {
+            [action.query]: {
               $set: {
                 isFetching: true,
               }
             }
           },
           currentQuery: {
-            $set: state.query
+            $set: action.query
           }
         }
       );
     case RECEIVE_QUERY_RESULTS:
-      return state; // TODO
+      return update(
+        state,
+        {
+          queries: {
+            [action.query]: {
+              $set: {
+                isFetching: false,
+                results: action.results
+              }
+            }
+          }
+        }
+      );
     default:
       return state;
   }
@@ -116,6 +130,8 @@ class SearchBarContainer extends React.Component {
       <span>
         <SearchBarPresentation
           onInputChange={this.props.onInputChange}
+          options={this.props.options}
+          isLoading={this.props.isLoading}
         />
       </span>
     );
@@ -123,15 +139,39 @@ class SearchBarContainer extends React.Component {
 }
 
 SearchBarContainer.propTypes = {
-  onInputChange: PropTypes.func
+  onInputChange: PropTypes.func,
+  options: PropTypes.arrayOf(
+    PropTypes.shape({
+      value: PropTypes.string,
+      label: PropTypes.string
+    })
+  ),
 };
 
 const mapStateToProps = (state) => {
-  let options = state.search.queries[state.search.currentQuery];
-  options = options ? options : [];
+  let options, isLoading;
+  if (state.search.currentQuery !== "") {
+    let query = state.search.queries[state.search.currentQuery];
+    if (query.isFetching) {
+      isLoading = true;
+      options = [];
+    } else {
+      isLoading = false;
+      options = query.results.data.map((item) => {
+        return {
+          value: item.attributes.uuid,
+          label: item.attributes.name
+        };
+      });
+    }
+  } else {
+    options = [];
+    isLoading = false;
+  }
 
   return {
-    options: options
+    options: options,
+    isLoading: isLoading
   };
 };
 
@@ -150,13 +190,8 @@ const SearchBar = connect(
 
 class SearchBarPresentation extends React.Component {
   render() {
-    const options = [
-      { value: 'one', label: '' },
-      { value: 'two', label: 'Two' }
-    ];
-
     const onValueSelected = (selected) => {
-      searchQuery(selected.value);
+      window.location.href = `/worksheets/${selected.value}`
     };
 
     const onInputChange = (inputValue) => {
@@ -178,9 +213,11 @@ class SearchBarPresentation extends React.Component {
     return (
       <Select
         name="Search"
-        options={options}
+        options={this.props.options}
         onChange={onValueSelected}
         onInputChange={onInputChange}
+        onBlurResetsInput={false}
+        isLoading={this.props.isLoading}
       />
     );
   }
@@ -193,7 +230,8 @@ SearchBarPresentation.propTypes = {
       label: PropTypes.string
     })
   ),
-  onInputChange: PropTypes.func
+  onInputChange: PropTypes.func.isRequired,
+  isLoading: PropTypes.bool.isRequired,
 };
 
 let store = createStore(
