@@ -49,6 +49,7 @@
 </head>
 
 <body {% block custom_body_attributes %}{% endblock %}>
+      <!--
     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
         <div class="container-fluid">
             <div class="navbar-header">
@@ -64,9 +65,6 @@
             </div>
             {% block top_bar_right_menus %}
                 <div class="collapse navbar-collapse" id="navbar_collapse">
-                    <span id="cl-search-bar">
-                    <!-- search bar binds here -->
-                    </span>
                     {% if BETA %}
                         <form action="/search" method="get" class="navbar-form navbar-left" role="search">
                             <div class="form-group">
@@ -105,6 +103,7 @@
             {% endblock top_bar_right_menus %}
         </div>
     </nav>
+        -->
 
     {% block nosubheader %}
         {% block subheader %}

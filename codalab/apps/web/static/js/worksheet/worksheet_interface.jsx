@@ -712,6 +712,8 @@ var Worksheet = React.createClass({
 
         return (
             <div id="worksheet" className={searchClassName}>
+                <span id="cl-search-bar">
+                </span>
                 {action_bar_display}
                 {chat_box_display}
                 {chat_portal}
