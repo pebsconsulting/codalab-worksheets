@@ -138,7 +138,7 @@ let WorksheetSidePanel = React.createClass({
         />;
 
         var new_worksheet = <NewWorksheet
-          clickAction={clickAction}
+          clickAction={clickAction == 'DISABLED' ? 'DEFAULT' : clickAction}
           escCount={this.props.escCount}
           userInfo={this.props.userInfo}
           ws={this.props.ws}
