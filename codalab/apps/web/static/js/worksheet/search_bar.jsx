@@ -29,10 +29,10 @@ import styled from 'styled-components';
  *   }
  * }
  *
- * MVP Behavior:
+ * MVP II Behavior:
  * User clicks on search bar. This search bar is only for worksheets.
  *   Before they have typed they should see no results.
- * Each letter typed sends off a query. The first five results of the
+ * Each letter typed sends off a query. All results of the
  *   query are shown in the dropdown.
  * Selecting one of the results takes the user to the appropriate page.
  *
@@ -124,6 +124,8 @@ const clApp = combineReducers({
   search
 });
 
+// TODO remove this class, wire directly
+// into presentation class
 class SearchBarContainer extends React.Component {
   render() {
     return (
