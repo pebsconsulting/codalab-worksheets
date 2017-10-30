@@ -2,6 +2,7 @@ var path = require('path');
 var webpack = require('webpack');
 
 module.exports = {
+  devtool: 'source-map',
   entry: './static/js/worksheet/search_bar.jsx',
   output: {
     path: path.resolve(__dirname, 'static/dist'),

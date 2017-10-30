@@ -37,7 +37,7 @@ var ContextMenu = React.createClass({
       'Add to my home worksheet': [ContextMenuEnum.command.ADD_BUNDLE_TO_HOMEWORKSHEET, ['add', 'bundle']]
     };
     var runBundleMap = _.extend({}, bundleMap, {'Kill this run bundle': [ContextMenuEnum.command.KILL_BUNDLE, ['kill']]});
-    labelMap = {}
+    var labelMap = {}
     labelMap[ContextMenuEnum.type.RUN] = runBundleMap;
     labelMap[ContextMenuEnum.type.BUNDLE] = bundleMap;
 
