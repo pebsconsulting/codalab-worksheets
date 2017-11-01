@@ -121,7 +121,7 @@ let WorksheetSidePanel = React.createClass({
         var clickAction = 'DEFAULT';
         if (!this.props.userInfo) {
           clickAction = 'SIGN_IN_REDIRECT';
-        } else if (!this.props.ws.info.edit_permission) {
+        } else if (this.props.ws.info && !this.props.ws.info.edit_permission) {
           clickAction = 'DISABLED';
         }
 
