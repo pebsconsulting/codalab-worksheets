@@ -690,7 +690,10 @@ var Worksheet = React.createClass({
             );
 
         var context_menu_display = (
-            <ContextMenu />
+            <ContextMenu 
+              userInfo={this.state.userInfo}
+              ws={this.state.ws}
+            />
         );
 
         var worksheet_side_panel = (
