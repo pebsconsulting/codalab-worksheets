@@ -31,8 +31,8 @@ import styled from 'styled-components';
  *
  * MVP II Behavior:
  * User clicks on search bar. This search bar is only for worksheets.
- *   Before they have typed they should some suggestions:
- * Each letter typed sends off a query for all queries longer than 1 character.All results of the
+ *   Before they have typed they should see no results.
+ * Each letter typed sends off a query. All results of the
  *   query are shown in the dropdown.
  * Selecting one of the results takes the user to the appropriate page.
  *
@@ -205,10 +205,15 @@ class SearchBarPresentation extends React.Component {
     // TODO this isn working...
     // from: https://github.com/JedWatson/react-select/issues/1679
     const ClSearchSelect = styled(Select)`
-      z-index: 999;
+      &.Select {
+        .Select-control {
+          display: inline;
+          width: 50%;
+        }
+      }
     `;
     return (
-      <ClSearchSelect
+      <Select
         name="Search"
         options={this.props.options}
         onChange={onValueSelected}

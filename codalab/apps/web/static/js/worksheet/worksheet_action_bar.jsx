@@ -209,13 +209,10 @@ var WorksheetActionBar = React.createClass({
     });
   },
   render: function () {
-    var commandLineStyle = {
-      zIndex: "500"
-    };
     return (
-      <div id="ws_search" style={commandLineStyle}>
+      <div id="ws_search">
         <div className="">
-          <div id="command_line" style={commandLineStyle}></div>
+          <div id="command_line"></div>
         </div>
         <div id="dragbar_horizontal" className="dragbar"></div>
       </div>
