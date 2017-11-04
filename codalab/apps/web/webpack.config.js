@@ -3,10 +3,10 @@ var webpack = require('webpack');
 
 module.exports = {
   devtool: 'source-map',
-  entry: './static/js/worksheet/search_bar.jsx',
+  entry: './static/js/worksheet/new_main.jsx',
   output: {
     path: path.resolve(__dirname, 'static/dist'),
-    filename: 'search_bar.js'
+    filename: 'new_main.js'
   },
   module: {
     loaders: [
