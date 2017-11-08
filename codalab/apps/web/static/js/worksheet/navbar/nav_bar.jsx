@@ -25,14 +25,18 @@ class NavBar extends React.Component {
           <img src="/static/img/icon_mini_avatar.png" className="mini-avatar" style={{
             borderRadius: "50%",
             border: "1px solid #ccc",
-            margin: "3px",
+            margin: "9px",
           }}/>
           <OnTopDropdown text={this.props.loggedInUser.user.data.attributes.user_name}>
             <Dropdown.Menu>
               <Dropdown.Item>
-                <a href="/af">Save</a>
+                <a href="/account/profile">My Account</a>
               </Dropdown.Item>
-              <Dropdown.Item text='Open...' description='ctrl + o' />
+              <Dropdown.Item>
+                <a href="/rest/account/logout">Logout</a> {
+                  //TODO add redirect uri
+                }
+              </Dropdown.Item>
             </Dropdown.Menu>
           </OnTopDropdown>
         </div>
@@ -79,12 +83,12 @@ class NavBar extends React.Component {
             //
           }
           <div>
-            <a>
+            <a href="/rest/worksheets/?name=dashboard">
               Dashboard
             </a>
           </div>
           <div>
-            <a>
+            <a href="https://github.com/codalab/codalab-worksheets/wiki" target="_blank">
               Help
             </a>
           </div>

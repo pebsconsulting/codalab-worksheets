@@ -210,7 +210,7 @@ var WorksheetActionBar = React.createClass({
   },
   render: function () {
     return (
-      <div id="ws_search">
+      <div id="ws_search" style={{zIndex: 100}}>
         <div className="">
           <div id="command_line"></div>
         </div>

@@ -3,6 +3,10 @@ import Select from 'react-select';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
+const ClSearchSelect = styled(Select)`
+  z-index: 1000;
+`;
+
 class SearchBarPresentation extends React.Component {
   render() {
     const onValueSelected = (selected) => {
@@ -17,16 +21,8 @@ class SearchBarPresentation extends React.Component {
 
     // TODO this isn working...
     // from: https://github.com/JedWatson/react-select/issues/1679
-    const ClSearchSelect = styled(Select)`
-      &.Select {
-        .Select-control {
-          display: inline;
-          width: 50%;
-        }
-      }
-    `;
     return (
-      <Select
+      <ClSearchSelect
         name="Search"
         options={this.props.options}
         onChange={onValueSelected}
