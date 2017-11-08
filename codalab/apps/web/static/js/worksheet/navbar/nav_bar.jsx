@@ -3,11 +3,47 @@ import PropTypes from 'prop-types';
 import { SearchBar } from '../search/search_bar.jsx';
 import { Dropdown } from 'semantic-ui-react';
 import "semantic-ui-less/semantic.less";
+import { fetchLoggedInUser } from './actions.jsx';
+import { connect } from 'react-redux';
+import styled from 'styled-components';
 // TODO individually package CSS bundles
 // https://medium.com/webmonkeys/webpack-2-semantic-ui-theming-a216ddf60daf
 
 class NavBar extends React.Component {
+  componentDidMount() {
+    this.props.onLoad();
+  }
+
   render() {
+    let signInOrLoggedInUser = null;
+    if (this.props.loggedInUser.user) {
+      const OnTopDropdown = styled(Dropdown)`
+        z-index: 1000
+      `;
+      signInOrLoggedInUser = (
+        <div>
+          <img src="/static/img/icon_mini_avatar.png" className="mini-avatar" style={{
+            borderRadius: "50%",
+            border: "1px solid #ccc",
+            margin: "3px",
+          }}/>
+          <OnTopDropdown text={this.props.loggedInUser.user.data.attributes.user_name}>
+            <Dropdown.Menu>
+              <Dropdown.Item>
+                <a href="/af">Save</a>
+              </Dropdown.Item>
+              <Dropdown.Item text='Open...' description='ctrl + o' />
+            </Dropdown.Menu>
+          </OnTopDropdown>
+        </div>
+      );
+    } else {
+      signInOrLoggedInUser = (
+        <div>
+          Sign in
+        </div>
+      );
+    }
     return (
       <div style={{
         height: '50px',
@@ -32,7 +68,9 @@ class NavBar extends React.Component {
           width:'400px',
           display: 'flex',
           flexDirection: 'row',
-          alignItems: 'center'}} >
+          alignItems: 'center',
+          justifyContent: 'space-evenly',
+        }} >
           {
             // Show Dashboard link and either:
             // (sign in, sign up)
@@ -41,27 +79,17 @@ class NavBar extends React.Component {
             //
           }
           <div>
-            Max Wang
+            <a>
+              Dashboard
+            </a>
           </div>
           <div>
-            Home
+            <a>
+              Help
+            </a>
           </div>
           <div>
-						<Dropdown text='File'>
-							<Dropdown.Menu>
-								<Dropdown.Item text='New' />
-								<Dropdown.Item text='Open...' description='ctrl + o' />
-								<Dropdown.Item text='Save as...' description='ctrl + s' />
-								<Dropdown.Item text='Rename' description='ctrl + r' />
-								<Dropdown.Item text='Make a copy' />
-								<Dropdown.Item icon='folder' text='Move to folder' />
-								<Dropdown.Item icon='trash' text='Move to trash' />
-								<Dropdown.Divider />
-								<Dropdown.Item text='Download As...' />
-								<Dropdown.Item text='Publish To Web' />
-								<Dropdown.Item text='E-mail Collaborators' />
-							</Dropdown.Menu>
-						</Dropdown>
+            {signInOrLoggedInUser}
           </div>
         </div>
       </div>
@@ -71,6 +99,26 @@ class NavBar extends React.Component {
 
 NavBar.propTypes = {
   loggedInUser: PropTypes.object,
+  onLoad: PropTypes.func,
 };
 
-export { NavBar };
+const mapStateToProps = (state) => {
+  return {
+    loggedInUser: state.loggedInUser
+  };
+};
+
+const mapDispatchToProps = (dispatch, ownProps) => {
+  return {
+    onLoad: () => {
+      dispatch(fetchLoggedInUser());
+    }
+  };
+};
+
+const NavBarContainer = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(NavBar);
+
+export { NavBarContainer };

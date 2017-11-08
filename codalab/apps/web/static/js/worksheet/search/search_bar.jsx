@@ -23,6 +23,7 @@ const mapStateToProps = (state) => {
       options = [];
     } else {
       isLoading = false;
+      // TODO refactor, should really do this parsing in the reducers / action creators
       options = query.results.data.map((item) => {
         return {
           value: item.attributes.uuid,

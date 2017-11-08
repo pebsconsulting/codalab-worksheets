@@ -3,12 +3,13 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider, connect } from 'react-redux';
 import { SearchBar } from "./search/search_bar.jsx";
-import { NavBar } from './navbar/nav_bar.jsx';
+import { NavBarContainer } from './navbar/nav_bar.jsx';
 import { createStore, applyMiddleware } from 'redux';
 import thunkMiddleware from 'redux-thunk'
 import { createLogger } from 'redux-logger'
 import { combineReducers } from 'redux';
 import { search } from './search/reducers.jsx';
+import { loggedInUser } from './navbar/reducers.jsx';
 import "semantic-ui-less/semantic.less";
 
 /**
@@ -38,7 +39,8 @@ import "semantic-ui-less/semantic.less";
  */
 
 const clApp = combineReducers({
-  search
+  search,
+  loggedInUser,
 });
 
 let store = createStore(
@@ -51,7 +53,7 @@ let store = createStore(
 
 ReactDOM.render(
     <Provider store={store}>
-      <NavBar />
+      <NavBarContainer />
     </Provider>,
     document.getElementById('cl-search-bar'));
 
