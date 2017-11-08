@@ -4,21 +4,6 @@ import { searchQuery } from './actions.jsx';
 import { SearchBarPresentation } from './search_bar_presentation.jsx';
 
 /**
- * State shape:
- * {
- *   search: {
- *     queries: {
- *       "query1": {
- *         isFetching: false,
- *         results: ["worksheet name", "uuid", "owner username"]
- *       },
- *       "query2": {
- *         isFetching: true,
- *       }
- *     },
- *     currentQuery: "query2"
- *   }
- * }
  *
  * MVP II Behavior:
  * User clicks on search bar. This search bar is only for worksheets.
