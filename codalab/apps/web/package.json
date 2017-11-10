@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "bower": "bower install",
-    "build": "gulp jsx && gulp less",
+    "build": "gulp jsx && gulp less && node_modules/.bin/webpack",
     "clean": "gulp clean",
     "jsx": "gulp jsx",
     "less": "gulp less",
