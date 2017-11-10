@@ -10,8 +10,13 @@ const ClSearch = styled(Search)`
 class SearchBarPresentation extends React.Component {
   render() {
     const onResultSelect = (e, selected) => {
+      if (selected.result.type === 'worksheet') {
       window.location.href = 
         `/worksheets/${selected.result.id}`;
+      } else if (selected.result.type === 'bundle') {
+      window.location.href = 
+        `/bundles/${selected.result.id}`;
+      }
     };
 
     const onSearchChange = (e, { value }) => {
@@ -24,18 +29,22 @@ class SearchBarPresentation extends React.Component {
         loading={this.props.isLoading}
         onSearchChange={onSearchChange}
         onResultSelect={onResultSelect}
+        category={true}
       />
     );
   }
 }
 
 SearchBarPresentation.propTypes = {
-  results: PropTypes.arrayOf(
-    PropTypes.shape({
-      title: PropTypes.string,
-      id: PropTypes.string,
-    })
-  ),
+  results: PropTypes.oneOfType([
+    PropTypes.arrayOf(
+      PropTypes.shape({
+        title: PropTypes.string,
+        id: PropTypes.string,
+      })
+    ),
+    PropTypes.object,
+  ]),
   onInputChange: PropTypes.func.isRequired,
   isLoading: PropTypes.bool.isRequired,
 };

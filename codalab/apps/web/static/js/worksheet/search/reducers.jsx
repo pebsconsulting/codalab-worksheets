@@ -1,14 +1,22 @@
-import { 
+import {
   UPDATE_CURRENT_QUERY,
   SEARCH_QUERY,
   RECEIVE_QUERY_RESULTS,
+  SEARCH_USERS,
+  REQUEST_SEARCH_USERS,
+  RECEIVE_SEARCH_USERS,
   updateCurrentQuery,
   receiveQueryResults,
-  searchQuery } from './actions.jsx';
+  searchQuery,
+  searchUsers,
+  requestSearchUsers,
+  receiveSearchUsers,
+} from './actions.jsx';
 import update from 'immutability-helper';
 
 const initialState = {
   queries: {},
+  userQueries: {},
   currentQuery: ""
 };
 
@@ -44,6 +52,27 @@ const search = (state = initialState, action) => {
           }
         }
       );
+    case REQUEST_SEARCH_USERS:
+      return update(state, {
+        userQueries: {
+          [action.query]: {
+            $set: {
+              isFetching: true
+            }
+          }
+        }
+      });
+    case RECEIVE_SEARCH_USERS:
+      return update(state, {
+        userQueries: {
+          [action.query]: {
+            $set: {
+              isFetching: false,
+              results: action.results,
+            }
+          }
+        }
+      });
     default:
       return state;
   }

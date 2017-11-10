@@ -33,6 +33,7 @@ function convertInputToQueryString(input) {
   return keywordsQueryString;
 }
 
+// TODO add caching
 function searchQuery(query) {
   console.log(query);
   return (dispatch) => {
@@ -51,6 +52,7 @@ function searchQuery(query) {
   }
 }
 
+// TODO add caching
 function searchUsers(query) {
   return (dispatch) => {
     dispatch(requestSearchUsers(query));
@@ -61,14 +63,16 @@ function searchUsers(query) {
       (response) => response.json(),
       (error) => console.log("error: ", error)
     ).then(
-      json => dispatch(receiveSearchUsers(query, json))
+      json => {
+        dispatch(receiveSearchUsers(query, json));
+      }
     );
   };
 }
 
 function requestSearchUsers(query) {
   return {
-    type: RECEIVE_SEARCH_USERS,
+    type: REQUEST_SEARCH_USERS,
     query,
   };
 }
