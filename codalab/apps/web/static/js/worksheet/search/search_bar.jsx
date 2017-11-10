@@ -15,29 +15,29 @@ import { SearchBarPresentation } from './search_bar_presentation.jsx';
  */
 
 const mapStateToProps = (state) => {
-  let options, isLoading;
+  let results, isLoading;
   if (state.search.currentQuery !== "") {
     let query = state.search.queries[state.search.currentQuery];
     if (query.isFetching) {
       isLoading = true;
-      options = [];
+      results = [];
     } else {
       isLoading = false;
       // TODO refactor, should really do this parsing in the reducers / action creators
-      options = query.results.data.map((item) => {
+      results = query.results.data.map((item) => {
         return {
-          value: item.attributes.uuid,
-          label: item.attributes.name
+          id: item.attributes.uuid,
+          title: item.attributes.name
         };
       });
     }
   } else {
-    options = [];
+    results = [];
     isLoading = false;
   }
 
   return {
-    options: options,
+    results: results,
     isLoading: isLoading
   };
 };

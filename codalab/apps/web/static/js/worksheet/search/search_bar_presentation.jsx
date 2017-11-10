@@ -1,44 +1,39 @@
 import React from 'react';
-import Select from 'react-select';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { Search } from 'semantic-ui-react';
 
-const ClSearchSelect = styled(Select)`
-  z-index: 1000;
+const ClSearch = styled(Search)`
+  z-index:1000;
 `;
 
 class SearchBarPresentation extends React.Component {
   render() {
-    const onValueSelected = (selected) => {
-      window.location.href = `/worksheets/${selected.value}`
+    const onResultSelect = (e, selected) => {
+      window.location.href = 
+        `/worksheets/${selected.result.id}`;
     };
 
-    const onInputChange = (inputValue) => {
-      console.log(inputValue);
-      this.props.onInputChange(inputValue);
-      return inputValue;
+    const onSearchChange = (e, { value }) => {
+      this.props.onInputChange(value);
     };
 
-    // TODO this isn working...
-    // from: https://github.com/JedWatson/react-select/issues/1679
     return (
-      <ClSearchSelect
-        name="Search"
-        options={this.props.options}
-        onChange={onValueSelected}
-        onInputChange={onInputChange}
-        onBlurResetsInput={false}
-        isLoading={this.props.isLoading}
+      <ClSearch
+        results={this.props.results}
+        loading={this.props.isLoading}
+        onSearchChange={onSearchChange}
+        onResultSelect={onResultSelect}
       />
     );
   }
 }
 
 SearchBarPresentation.propTypes = {
-  options: PropTypes.arrayOf(
+  results: PropTypes.arrayOf(
     PropTypes.shape({
-      value: PropTypes.string,
-      label: PropTypes.string
+      title: PropTypes.string,
+      id: PropTypes.string,
     })
   ),
   onInputChange: PropTypes.func.isRequired,
