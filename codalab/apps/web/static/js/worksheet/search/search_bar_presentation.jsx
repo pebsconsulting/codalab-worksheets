@@ -29,7 +29,7 @@ class SearchBarPresentation extends React.Component {
         loading={this.props.isLoading}
         onSearchChange={onSearchChange}
         onResultSelect={onResultSelect}
-        category={true}
+        category={this.props.isCategories}
       />
     );
   }
@@ -45,6 +45,7 @@ SearchBarPresentation.propTypes = {
     ),
     PropTypes.object,
   ]),
+  isCategories: PropTypes.bool.isRequired,
   onInputChange: PropTypes.func.isRequired,
   isLoading: PropTypes.bool.isRequired,
 };

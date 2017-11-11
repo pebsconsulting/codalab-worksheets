@@ -6,8 +6,13 @@ import "semantic-ui-less/semantic.less";
 import { fetchLoggedInUser } from './actions.jsx';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
+import { userIsLoggedIn } from './utils.jsx';
 // TODO individually package CSS bundles
 // https://medium.com/webmonkeys/webpack-2-semantic-ui-theming-a216ddf60daf
+
+const OnTopDropdown = styled(Dropdown)`
+  z-index: 1000
+`;
 
 class NavBar extends React.Component {
   componentDidMount() {
@@ -15,12 +20,25 @@ class NavBar extends React.Component {
   }
 
   render() {
-    let signInOrLoggedInUser = null;
-    if (this.props.loggedInUser.user) {
-      const OnTopDropdown = styled(Dropdown)`
-        z-index: 1000
-      `;
-      signInOrLoggedInUser = (
+    // If the user is logged in, shows the account
+    // menu / dropdown. Otherwise, shows the 
+    // sign up and sign in buttons.
+    let authStuff = null;
+    // If the user is logged in, shows the
+    // search bar and dashboard. Otherwise hides
+    // both.
+    let searchBar, dashboard;
+
+    if (userIsLoggedIn(this.props)) {
+      searchBar = <SearchBar />;
+      dashboard = (
+        <div>
+          <a href="/rest/worksheets/?name=dashboard">
+            Dashboard
+          </a>
+        </div>
+      );
+      authStuff = (
         <div>
           <img src="/static/img/icon_mini_avatar.png" className="mini-avatar" style={{
             borderRadius: "50%",
@@ -33,21 +51,29 @@ class NavBar extends React.Component {
                 <a href="/account/profile">My Account</a>
               </Dropdown.Item>
               <Dropdown.Item>
-                <a href="/rest/account/logout">Logout</a> {
-                  //TODO add redirect uri
-                }
+                <a href={`/rest/account/logout?redirect_uri=${encodeURIComponent(window.location.pathname)}`}>Logout</a> 
               </Dropdown.Item>
             </Dropdown.Menu>
           </OnTopDropdown>
         </div>
       );
     } else {
-      signInOrLoggedInUser = (
-        <div>
-          Sign in
+      searchBar = null;
+      dashboard = null;
+      authStuff = [
+        <div key="signup">
+          <a href="/account/signup">
+            Sign Up
+          </a>
+        </div>,
+        <div key="signin">
+          <a href={`/account/login?next=${encodeURIComponent(window.location.pathname)}`}>
+            Sign In
+          </a>
         </div>
-      );
+      ];
     }
+
     return (
       <div style={{
         height: '50px',
@@ -65,7 +91,7 @@ class NavBar extends React.Component {
           <div style={{
             marginTop: '5px',
             width: '100%' }} >
-            <SearchBar />
+            { searchBar }
           </div>
         </div>
         <div style={{
@@ -75,26 +101,13 @@ class NavBar extends React.Component {
           alignItems: 'center',
           justifyContent: 'space-evenly',
         }} >
-          {
-            // Show Dashboard link and either:
-            // (sign in, sign up)
-            // (user account dropdown)
-            // To check if the user is logged in:
-            //
-          }
-          <div>
-            <a href="/rest/worksheets/?name=dashboard">
-              Dashboard
-            </a>
-          </div>
+          { dashboard }
           <div>
             <a href="https://github.com/codalab/codalab-worksheets/wiki" target="_blank">
               Help
             </a>
           </div>
-          <div>
-            {signInOrLoggedInUser}
-          </div>
+          { authStuff }
         </div>
       </div>
     );
