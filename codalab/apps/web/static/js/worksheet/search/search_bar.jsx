@@ -1,42 +1,57 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { searchQuery, searchUsers } from './actions.jsx';
+import {
+  fetchSearch,
+} from './actions.jsx';
 import { SearchBarPresentation } from './search_bar_presentation.jsx';
-
-/**
- *
- * MVP II Behavior:
- * User clicks on search bar. This search bar is only for worksheets.
- *   Before they have typed they should see no results.
- * Each letter typed sends off a query. All results of the
- *   query are shown in the dropdown.
- * Selecting one of the results takes the user to the appropriate page.
- *
- */
+import { PARAMS } from './constants.jsx';
+import { getCurrentSearchQuery, getCurrentSearchResults } from './utils.jsx';
+import converter from 'number-to-words';
 
 const mapStateToProps = (state) => {
-  let results, wsResults, bundleResults, isLoading;
-  if (state.search.currentQuery !== "") {
-    let wsQuery = state.search.queries[state.search.currentQuery];
-    let userQuery = state.search.userQueries[state.search.currentQuery];
-    if (wsQuery.isFetching || userQuery.isFetching) {
+  let results, wsResults, bundleResults, isLoading, isCategories;
+  if (getCurrentSearchQuery(state).length <= PARAMS['MIN_INPUT_LENGTH']) {
+    results = [{
+      title: `Type at least ${converter.toWords(PARAMS['MIN_INPUT_LENGTH'] + 1)} letters to search`
+    }];
+    isLoading = false;
+    isCategories = false;
+  } else if (getCurrentSearchQuery(state).length !== "") {
+    let worksheetResults, bundleResults;
+    ({ worksheetResults, bundleResults } = getCurrentSearchResults(state));
+
+    if (worksheetResults.isFetching || bundleResults.isFetching) {
       isLoading = true;
       wsResults = [];
+      isCategories = false;
     } else {
       isLoading = false;
-      // TODO refactor, should really do this parsing in the reducers / action creators
-      wsResults = wsQuery.results.data ? wsQuery.results.data.map((item) => {
+      wsResults = worksheetResults.results.data ? worksheetResults.results.data.map((item) => {
+        let description;
+        if (item.attributes.title) {
+          description = `Title: ${item.attributes.title}`;
+        } else {
+          description = '';
+        }
         return {
           id: item.attributes.uuid,
           title: item.attributes.name,
+          description,
           key: item.attributes.uuid,
           type: 'worksheet'
         };
       }) : [];
-      bundleResults = userQuery.results.data ? userQuery.results.data.map((item) => {
+      bundleResults = bundleResults.results.data ? bundleResults.results.data.map((item) => {
+        let description;
+        if (item.attributes.command) {
+          description = `command: ${item.attributes.command}`;
+        } else {
+          description = '';
+        }
         return {
           id: item.attributes.uuid,
           title: item.attributes.metadata.name,
+          description,
           key: item.attributes.uuid,
           type: 'bundle',
         };
@@ -56,23 +71,25 @@ const mapStateToProps = (state) => {
           results: bundleResults,
         }
       }
+      isCategories = true;
     }
   } else {
     results = [];
     isLoading = false;
+    isCategories = false;
   }
 
   return {
-    results: results,
-    isLoading: isLoading
+    results,
+    isLoading,
+    isCategories
   };
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     onInputChange: (inputValue) => {
-      dispatch(searchQuery(inputValue));
-      dispatch(searchUsers(inputValue));
+      dispatch(fetchSearch(inputValue));
     }
   };
 };

@@ -1,12 +1,9 @@
-import fetch from 'isomorphic-fetch'
+import fetch from 'isomorphic-fetch';
+import { PARAMS } from './constants.jsx';
 
 const UPDATE_CURRENT_QUERY = 'UPDATE_CURRENT_QUERY';
-const SEARCH_QUERY = 'SEARCH_QUERY';
-const RECEIVE_QUERY_RESULTS = 'RECEIVE_QUERY_RESULTS';
-const SEARCH_USERS = 'SEARCH_USERS';
-const REQUEST_SEARCH_USERS = 'REQUEST_SEARCH_USERS';
-const RECEIVE_SEARCH_USERS = 'RECEIVE_SEARCH_USERS';
-
+const RECEIVE_SEARCH_WORKSHEETS = 'RECEIVE_SEARCH_WORKSHEETS';
+const RECEIVE_SEARCH_BUNDLES = 'RECEIVE_SEARCH_BUNDLES';
 
 function updateCurrentQuery(query) {
   return {
@@ -15,15 +12,15 @@ function updateCurrentQuery(query) {
   };
 };
 
-function receiveQueryResults(query, results) {
+function receiveSearchWorksheets(query, results) {
   return {
-    type: RECEIVE_QUERY_RESULTS,
+    type: RECEIVE_SEARCH_WORKSHEETS,
     query,
     results
   };
 }
 
-function convertInputToQueryString(input) {
+function convertInputToKeywordQueryString(input) {
   let keywordsQuery;
   keywordsQuery = input.split();
   keywordsQuery.push(".limit=5");
@@ -33,53 +30,51 @@ function convertInputToQueryString(input) {
   return keywordsQueryString;
 }
 
-// TODO add caching
-function searchQuery(query) {
-  console.log(query);
+function fetchSearch(query) {
   return (dispatch) => {
     dispatch(updateCurrentQuery(query));
+    if (query.length <= PARAMS['MIN_INPUT_LENGTH']) return;
 
-    let url = `/rest/worksheets?${convertInputToQueryString(query)}`;
-    return fetch(url, {
-      credentials: 'same-origin'
-    }).then(
-        (response) => response.json(),
+    let keywordQueryString = convertInputToKeywordQueryString(query);
+
+    return [
+      fetch(`/rest/worksheets?${keywordQueryString}`, {
+        credentials: 'same-origin'
+      }).then(
+        (response) => {
+          if (response.status >= 400) {
+            throw new Error("Bad response from server");
+          }
+          return response.json();
+        },
         (error) => console.log("error: ", error)
-      )
-      .then(json => {
-        dispatch(receiveQueryResults(query, json));
-      });
-  }
-}
-
-// TODO add caching
-function searchUsers(query) {
-  return (dispatch) => {
-    dispatch(requestSearchUsers(query));
-
-    return fetch(`/rest/bundles?${convertInputToQueryString(query)}`, {
-      credentials: 'same-origin'
-    }).then(
-      (response) => response.json(),
-      (error) => console.log("error: ", error)
-    ).then(
-      json => {
-        dispatch(receiveSearchUsers(query, json));
-      }
-    );
+      ).then(
+        json => dispatch(receiveSearchWorksheets(query, json))
+      ).catch(
+        error => console.log(error)
+      ),
+      fetch(`/rest/bundles?${keywordQueryString}`, {
+        credentials: 'same-origin'
+      }).then(
+        (response) => {
+          if (response.status >= 400) {
+            throw new Error("Bad response from server");
+          }
+          return response.json();
+        },
+        (error) => console.log("error: ", error)
+      ).then(
+        json => dispatch(receiveSearchBundles(query, json))
+      ).catch(
+        error => console.log(error)
+      ),
+    ];
   };
 }
 
-function requestSearchUsers(query) {
+function receiveSearchBundles(query, results) {
   return {
-    type: REQUEST_SEARCH_USERS,
-    query,
-  };
-}
-
-function receiveSearchUsers(query, results) {
-  return {
-    type: RECEIVE_SEARCH_USERS,
+    type: RECEIVE_SEARCH_BUNDLES,
     query,
     results
   };
@@ -87,15 +82,7 @@ function receiveSearchUsers(query, results) {
 
 export {
   UPDATE_CURRENT_QUERY,
-  SEARCH_QUERY,
-  RECEIVE_QUERY_RESULTS,
-  SEARCH_USERS,
-  REQUEST_SEARCH_USERS,
-  RECEIVE_SEARCH_USERS,
-  updateCurrentQuery,
-  receiveQueryResults,
-  searchQuery,
-  searchUsers,
-  requestSearchUsers,
-  receiveSearchUsers,
+  RECEIVE_SEARCH_WORKSHEETS,
+  RECEIVE_SEARCH_BUNDLES,
+  fetchSearch,
 };

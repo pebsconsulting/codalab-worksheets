@@ -1,22 +1,42 @@
 import {
   UPDATE_CURRENT_QUERY,
-  SEARCH_QUERY,
-  RECEIVE_QUERY_RESULTS,
-  SEARCH_USERS,
-  REQUEST_SEARCH_USERS,
-  RECEIVE_SEARCH_USERS,
-  updateCurrentQuery,
-  receiveQueryResults,
-  searchQuery,
-  searchUsers,
-  requestSearchUsers,
-  receiveSearchUsers,
+  RECEIVE_SEARCH_WORKSHEETS,
+  RECEIVE_SEARCH_BUNDLES,
 } from './actions.jsx';
 import update from 'immutability-helper';
 
+/*
+State description:
+
+Note: the logger prints off the global state after every action.
+It's a good way of figuring out the right state to use.
+
+The search state stores the current query that has been typed
+into the search box and then the results of queries from every
+type of object (worksheets, bundles), with one key per object
+type (`worksheetQueries`, `bundleQueries`). See the
+`initialState` below.
+
+Each type has its own key-value store, where the key is the 
+input string, and the value is the JSON results returned by the API.
+For example:
+
+{
+  "a": { ...Results... },
+  "aa": { ...Results... },
+}
+
+All results for all object types have a standardized format
+which can be found in the REST API docs under the "Primary Data"
+and "Resource Object Schemas" section:
+
+http://codalab.org/codalab-cli/rest.html#bundles-api.
+
+*/
+
 const initialState = {
-  queries: {},
-  userQueries: {},
+  worksheetQueries: {},
+  bundleQueries: {},
   currentQuery: ""
 };
 
@@ -26,7 +46,14 @@ const search = (state = initialState, action) => {
       return update(
         state,
         {
-          queries: {
+          worksheetQueries: {
+            [action.query]: {
+              $set: {
+                isFetching: true,
+              }
+            }
+          },
+          bundleQueries: {
             [action.query]: {
               $set: {
                 isFetching: true,
@@ -38,11 +65,11 @@ const search = (state = initialState, action) => {
           }
         }
       );
-    case RECEIVE_QUERY_RESULTS:
+    case RECEIVE_SEARCH_WORKSHEETS:
       return update(
         state,
         {
-          queries: {
+          worksheetQueries: {
             [action.query]: {
               $set: {
                 isFetching: false,
@@ -52,19 +79,9 @@ const search = (state = initialState, action) => {
           }
         }
       );
-    case REQUEST_SEARCH_USERS:
+    case RECEIVE_SEARCH_BUNDLES:
       return update(state, {
-        userQueries: {
-          [action.query]: {
-            $set: {
-              isFetching: true
-            }
-          }
-        }
-      });
-    case RECEIVE_SEARCH_USERS:
-      return update(state, {
-        userQueries: {
+        bundleQueries: {
           [action.query]: {
             $set: {
               isFetching: false,
