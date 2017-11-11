@@ -11,10 +11,17 @@ function fetchLoggedInUser() {
     return fetch(`/rest/user`, {
       credentials: 'same-origin'
     }).then(
-      (response) => response.json(),
+      (response) => {
+        if (response.status >= 400) {
+					throw new Error("Bad response from server");
+        }
+        return response.json();
+      },
       (error) => console.log("error: ", error)
     ).then(json => {
       dispatch(receiveLoggedInUser(json));
+    }).catch(error => {
+      console.log(error);
     });
   };
   return {
