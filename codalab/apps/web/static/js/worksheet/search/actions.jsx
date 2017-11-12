@@ -22,7 +22,9 @@ function receiveSearchWorksheets(query, results) {
 
 function convertInputToKeywordQueryString(input) {
   let keywordsQuery;
-  keywordsQuery = input.split();
+  // remove leading / trailing whitespace, split
+  // by any whitespace
+  keywordsQuery = input.trim().split(/[ ]+/);
   keywordsQuery.push(".limit=5");
   let keywordsQueryString = keywordsQuery.reduce((accumulated, cur) => {
     return accumulated + `keywords=${encodeURIComponent(cur)}` + '&';

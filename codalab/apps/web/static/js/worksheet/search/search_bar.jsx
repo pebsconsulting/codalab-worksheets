@@ -10,19 +10,26 @@ import converter from 'number-to-words';
 
 const mapStateToProps = (state) => {
   let results, wsResults, bundleResults, isLoading, isCategories;
+  results = {};
   if (getCurrentSearchQuery(state).length <= PARAMS['MIN_INPUT_LENGTH']) {
-    results = [{
-      title: `Type at least ${converter.toWords(PARAMS['MIN_INPUT_LENGTH'] + 1)} letters to search`
-    }];
+    // if the input is less than or equal to the
+    // minimum allowed length
+    results['message'] = {
+      name: '',
+      results: [{
+        title: `Type at least ${converter.toWords(PARAMS['MIN_INPUT_LENGTH'] + 1)} letters to search`,
+        key: 'message',
+      }]
+    }
     isLoading = false;
     isCategories = false;
-  } else if (getCurrentSearchQuery(state).length !== "") {
+  } else if (getCurrentSearchQuery(state) !== "") {
+    // if the user has entered some input
     let worksheetResults, bundleResults;
     ({ worksheetResults, bundleResults } = getCurrentSearchResults(state));
 
     if (worksheetResults.isFetching || bundleResults.isFetching) {
       isLoading = true;
-      wsResults = [];
       isCategories = false;
     } else {
       isLoading = false;
@@ -57,8 +64,6 @@ const mapStateToProps = (state) => {
         };
       }) : [];
 
-      results = {};
-
       if (wsResults.length > 0) {
         results['worksheets'] = {
           name: 'Worksheets',
@@ -69,20 +74,35 @@ const mapStateToProps = (state) => {
         results['bundles'] = {
           name: 'Bundles',
           results: bundleResults,
-        }
+        };
       }
       isCategories = true;
     }
   } else {
-    results = [];
     isLoading = false;
     isCategories = false;
   }
 
+  results['filters'] = {
+    name: 'Filter results',
+    results: [
+      {
+        id: 'mine',
+        title: '.mine',
+        type: 'filter',
+        key: '.mine',
+        description: 'Search only for items that I own',
+      },
+    ]
+  };
+
+  isCategories = true;
+
   return {
     results,
     isLoading,
-    isCategories
+    isCategories,
+    value: getCurrentSearchQuery(state),
   };
 };
 
@@ -90,7 +110,19 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     onInputChange: (inputValue) => {
       dispatch(fetchSearch(inputValue));
-    }
+    },
+    onResultSelect: (e, selected) => {
+      if (selected.result.type === 'worksheet') {
+        window.location.href = 
+        `/worksheets/${selected.result.id}`;
+      } else if (selected.result.type === 'bundle') {
+        window.location.href = 
+        `/bundles/${selected.result.id}`;
+      } else if (selected.result.type == 'filter') {
+        dispatch(fetchSearch(`${selected.value} ${selected.result.key}`));
+        let x;
+      }
+    },
   };
 };
 
