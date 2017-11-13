@@ -17,29 +17,29 @@ class SearchBarPresentation extends React.Component {
   }
 
 	componentDidMount() {
-			document.addEventListener('mousedown', this.handleClickOutside);
+	  document.addEventListener('mousedown', this.handleClickOutside);
 	}
 
 	componentWillUnmount() {
-			document.removeEventListener('mousedown', this.handleClickOutside);
+		document.removeEventListener('mousedown', this.handleClickOutside);
 	}
 
 	/**
 	 * Set the wrapper ref
 	 */
 	setWrapperRef(node) {
-			this.wrapperRef = node;
+		this.wrapperRef = node;
 	}
 
 	/**
 	 * Alert if clicked on outside of element
 	 */
 	handleClickOutside(event) {
-			if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
-        this.setState({
-          open: false
-        });
-			}
+	  if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
+      this.setState({
+        open: false
+      });
+	  }
 	}
 
   render() {

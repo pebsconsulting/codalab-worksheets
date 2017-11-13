@@ -106,3 +106,6 @@ class ProfileView(TemplateView):
     Account profile edit page.
     """
     template_name = 'web/account/profile.html'
+
+class UserProfileView(TemplateView):
+    template_name = 'web/user_profile.html'

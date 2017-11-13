@@ -2,14 +2,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider, connect } from 'react-redux';
-import { SearchBar } from "./search/search_bar.jsx";
-import { NavBarContainer } from './navbar/nav_bar.jsx';
+import { App } from './app/app.jsx';
 import { createStore, applyMiddleware } from 'redux';
 import thunkMiddleware from 'redux-thunk'
 import { createLogger } from 'redux-logger'
 import { combineReducers } from 'redux';
 import { search } from './search/reducers.jsx';
 import { loggedInUser } from './navbar/reducers.jsx';
+import { userProfile } from './userprofile/reducers.jsx';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 import "semantic-ui-less/semantic.less";
 
 /**
@@ -41,6 +42,7 @@ import "semantic-ui-less/semantic.less";
 const clApp = combineReducers({
   search,
   loggedInUser,
+  userProfile,
 });
 
 let store = createStore(
@@ -53,7 +55,9 @@ let store = createStore(
 
 ReactDOM.render(
     <Provider store={store}>
-      <NavBarContainer />
+      <Router>
+        <Route path="/" component={App} />
+      </Router>
     </Provider>,
     document.getElementById('cl-search-bar'));
 
