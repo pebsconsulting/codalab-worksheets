@@ -16,20 +16,34 @@ class UserProfilePresentation extends React.Component {
   }
 
   render() {
-    let first_name, last_name, affiliation;
-    if (this.props.user.data && this.props.user.data.attributes) {
-      ({first_name, last_name, affiliation} = this.props.user.data.attributes);
+    let user_name, first_name, last_name, affiliation, title;
+    if (this.props.user && this.props.user.data && this.props.user.data.attributes) {
+      ({first_name, last_name, affiliation, user_name} = this.props.user.data.attributes);
+    }
+
+    if (first_name && last_name) {
+      title = `Name: ${first_name} ${last_name}`;
+    } else {
+      title = `Username: ${user_name}`;
     }
     return (
       <div style={{paddingTop: '30px',}}>
         <Container>
-          <Header as='h1'>{`${first_name} ${last_name}`}</Header>
+          <Header as='h1'>
+            <img src="/static/img/icon_mini_avatar.png" className="mini-avatar" style={{
+              borderRadius: "50%",
+              border: "1px solid #ccc",
+              margin: "9px",
+              width: "5%",
+            }}/>
+            {title}
+          </Header>
           <Header as='h3'>{affiliation}</Header>
           <p> Worksheets </p>
           {
             this.props.worksheets.data ? this.props.worksheets.data.map((ws) => {
               return (
-                <p>
+                <p key={ws.attributes.uuid}>
                   <a href={`/worksheets/${ws.attributes.uuid}`}>
                     {ws.attributes.name}
                   </a>
@@ -54,7 +68,7 @@ const mapStateToProps = (state, ownProps) => {
   if (ownProps.match.params.userId) {
     user = state.userProfile.user;
   } else { // authenticated user
-    user = state.loggedInUser.user;
+    user = state.loggedInUser.user ? state.loggedInUser.user : {};
   }
 
   return {

@@ -24,8 +24,14 @@ function fetchWorksheetsOfUser(userId) {
   /* userId can be either a UUID or '.mine' */
   return (dispatch) => {
     dispatch(requestWorksheetsOfUser(userId));
+    let url;
+    if (userId === '.mine') {
+      url = `/rest/worksheets?keywords=${encodeURIComponent('.mine')}`;
+    } else {
+      url = `/rest/worksheets?keywords=${encodeURIComponent(`owner=${userId}`)}`;
+    }
 
-    return fetch(`/rest/worksheets?keywords=${userId}`, {
+    return fetch(url, {
       credentials: 'same-origin',
     }).then(
       (response) => {

@@ -12,17 +12,17 @@ class SearchBarPresentation extends React.Component {
     super(props);
     this.state = {};
 
-		this.setWrapperRef = this.setWrapperRef.bind(this);           
-		this.handleClickOutside = this.handleClickOutside.bind(this);
+    this.setWrapperRef = this.setWrapperRef.bind(this);           
+    this.handleClickOutside = this.handleClickOutside.bind(this);
   }
 
-	componentDidMount() {
-	  document.addEventListener('mousedown', this.handleClickOutside);
-	}
+  componentDidMount() {
+    document.addEventListener('mousedown', this.handleClickOutside);
+  }
 
-	componentWillUnmount() {
-		document.removeEventListener('mousedown', this.handleClickOutside);
-	}
+  componentWillUnmount() {
+    document.removeEventListener('mousedown', this.handleClickOutside);
+  }
 
 	/**
 	 * Set the wrapper ref
@@ -68,6 +68,7 @@ class SearchBarPresentation extends React.Component {
           category={this.props.isCategories}
           value={this.props.value}
           open={stayOpen ? stayOpen : undefined}
+          size={"big"}
         />
       </div>
     );

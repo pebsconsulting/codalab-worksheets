@@ -83,7 +83,7 @@ class NavBar extends React.Component {
         <div style={{
           width: '600px',
           display: 'flex' }}>
-          <div>
+          <div style={{width: "150px"}}>
             <a href="/" tabIndex="1" target="_self">
               <img src="/static/img/codalab-logo.png" style={{height:'100%'}} alt="Home" />
             </a>
