@@ -68,7 +68,7 @@ class SearchBarPresentation extends React.Component {
           category={this.props.isCategories}
           value={this.props.value}
           open={stayOpen ? stayOpen : undefined}
-          size={"big"}
+          size={"large"}
         />
       </div>
     );
