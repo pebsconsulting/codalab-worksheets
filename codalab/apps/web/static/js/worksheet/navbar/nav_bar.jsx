@@ -60,6 +60,9 @@ class NavBar extends React.Component {
     } else {
       searchBar = null;
       dashboard = null;
+      let signInRedirectPath = (window.location.pathname === '/') ?
+	      	'/rest/worksheets/?name=dashboard' :
+          window.location.pathname;
       authStuff = [
         <div key="signup">
           <a href="/account/signup">
@@ -67,7 +70,7 @@ class NavBar extends React.Component {
           </a>
         </div>,
         <div key="signin">
-          <a href={`/account/login?next=${encodeURIComponent(window.location.pathname)}`}>
+          <a href={`/account/login?next=${encodeURIComponent(signInRedirectPath)}`}>
             Sign In
           </a>
         </div>
