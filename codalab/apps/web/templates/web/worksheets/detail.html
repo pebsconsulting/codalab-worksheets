@@ -21,8 +21,11 @@
     </div>
 </div>
 
-<div id="worksheet_container">
-    <!-- worksheet html will go here-->
+<div id="worksheet_container_outside" style="display:flex;flex-direction:column;">
+    <div id="cl-search-bar" style="height: 50px;"></div>
+    <div id="worksheet_container" style="height:99%;">
+      <!-- worksheet html will go here-->
+    </div>
 </div>
 <div id="save_progress" class="progress-message">
     <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Saving...

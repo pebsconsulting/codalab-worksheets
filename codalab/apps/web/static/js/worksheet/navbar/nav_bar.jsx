@@ -77,11 +77,12 @@ class NavBar extends React.Component {
       ];
     }
 
-    return (
+    return (<div>
       <div style={{
         height: '50px',
         display: 'flex',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        position: 'fixed',
       }}>
         <div style={{
           width: '600px',
@@ -113,7 +114,8 @@ class NavBar extends React.Component {
           { authStuff }
         </div>
       </div>
-    );
+      <div style={{height: "50px"}}></div>
+    </div>);
   }
 }
 
