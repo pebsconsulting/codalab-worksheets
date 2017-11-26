@@ -108,19 +108,40 @@ let WorksheetSidePanel = React.createClass({
     },
 
     render: function() {
+        /**
+         * - If the user isn't logged in, show the buttons as they would
+         *   normally, but redirect the user to the sign in page if they
+         *   click the buttons
+         * - If the user is logged in but they don't have permissions
+         *   to write to this worksheet, show a grayed out version
+         *   of the button
+         * - If the user is logged in and has permissions, let
+         *   them use the upload / new run / new worksheet functionality
+         */
+        var clickAction = 'DEFAULT';
+        if (!this.props.userInfo) {
+          clickAction = 'SIGN_IN_REDIRECT';
+        } else if (this.props.ws.info && !this.props.ws.info.edit_permission) {
+          clickAction = 'DISABLED';
+        }
+
         var bundle_uploader = <BundleUploader
+          clickAction={clickAction}
           ws={this.props.ws}
           reloadWorksheet={this.props.bundleMetadataChanged}
         />;
 
         var run_bundle_builder = <RunBundleBuilder
+          clickAction={clickAction}
           ws={this.props.ws}
           escCount={this.props.escCount}
         />;
 
         var new_worksheet = <NewWorksheet
+          clickAction={clickAction == 'DISABLED' ? 'DEFAULT' : clickAction}
           escCount={this.props.escCount}
           userInfo={this.props.userInfo}
+          ws={this.props.ws}
         />;
 
         var focus = this.getFocus();

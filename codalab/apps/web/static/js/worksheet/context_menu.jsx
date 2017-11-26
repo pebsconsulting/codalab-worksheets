@@ -30,6 +30,10 @@ var updateMouse = function(e){
 };
 
 var ContextMenu = React.createClass({
+  propTypes: {
+    userInfo: React.PropTypes.object,
+    ws: React.PropTypes.object.isRequired
+  },
   getInitialState: function(){
     var bundleMap = {
       'Remove bundle permanently': [ContextMenuEnum.command.REMOVE_BUNDLE, ['rm']],
@@ -43,8 +47,7 @@ var ContextMenu = React.createClass({
 
     return {
       type: null,
-      callback: null,
-      labelMap: labelMap
+      callback: null
     };
   },
 
@@ -87,7 +90,7 @@ var ContextMenu = React.createClass({
       runBundleMap = _.extend({}, bundleMap, {'Kill this run bundle': [ContextMenuEnum.command.KILL_BUNDLE, ['kill']]});
     }
 
-    let labelMap = {}
+    var labelMap = {};
     labelMap[ContextMenuEnum.type.RUN] = runBundleMap;
     labelMap[ContextMenuEnum.type.BUNDLE] = bundleMap;
 
@@ -95,7 +98,7 @@ var ContextMenu = React.createClass({
       return null;
     }
     // estimate of the height and weight of the context menu
-    var height = 32 * Object.keys(this.state.labelMap[this.state.type]).length;
+    var height = 32 * Object.keys(labelMap[this.state.type]).length;
     var width = 250;
     var style = {
       left: Math.min(this.state.x, window.innerWidth - width),
@@ -106,8 +109,8 @@ var ContextMenu = React.createClass({
 
     return (
       <div className="context-menu" style={style}>
-        {Object.keys(this.state.labelMap[this.state.type]).map(function(display, i){
-            return <div className="context-menu-item" key={i} onClick={this.makeClickHandler(this.state.labelMap[this.state.type][display])}>
+        {Object.keys(labelMap[this.state.type]).map(function(display, i){
+            return <div className="context-menu-item" key={i} onClick={this.makeClickHandler(labelMap[this.state.type][display])}>
                     {display}
                    </div>
           }, this)}
