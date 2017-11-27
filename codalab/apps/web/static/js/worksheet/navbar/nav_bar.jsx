@@ -83,6 +83,9 @@ class NavBar extends React.Component {
         display: 'flex',
         justifyContent: 'space-between',
         position: 'fixed',
+        width: '100%',
+        backgroundColor: 'white',
+        zIndex: '1000',
       }}>
         <div style={{
           width: '600px',
