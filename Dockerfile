@@ -9,7 +9,7 @@ RUN apt-get install -y python-dev python-software-properties python-virtualenv
 RUN apt-get install -y software-properties-common
 
 # Install Node.js
-RUN curl -sL https://deb.nodesource.com/setup_4.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
 RUN apt-get install -y nodejs
 RUN echo '{ "allow_root": true }' > /root/.bowerrc
 
