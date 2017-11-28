@@ -1,6 +1,7 @@
 import fetch from 'isomorphic-fetch';
 import { PARAMS } from './constants.jsx';
 
+// TODO namespace action names, add convention
 const UPDATE_CURRENT_QUERY = 'UPDATE_CURRENT_QUERY';
 const RECEIVE_SEARCH_WORKSHEETS = 'RECEIVE_SEARCH_WORKSHEETS';
 const RECEIVE_SEARCH_BUNDLES = 'RECEIVE_SEARCH_BUNDLES';

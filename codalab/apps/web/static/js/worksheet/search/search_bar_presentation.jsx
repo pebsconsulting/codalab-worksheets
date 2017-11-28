@@ -3,10 +3,12 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Search } from 'semantic-ui-react';
 
+// TODO merge search_bar and search_bar_presentation
 const ClSearch = styled(Search)`
   z-index:1000;
 `;
 
+// TODO do we need to click out of this element? Why all the custom code for it?
 class SearchBarPresentation extends React.Component {
   constructor(props) {
     super(props);
@@ -57,6 +59,7 @@ class SearchBarPresentation extends React.Component {
     };
 
     const stayOpen = this.state.open;
+    // TODO should this be stored in component state?
 
     return (
       <div ref={this.setWrapperRef}>
@@ -95,3 +98,9 @@ SearchBarPresentation.propTypes = {
 export {
   SearchBarPresentation
 };
+
+// TODO write down Redux state for worksheet interface
+// which element of worksheet is active?
+// what actions?
+// What are the props for each of the components
+// Let's get rid of the jQuery

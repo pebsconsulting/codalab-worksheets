@@ -6,6 +6,7 @@ import {
 import update from 'immutability-helper';
 
 /*
+ * TODO add better docs
 State description:
 
 Note: the logger prints off the global state after every action.

@@ -29,6 +29,7 @@ class NavBar extends React.Component {
     // both.
     let searchBar, dashboard;
 
+    // TODO make two paths for logged in an not logged in
     if (userIsLoggedIn(this.props)) {
       searchBar = <SearchBar />;
       dashboard = (
