@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Search } from 'semantic-ui-react';
+import mouseTrap from 'react-mousetrap';
 
 // TODO merge search_bar and search_bar_presentation
 const ClSearch = styled(Search)`
@@ -9,7 +10,7 @@ const ClSearch = styled(Search)`
 `;
 
 // TODO do we need to click out of this element? Why all the custom code for it?
-class SearchBarPresentation extends React.Component {
+class SearchBarPresentationComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {};
@@ -20,6 +21,9 @@ class SearchBarPresentation extends React.Component {
 
   componentDidMount() {
     document.addEventListener('mousedown', this.handleClickOutside);
+    this.props.bindShortcut(['command+k', 'ctrl+k'], (e) => {
+      document.getElementById("cl-search").focus();
+    });
   }
 
   componentWillUnmount() {
@@ -59,11 +63,11 @@ class SearchBarPresentation extends React.Component {
     };
 
     const stayOpen = this.state.open;
-    // TODO should this be stored in component state?
-
+    
     return (
       <div ref={this.setWrapperRef}>
         <ClSearch
+          id="cl-search"
           results={this.props.results}
           loading={this.props.isLoading}
           onSearchChange={onSearchChange}
@@ -79,7 +83,7 @@ class SearchBarPresentation extends React.Component {
   }
 }
 
-SearchBarPresentation.propTypes = {
+SearchBarPresentationComponent.propTypes = {
   results: PropTypes.oneOfType([
     PropTypes.arrayOf(
       PropTypes.shape({
@@ -95,6 +99,8 @@ SearchBarPresentation.propTypes = {
   onInputChange: PropTypes.func.isRequired,
   onResultSelect: PropTypes.func.isRequired,
 };
+
+let SearchBarPresentation = mouseTrap(SearchBarPresentationComponent);
 
 export {
   SearchBarPresentation
