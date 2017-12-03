@@ -9,6 +9,7 @@ import {
   fetchWorksheetsOfUser,
   fetchUser,
 } from './actions.jsx';
+import prettyBytes from 'pretty-bytes';
 
 class UserProfilePresentation extends React.Component {
   componentDidMount() {
@@ -17,8 +18,22 @@ class UserProfilePresentation extends React.Component {
 
   render() {
     let user_name, first_name, last_name, affiliation, title;
+    let self_info;
     if (this.props.user && this.props.user.data && this.props.user.data.attributes) {
       ({first_name, last_name, affiliation, user_name} = this.props.user.data.attributes);
+
+      if (!this.props.match.params.userId) {
+        self_info = (
+          <div>
+            <div>
+              Disk usage: {prettyBytes(this.props.user.data.attributes.disk_used)}
+            </div>
+            <div>
+              Time usage: {this.props.user.data.attributes.time_used} s
+            </div>
+          </div>
+        );
+      }
     }
 
     if (first_name && last_name) {
@@ -38,6 +53,7 @@ class UserProfilePresentation extends React.Component {
             }}/>
             {title}
           </Header>
+          {self_info}
           <Header as='h3'>{affiliation}</Header>
           <p> Worksheets </p>
           {
@@ -45,8 +61,12 @@ class UserProfilePresentation extends React.Component {
               return (
                 <p key={ws.attributes.uuid}>
                   <a href={`/worksheets/${ws.attributes.uuid}`}>
+                    {ws.attributes.title === null ? "[No title]" : ws.attributes.title}: (
+                  </a>
+                  <a href={`/worksheets/${ws.attributes.uuid}`}>
                     {ws.attributes.name}
                   </a>
+                  )
                 </p>
               );
             }) : null
