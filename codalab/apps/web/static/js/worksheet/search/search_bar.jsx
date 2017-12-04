@@ -25,10 +25,10 @@ const mapStateToProps = (state) => {
     isCategories = false;
   } else if (getCurrentSearchQuery(state) !== "") {
     // if the user has entered some input
-    let worksheetResults, bundleResults;
-    ({ worksheetResults, bundleResults } = getCurrentSearchResults(state));
+    let worksheetResults, bundleResults, userResults;
+    ({ worksheetResults, bundleResults, userResults } = getCurrentSearchResults(state));
 
-    if (worksheetResults.isFetching || bundleResults.isFetching) {
+    if (worksheetResults.isFetching || bundleResults.isFetching || userResults.isFetching) {
       isLoading = true;
       isCategories = false;
     } else {
@@ -63,6 +63,14 @@ const mapStateToProps = (state) => {
           type: 'bundle',
         };
       }) : [];
+      userResults = userResults.results.data ? userResults.results.data.map((item) => {
+        return {
+          id: item.id,
+          title: item.attributes.user_name,
+          key: item.id,
+          type: 'user',
+        };
+      }) : [];
 
       if (wsResults.length > 0) {
         results['worksheets'] = {
@@ -74,6 +82,12 @@ const mapStateToProps = (state) => {
         results['bundles'] = {
           name: 'Bundles',
           results: bundleResults,
+        };
+      }
+      if (userResults.length > 0) {
+        results['users'] = {
+          name: 'Users',
+          results: userResults,
         };
       }
       isCategories = true;
@@ -121,6 +135,8 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       } else if (selected.result.type == 'filter') {
         dispatch(fetchSearch(`${selected.value} ${selected.result.key}`));
         let x;
+      } else if (selected.result.type == 'user') {
+        window.location.href = `/account/user_profile/${selected.result.id}`;
       }
     },
   };

@@ -7,6 +7,7 @@ const getCurrentSearchResults = (state) => {
   return {
     worksheetResults: state.search.worksheetQueries[currentSearchQuery],
     bundleResults: state.search.bundleQueries[currentSearchQuery],
+    userResults: state.search.userQueries[currentSearchQuery],
   };
 };
 

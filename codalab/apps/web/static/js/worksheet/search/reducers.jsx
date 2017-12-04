@@ -2,6 +2,7 @@ import {
   UPDATE_CURRENT_QUERY,
   RECEIVE_SEARCH_WORKSHEETS,
   RECEIVE_SEARCH_BUNDLES,
+  RECEIVE_SEARCH_USERS,
 } from './actions.jsx';
 import update from 'immutability-helper';
 
@@ -38,6 +39,7 @@ http://codalab.org/codalab-cli/rest.html#bundles-api.
 const initialState = {
   worksheetQueries: {},
   bundleQueries: {},
+  userQueries: {},
   currentQuery: ""
 };
 
@@ -55,6 +57,13 @@ const search = (state = initialState, action) => {
             }
           },
           bundleQueries: {
+            [action.query]: {
+              $set: {
+                isFetching: true,
+              }
+            }
+          },
+          userQueries: {
             [action.query]: {
               $set: {
                 isFetching: true,
@@ -83,6 +92,17 @@ const search = (state = initialState, action) => {
     case RECEIVE_SEARCH_BUNDLES:
       return update(state, {
         bundleQueries: {
+          [action.query]: {
+            $set: {
+              isFetching: false,
+              results: action.results,
+            }
+          }
+        }
+      });
+    case RECEIVE_SEARCH_USERS:
+      return update(state, {
+        userQueries: {
           [action.query]: {
             $set: {
               isFetching: false,
