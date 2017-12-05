@@ -27,11 +27,18 @@ class NavBar extends React.Component {
     // If the user is logged in, shows the
     // search bar and dashboard. Otherwise hides
     // both.
-    let searchBar, dashboard;
+    let searchBar, dashboard, public_home;
 
     // TODO make two paths for logged in an not logged in
     if (userIsLoggedIn(this.props)) {
       searchBar = <SearchBar />;
+      public_home = (
+        <div>
+          <a href="/rest/worksheets/?name=home">
+            Public Home
+          </a>
+        </div>
+      );
       dashboard = (
         <div>
           <a href="/rest/worksheets/?name=dashboard">
@@ -61,6 +68,7 @@ class NavBar extends React.Component {
     } else {
       searchBar = null;
       dashboard = null;
+      public_home = null;
       let signInRedirectPath = (window.location.pathname === '/') ?
 	      	'/rest/worksheets/?name=dashboard' :
           window.location.pathname;
@@ -109,6 +117,7 @@ class NavBar extends React.Component {
           alignItems: 'center',
           justifyContent: 'space-evenly',
         }} >
+          { public_home }
           { dashboard }
           <div>
             <a href="https://github.com/codalab/codalab-worksheets/wiki" target="_blank">
