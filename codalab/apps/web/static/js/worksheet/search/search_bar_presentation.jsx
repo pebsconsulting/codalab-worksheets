@@ -21,8 +21,9 @@ class SearchBarPresentationComponent extends React.Component {
 
   componentDidMount() {
     document.addEventListener('mousedown', this.handleClickOutside);
-    this.props.bindShortcut(['command+k', 'ctrl+k'], (e) => {
+    this.props.bindShortcut('/', (e) => {
       document.getElementById("cl-search").focus();
+      e.preventDefault();
     });
   }
 
