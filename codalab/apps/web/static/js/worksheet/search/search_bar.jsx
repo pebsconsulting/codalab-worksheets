@@ -7,6 +7,7 @@ import { SearchBarPresentation } from './search_bar_presentation.jsx';
 import { PARAMS } from './constants.jsx';
 import { getCurrentSearchQuery, getCurrentSearchResults } from './utils.jsx';
 import converter from 'number-to-words';
+import { Label } from 'semantic-ui-react';
 
 const mapStateToProps = (state) => {
   let results, wsResults, bundleResults, isLoading, isCategories;
@@ -101,6 +102,16 @@ const mapStateToProps = (state) => {
     name: 'Filter results',
     results: [
       {
+        renderer: ({ title, description }) => {
+          return (
+            <div>
+              <Label content={title} />
+              <span style={{marginLeft: '5px'}}>
+                {description}
+              </span>
+            </div>
+          );
+        },
         id: 'mine',
         title: '.mine',
         type: 'filter',
