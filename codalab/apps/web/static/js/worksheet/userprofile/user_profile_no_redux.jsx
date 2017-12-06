@@ -42,12 +42,7 @@ class UserProfilePresentation extends React.Component {
       <div style={{paddingTop: '30px',}}>
         <Container>
           <Header as='h1'>
-            <img src="/static/img/icon_mini_avatar.png" className="mini-avatar" style={{
-              borderRadius: "50%",
-              border: "1px solid #ccc",
-              margin: "9px",
-              width: "5%",
-            }}/>
+            <img src="/static/img/icon_mini_avatar.png" className="mini-avatar cl-userprofile-usericon"/>
             {title}
           </Header>
           {self_info}
@@ -189,42 +184,6 @@ class UserProfile extends React.Component {
     );
   }
 }
-
-
-/*
-const mapStateToProps = (state, ownProps) => {
-  let user;
-  if (ownProps.match.params.userId) {
-    user = state.userProfile.user;
-  } else { // authenticated user
-    user = state.loggedInUser.user ? state.loggedInUser.user : {};
-  }
-
-  return {
-    worksheets: state.userProfile.results,
-    user,
-  };
-};
-
-const mapDispatchToProps = (dispatch, ownProps) => {
-  return {
-    onLoad: () => {
-      let userId = ownProps.match.params.userId;
-      if (userId) {
-        dispatch(fetchWorksheetsOfUser(userId));
-        dispatch(fetchUser(userId));
-      } else {
-        dispatch(fetchWorksheetsOfUser('.mine'));
-      }
-    },
-  };
-};
-
-const UserProfile = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(UserProfilePresentation);
-*/
 
 export {
   UserProfile
