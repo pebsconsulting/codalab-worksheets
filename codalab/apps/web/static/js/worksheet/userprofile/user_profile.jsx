@@ -62,9 +62,9 @@ class UserProfile extends React.Component {
     const self = this;
 
     // get the user ID from the url
-    let userId = this.props.match.params.userId;
+    let userId = this.props.match.params.userId || '.mine';
     let urlForUserData, urlForWorksheetData;
-    if (userId) {
+    if (userId !== '.mine') {
       urlForUserData = `/rest/users/${userId}`;
       urlForWorksheetData = `/rest/worksheets?keywords=${encodeURIComponent(`owner=${userId}`)}`;
     } else {
@@ -74,8 +74,7 @@ class UserProfile extends React.Component {
 
     clFetch({
       url: urlForWorksheetData,
-      currentState: () => self.state,
-      setState: (newState, callback) => self.setState(newState, callback),
+      setState: (updater, callback) => self.setState(updater, callback),
       key: 'worksheets',
       context: { userId },
       onReady: () => console.log(self.state)
@@ -83,8 +82,7 @@ class UserProfile extends React.Component {
 
     clFetch({
       url: urlForUserData,
-      currentState: () => self.state,
-      setState: (newState, callback) => self.setState(newState, callback),
+      setState: (updater, callback) => self.setState(updater, callback),
       key: 'user',
       context: { userId },
       onReady: () => console.log(self.state),

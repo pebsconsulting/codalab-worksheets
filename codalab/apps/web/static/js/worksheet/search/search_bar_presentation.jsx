@@ -3,6 +3,109 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Search } from 'semantic-ui-react';
 import mouseTrap from 'react-mousetrap';
+import update from 'immutability-helper';
+import { clFetch } from '../utils.jsx';
+
+class SearchBar extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      currentQuery: "",
+      bundles: {},
+      worksheets: {},
+    };
+
+    this.onResultSelect = this.onResultSelect.bind(this);
+    this.onInputChange = this.onInputChange.bind(this);
+  }
+
+  componentDidMount() {
+    this.onInputChange('max');
+  }
+
+  onInputChange(inputText) {
+    const self = this;
+
+    this.setState(update(this.state, {
+      currentQuery: {
+        $set: inputText,
+      }
+    }));
+
+    // TODO add docs
+    function convertInputToKeywordQueryString(input) {
+      let keywordsQuery;
+      // remove leading / trailing whitespace, split
+      // by any whitespace
+      keywordsQuery = input.trim().split(/[ ]+/);
+      keywordsQuery.push(".limit=5");
+      let keywordsQueryString = keywordsQuery.reduce((accumulated, cur) => {
+        return accumulated + `keywords=${encodeURIComponent(cur)}` + '&';
+      }, '');
+      return keywordsQueryString;
+    }
+
+    let keywordQueryString = convertInputToKeywordQueryString(inputText);
+
+    clFetch({
+      url: `/rest/bundles?${keywordQueryString}`,
+      setState: (updater, callback) => self.setState(updater, callback),
+      key: ['worksheets', inputText],
+      context: { inputText },
+      onReady: () => console.log(self.state)
+    });
+
+    clFetch({
+      url: `/rest/worksheets?${keywordQueryString}`,
+      setState: (updater, callback) => self.setState(updater, callback),
+      key: ['bundles', inputText],
+      context: { inputText },
+      onReady: () => console.log(self.state)
+    });
+  }
+
+  /**
+   * e : SyntheticEvent : React synthetic event object.
+   * selected : JSON : the JSON represention of the selected result
+   */
+  onResultSelect(e, selected) {
+    const type = select.result.type;
+
+    switch (type) {
+      case 'worksheet':
+        window.location.href = `/worksheets/${selected.result.id}`;
+        break;
+      case 'bundle':
+        window.location.href = `/bundles/${selected.result.id}`;
+        break;
+      case 'user':
+        window.location.href = `/account/user_profile/${selected.result.id}`;
+        break;
+      case 'filter':
+        this.onInputChange(`${select.value} ${selected.result.key}`);
+        break;
+      default:
+        return;
+    }
+  }
+
+  render() {
+    return <div>{JSON.stringify(this.state.bundles)}</div>;
+    /*
+    return (
+      <SearchBarPresentation
+        results={}
+        isCategories
+        isLoading={this.state.bundles[this.state.currentQuery].isFetching || this.state.worksheets[this.state.currentQuery].isFetching}
+        inputText={this.state.currentQuery}
+        onInputChange={onInputChange}
+        onResultSelect={onResultSelect}
+      />
+    );
+    */
+  }
+}
 
 // TODO merge search_bar and search_bar_presentation
 const ClSearch = styled(Search)`
@@ -74,11 +177,12 @@ class SearchBarPresentationComponent extends React.Component {
           onSearchChange={onSearchChange}
           onResultSelect={onResultSelect}
           category={this.props.isCategories}
-          value={this.props.value}
+          value={this.props.inputText}
           open={stayOpen ? stayOpen : undefined}
           input={{fluid: true}}
           fluid={true}
         />
+        <SearchBar />
       </div>
     );
   }
@@ -96,7 +200,7 @@ SearchBarPresentationComponent.propTypes = {
   ]),
   isCategories: PropTypes.bool.isRequired,
   isLoading: PropTypes.bool.isRequired,
-  value: PropTypes.string.isRequired,
+  inputText: PropTypes.string.isRequired,
   onInputChange: PropTypes.func.isRequired,
   onResultSelect: PropTypes.func.isRequired,
 };

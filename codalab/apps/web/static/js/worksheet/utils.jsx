@@ -14,17 +14,23 @@ import update from 'immutability-helper';
  * Parameters:
  *
  * url : string : REST API endpoint
- * currentState : function : Parameterless function
- *   that returns the current state. Ex:
- *     () => self.state
  * setState : function : function to update
  *   component's state. Ex:
  *     (newState, callback) => self.setState(newState, callback)
- *   `newState` is a JSON of the next state.
+ *   `newState` is a function of the form:
+ *     (prevState, props) => { ... returns new state ... }
  *   `callback` is a parameterless callback function.
- * key : string : The results of the API call will
+ * key : string|array(string) : The results of the API call will
  *   be stored in the component's state under this
- *   key
+ *   key. If the `key` is an array of strings, will
+ *   follow the "path" that's created by the sequence
+ *   of strings. For example, ['a', 'b'] would
+ *   alter the JSON at:
+ *   {
+ *     'a': {
+ *       'b': [value goes here...]:
+ *     } 
+ *   }
  * context : JSON : An arbitrary JSON object that
  *   provides context for the query that was made
  * onReady : function : Parameterless callback
@@ -50,23 +56,61 @@ const requiredParam = () => {
 const clFetch = ({
   // required params
   url = required(),
-  currentState = required(),
   setState = required(),
   key = required(),
   // optional params
   context = {},
   onReady = () => {}
 }) => {
-  setState(update(currentState(), {
-    [key]: {
-      isFetching: {
-        $set: true
-      },
-      context: {
-        $set: context
-      }
+  const createMergeObj = (keyAsArray, val) => {
+    if (keyAsArray.length === 0) {
+      return val;
     }
-  }));
+    let mergeObj = {};
+    let originalObj = mergeObj;
+    for(let m = 0; m < key.length - 1; m++) {
+      if (!(key[m] in mergeObj)) {
+        mergeObj[key[m]] = {};
+      }
+      mergeObj = mergeObj[key[m]];
+    }
+    mergeObj[key[key.length - 1]] = val;
+    return originalObj;
+  };
+
+    /*
+  if (Array.isArray(key)) {
+    return; // TODO noop for now
+  }
+  */
+  if (typeof key === 'string') {
+    key = [key];
+  }
+
+  /*
+  let mergeObj = createMergeObj(
+    key,
+    {
+      $set: {
+        isFetching: true,
+        context: context,
+      }
+    });
+  let currStateSaved = currentState();
+  let updateResult = update(
+      currStateSaved,
+      mergeObj);
+    */
+  setState((prevState /*, props*/) => {
+    return update(prevState, createMergeObj(
+      key, {
+        $set: {
+          isFetching: true,
+          context,
+        }
+      }
+    ));
+  });
 
   fetch(url, {
     credentials: 'same-origin',
@@ -79,18 +123,32 @@ const clFetch = ({
     }
   ).then(
     (json) => {
-      setState(update(currentState(), {
-        [key]: {
-          isFetching: {
-            $set: false,
-          },
-          results: {
-            $set: json
+      /*
+      let dataMergeObj = createMergeObj(
+        key,
+        {
+          $merge: {
+            isFetching: false,
+            results: json,
           }
         }
-      }), () => {
-        onReady();
-      });
+      );
+      let currStateSavedAgain = currentState();
+      debugger;
+      */
+      setState((prevState, props) => {
+        return update(prevState, createMergeObj(key, {
+            $merge: {
+              isFetching: false,
+              results: json
+            }
+          }
+        ))
+      },
+        () => {
+          onReady();
+        }
+      );
     }
   ).catch(
     (error) => console.error(error)

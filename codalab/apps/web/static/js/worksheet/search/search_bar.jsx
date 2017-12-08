@@ -127,7 +127,7 @@ const mapStateToProps = (state) => {
     results,
     isLoading,
     isCategories,
-    value: getCurrentSearchQuery(state),
+    inputText: getCurrentSearchQuery(state),
   };
 };
 
