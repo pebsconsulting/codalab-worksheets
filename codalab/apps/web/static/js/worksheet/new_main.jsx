@@ -9,7 +9,6 @@ import { createLogger } from 'redux-logger'
 import { combineReducers } from 'redux';
 import { search } from './search/reducers.jsx';
 import { loggedInUser } from './navbar/reducers.jsx';
-import { userProfile } from './userprofile/reducers.jsx';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import "semantic-ui-less/semantic.less";
 import "./styles/styles.less";
@@ -43,7 +42,6 @@ import "./styles/styles.less";
 const clApp = combineReducers({
   search,
   loggedInUser,
-  userProfile,
 });
 
 let store = createStore(

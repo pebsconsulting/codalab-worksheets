@@ -5,116 +5,183 @@ import {
   Container,
   Header
 } from 'semantic-ui-react';
-import {
-  fetchWorksheetsOfUser,
-  fetchUser,
-} from './actions.jsx';
 import prettyBytes from 'pretty-bytes';
+import { clFetch } from '../utils.jsx';
 
-class UserProfilePresentation extends React.Component {
+/**
+State: {
+  worksheets: ClRequest(context={}),
+  user: ClRequest(context={userId: String}),
+}
+
+ClRequest: {
+  isFetching: Boolean,
+  results: JsonApiResponse,
+  context: JSON object,
+}
+If `isFetching` is true, `result` may be null and/or outdated.
+If `isFetching` is false, `result` is a valid JsonApiResponse and the latest result.
+`context` is a vanilla JSON with arbitrary key-value pairs.
+
+JsonApiResponse: {
+  data: Array,
+  meta: {
+    version: String,
+  }
+}
+**/
+
+class UserProfile extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      worksheets: {
+        isFetching: true,
+      },
+      user: {
+        isFetching: true,
+      },
+    };
+
+    this.loadUserProfile = this.loadUserProfile.bind(this);
+    this.dataIsLoaded = this.dataIsLoaded.bind(this);
+  }
+
   componentDidMount() {
-    this.props.onLoad();
+    this.loadUserProfile();
+  }
+
+  dataIsLoaded() {
+    const state = this.state;
+
+    return !state.worksheets.isFetching && !state.user.isFetching;
+  }
+
+  loadUserProfile() {
+    const self = this;
+
+    // get the user ID from the url
+    let userId = this.props.match.params.userId;
+    let urlForUserData, urlForWorksheetData;
+    if (userId) {
+      urlForUserData = `/rest/users/${userId}`;
+      urlForWorksheetData = `/rest/worksheets?keywords=${encodeURIComponent(`owner=${userId}`)}`;
+    } else {
+      urlForUserData = `/rest/user`;
+      urlForWorksheetData = `/rest/worksheets?keywords=${encodeURIComponent('.mine')}`
+    }
+
+    clFetch({
+      url: urlForWorksheetData,
+      currentState: () => self.state,
+      setState: (newState, callback) => self.setState(newState, callback),
+      key: 'worksheets',
+      context: { userId },
+      onReady: () => console.log(self.state)
+    });
+
+    clFetch({
+      url: urlForUserData,
+      currentState: () => self.state,
+      setState: (newState, callback) => self.setState(newState, callback),
+      key: 'user',
+      context: { userId },
+      onReady: () => console.log(self.state),
+    });
   }
 
   render() {
-    let user_name, first_name, last_name, affiliation, title;
-    let self_info;
-    if (this.props.user && this.props.user.data && this.props.user.data.attributes) {
-      ({first_name, last_name, affiliation, user_name} = this.props.user.data.attributes);
-
-      if (!this.props.match.params.userId) {
-        self_info = (
-          <div>
-            <div>
-              Disk usage: {prettyBytes(this.props.user.data.attributes.disk_used)}
-            </div>
-            <div>
-              Time usage: {this.props.user.data.attributes.time_used} s
-            </div>
-          </div>
-        );
-      }
-    }
-
-    if (first_name && last_name) {
-      title = `Name: ${first_name} ${last_name}`;
+    const state = this.state
+    if (this.dataIsLoaded()) {
+      return (
+        <UserProfilePresentation 
+          worksheets={this.state.worksheets.results}
+          user={this.state.user.results}
+          userProfileIsOfLoggedInUser={this.props.match.params.userId ? true : false}
+        />
+      );
     } else {
-      title = `Username: ${user_name}`;
+      return null;
     }
-    return (
-      <div style={{paddingTop: '30px',}}>
-        <Container>
-          <Header as='h1'>
-            <img src="/static/img/icon_mini_avatar.png" className="mini-avatar" style={{
-              borderRadius: "50%",
-              border: "1px solid #ccc",
-              margin: "9px",
-              width: "5%",
-            }}/>
-            {title}
-          </Header>
-          {self_info}
-          <Header as='h3'>{affiliation}</Header>
-          <p> Worksheets </p>
-          {
-            this.props.worksheets.data ? this.props.worksheets.data.map((ws) => {
-              return (
-                <p key={ws.attributes.uuid}>
-                  <a href={`/worksheets/${ws.attributes.uuid}`}>
-                    {ws.attributes.title === null ? "[No title]" : ws.attributes.title}: (
-                  </a>
-                  <a href={`/worksheets/${ws.attributes.uuid}`}>
-                    {ws.attributes.name}
-                  </a>
-                  )
-                </p>
-              );
-            }) : null
-          }
-        </Container>
-      </div>
-    );
   }
 }
 
+UserProfile.propTypes = {
+  match: PropTypes.shape({
+    params: PropTypes.shape({
+      // `userId` is null if showing the profile of the current user,
+      // whereas it is a string representing a user's ID otherwise
+      userId: PropTypes.string
+    })
+  })
+};
+
+const UserProfilePresentation = ({ worksheets, user, userProfileIsOfLoggedInUser }) => {
+  let { user_name, first_name, last_name, affiliation, disk_used, time_used } = user.data.attributes;
+
+  const ifShowingLoggedInUser = (components) => {
+    if (userProfileIsOfLoggedInUser) {
+      return components;
+    }
+    return null;
+  };
+
+  return (
+    <Container>
+      <Header as="h1">
+        <img src="/static/img/icon_mini_avatar.png" className="mini-avatar cl-userprofile-usericon"/>
+        { first_name } { last_name } ({ user_name })
+      </Header>
+      {ifShowingLoggedInUser(
+      <div>
+        <div>
+          Disk usage: {disk_used}
+        </div>
+        <div>
+          Time usage: {time_used} s
+        </div>
+      </div>
+      )}
+      <Header as='h3'>
+        { affiliation }
+      </Header>
+      <Header as='h3'>
+        Worksheets
+      </Header>
+      <div className="ws-item">
+        <div className="type-table table-responsive table-striped">
+          <table className='table table-striped'>
+            <tbody>
+            {worksheets.data.map((ws) => (
+               <tr key={ ws.attributes.uuid }>
+                 <td>
+                   <span style={{ marginRight: '5px' }}>
+                     <a href={`/worksheets/${ws.attributes.uuid}`}>
+                       { ws.attributes.title }
+                     </a>
+                   </span>
+                   (
+                     <a href={`/worksheets/${ws.attributes.uuid}`}>
+                       { ws.attributes.name }
+                     </a>
+                   )
+                 </td>
+               </tr>
+            ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </Container>
+  )
+};
+
 UserProfilePresentation.propTypes = {
-  worksheets: PropTypes.object,
-  onLoad: PropTypes.func,
-  user: PropTypes.object,
+  worksheets: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
+  userProfileIsOfLoggedInUser: PropTypes.bool.isRequired,
 };
-
-const mapStateToProps = (state, ownProps) => {
-  let user;
-  if (ownProps.match.params.userId) {
-    user = state.userProfile.user;
-  } else { // authenticated user
-    user = state.loggedInUser.user ? state.loggedInUser.user : {};
-  }
-
-  return {
-    worksheets: state.userProfile.results,
-    user,
-  };
-};
-
-const mapDispatchToProps = (dispatch, ownProps) => {
-  return {
-    onLoad: () => {
-      let userId = ownProps.match.params.userId;
-      if (userId) {
-        dispatch(fetchWorksheetsOfUser(userId));
-        dispatch(fetchUser(userId));
-      } else {
-        dispatch(fetchWorksheetsOfUser('.mine'));
-      }
-    },
-  };
-};
-
-const UserProfile = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(UserProfilePresentation);
 
 export {
   UserProfile
