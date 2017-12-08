@@ -44,12 +44,12 @@ class UserProfile extends React.Component {
       },
     };
 
-    this.loadUserProfile = this.loadUserProfile.bind(this);
+    this.loadData = this.loadData.bind(this);
     this.dataIsLoaded = this.dataIsLoaded.bind(this);
   }
 
   componentDidMount() {
-    this.loadUserProfile();
+    this.loadData();
   }
 
   dataIsLoaded() {
@@ -58,7 +58,7 @@ class UserProfile extends React.Component {
     return !state.worksheets.isFetching && !state.user.isFetching;
   }
 
-  loadUserProfile() {
+  loadData() {
     const self = this;
 
     // get the user ID from the url
@@ -184,5 +184,6 @@ UserProfilePresentation.propTypes = {
 };
 
 export {
-  UserProfile
+  UserProfile,
+  UserProfilePresentation
 };
