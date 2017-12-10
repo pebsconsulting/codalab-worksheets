@@ -1,11 +1,109 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Search } from 'semantic-ui-react';
+import { Search, Label } from 'semantic-ui-react';
 import mouseTrap from 'react-mousetrap';
 import update from 'immutability-helper';
 import { clFetch } from '../utils.jsx';
 
+/**
+ * State initial:
+ * {
+ *   currentQuery: "",
+ *   bundles: {},
+ *   worksheets: {},
+ *   users: {},
+ * }
+ *
+ * User types something into the search bar.
+ *
+ * First, the currentQuery is updated, before any of
+ * the fetches are executed:
+ * {
+ *   currentQuery: "m",
+ *   bundles: {},
+ *   worksheets: {},
+ *   users: {},
+ * }
+ *
+ * Then the clFetch() calls are made (see `clFetch`
+ * documentation). Remember that these occur
+ * asynchronously. One possible resulting state,
+ * assuming both clFetch() statements have been
+ * called but the results have not arrived from
+ * the server yet:
+ * {
+ *   currentQuery: "m",
+ *   bundles: {
+ *     "m": {
+ *       isFetching: true,
+ *       context: {
+ *         inputText: "m"
+ *       }
+ *     }
+ *   },
+ *   worksheets: {
+ *     "m": {
+ *       isFetching: true,
+ *       context: {
+ *         inputText: "m"
+ *       }
+ *     }
+ *   },
+ *   users: {
+ *     "m": {
+ *       isFetching: true,
+ *       context: {
+ *         inputText: "m"
+ *       }
+ *     }
+ *   }
+ * }
+ *
+ * Once the fetch calls both returns results, the state
+ * would be:
+ *
+ * {
+ *   currentQuery: "m",
+ *   bundles: {
+ *     "m": {
+ *       isFetching: false,
+ *       results: {
+ *         data: [...],
+ *         meta: {...},
+ *       },
+ *       context: {
+ *         inputText: "m"
+ *       }
+ *     }
+ *   },
+ *   worksheets: {
+ *     "m": {
+ *       isFetching: false,
+ *       results: {
+ *         data: [...],
+ *         meta: {...},
+ *       },
+ *       context: {
+ *         inputText: "m"
+ *       }
+ *     }
+ *   },
+ *   users: {
+ *     "m": {
+ *       isFetching: false,
+ *       results: {
+ *         data: [...],
+ *         meta: {...},
+ *       },
+ *       context: {
+ *         inputText: "m"
+ *       }
+ *     }
+ *   }
+ * }
+ *
+ */
 class SearchBar extends React.Component {
   constructor(props) {
     super(props);
@@ -14,14 +112,11 @@ class SearchBar extends React.Component {
       currentQuery: "",
       bundles: {},
       worksheets: {},
+      users: {},
     };
 
     this.onResultSelect = this.onResultSelect.bind(this);
     this.onInputChange = this.onInputChange.bind(this);
-  }
-
-  componentDidMount() {
-    this.onInputChange('max');
   }
 
   onInputChange(inputText) {
@@ -48,18 +143,29 @@ class SearchBar extends React.Component {
 
     let keywordQueryString = convertInputToKeywordQueryString(inputText);
 
+    const setState = (updater, callback) =>
+      self.setState(updater, callback);
+
     clFetch({
       url: `/rest/bundles?${keywordQueryString}`,
-      setState: (updater, callback) => self.setState(updater, callback),
-      key: ['worksheets', inputText],
+      setState,
+      key: ['bundles', inputText],
       context: { inputText },
       onReady: () => console.log(self.state)
     });
 
     clFetch({
       url: `/rest/worksheets?${keywordQueryString}`,
-      setState: (updater, callback) => self.setState(updater, callback),
-      key: ['bundles', inputText],
+      setState,
+      key: ['worksheets', inputText],
+      context: { inputText },
+      onReady: () => console.log(self.state)
+    });
+
+    clFetch({
+      url: `/rest/users?${keywordQueryString}`,
+      setState,
+      key: ['users', inputText],
       context: { inputText },
       onReady: () => console.log(self.state)
     });
@@ -70,7 +176,7 @@ class SearchBar extends React.Component {
    * selected : JSON : the JSON represention of the selected result
    */
   onResultSelect(e, selected) {
-    const type = select.result.type;
+    const type = selected.result.type;
 
     switch (type) {
       case 'worksheet':
@@ -91,19 +197,106 @@ class SearchBar extends React.Component {
   }
 
   render() {
-    return <div>{JSON.stringify(this.state.bundles)}</div>;
-    /*
+    let {currentQuery, bundles, worksheets, users} = this.state;
+
+    const hasLoaded = (state) => {
+      let {currentQuery, bundles, worksheets, users} = state;
+      if (currentQuery === '') return true;
+      return hasResultsLoaded(state);
+    }
+
+    const hasResultsLoaded = (state) => {
+      let {currentQuery, bundles, worksheets, users} = state;
+      return (bundles[currentQuery] && !bundles[currentQuery].isFetching) && 
+        (worksheets[currentQuery] && !worksheets[currentQuery].isFetching) &&
+        (users[currentQuery] && !users[currentQuery].isFetching);
+    }
+
+    let results = {};
+    if (hasResultsLoaded(this.state)) {
+      let worksheetsResults = worksheets[currentQuery].results;
+      results['worksheets'] = {
+        name: 'Worksheets',
+        results: worksheetsResults.data.map((item) => {
+          let description = item.attributes.title ?
+            `Title: ${item.attributes.title}` :
+            '';
+
+          return {
+            id: item.attributes.uuid,
+            title: item.attributes.name,
+            description,
+            key: item.attributes.uuid,
+            type: 'worksheet',
+          };
+        })
+      };
+
+      let bundleResults = bundles[currentQuery].results;
+      results['bundles'] = {
+        name: 'Bundles',
+        results: bundleResults.data.map((item) => {
+          let description = item.attributes.command ?
+            `command: ${item.attributes.command}` :
+            '';
+          return {
+            id: item.attributes.uuid,
+            title: item.attributes.metadata.name,
+            description,
+            key: item.attributes.uuid,
+            type: 'bundle',
+          }
+        })
+      }
+
+      let userResults = users[currentQuery].results;
+      results['users'] = {
+        name: 'Users',
+        results: userResults.data.map((item) => {
+          return {
+            it: item.id,
+            title: item.attributes.user_name,
+            key: item.id,
+            type: 'user',
+          };
+        })
+      }
+    }
+
+    results['filters'] = {
+      name: 'Filter results',
+      results: [
+        {
+          renderer: ({ title, description }) => {
+            return (
+              <div>
+                <Label content={title} />
+                <span style={{marginLeft: '5px'}}>
+                  {description}
+                </span>
+              </div>
+            );
+          },
+          id: 'mine',
+          title: '.mine',
+          type: 'filter',
+          key: '.mine',
+          description: 'Search only for items that I own',
+        },
+      ]
+    };
+    console.log(results);
+    
     return (
       <SearchBarPresentation
-        results={}
-        isCategories
-        isLoading={this.state.bundles[this.state.currentQuery].isFetching || this.state.worksheets[this.state.currentQuery].isFetching}
+        results={results}
+        isCategories={true}
+        isLoading={!hasLoaded(this.state)}
         inputText={this.state.currentQuery}
-        onInputChange={onInputChange}
-        onResultSelect={onResultSelect}
+        onInputChange={this.onInputChange}
+        onResultSelect={this.onResultSelect}
       />
     );
-    */
   }
 }
 
@@ -182,7 +375,6 @@ class SearchBarPresentationComponent extends React.Component {
           input={{fluid: true}}
           fluid={true}
         />
-        <SearchBar />
       </div>
     );
   }
@@ -208,11 +400,6 @@ SearchBarPresentationComponent.propTypes = {
 let SearchBarPresentation = mouseTrap(SearchBarPresentationComponent);
 
 export {
-  SearchBarPresentation
+  SearchBarPresentation,
+  SearchBar
 };
-
-// TODO write down Redux state for worksheet interface
-// which element of worksheet is active?
-// what actions?
-// What are the props for each of the components
-// Let's get rid of the jQuery

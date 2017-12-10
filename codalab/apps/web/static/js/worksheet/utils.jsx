@@ -1,6 +1,10 @@
 import fetch from 'isomorphic-fetch';
 import update from 'immutability-helper';
 
+const requiredParam = () => {
+  throw new Error('missing parameter');
+}
+
 /**
  * For use with CodaLab's REST API endpoints,
  * primarily with GET requests, inside of a
@@ -49,10 +53,7 @@ import update from 'immutability-helper';
       onReady: () => console.log(self.state)
     });
  */
-const requiredParam = () => {
-  throw new Error('missing parameter');
-}
-
+// TODO convert into a promise
 const clFetch = ({
   // required params
   url = required(),
