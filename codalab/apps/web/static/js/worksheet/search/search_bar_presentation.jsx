@@ -6,6 +6,106 @@ import mouseTrap from 'react-mousetrap';
 import update from 'immutability-helper';
 import { clFetch } from '../utils.jsx';
 
+
+// TODO merge search_bar and search_bar_presentation
+const ClSearch = styled(Search)`
+  z-index:1000;
+`;
+
+// TODO do we need to click out of this element? Why all the custom code for it?
+class SearchBarPresentationComponent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+
+    this.setWrapperRef = this.setWrapperRef.bind(this);           
+    this.handleClickOutside = this.handleClickOutside.bind(this);
+  }
+
+  componentDidMount() {
+    document.addEventListener('mousedown', this.handleClickOutside);
+    this.props.bindShortcut('/', (e) => {
+      document.getElementById("cl-search").focus();
+      e.preventDefault();
+    });
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('mousedown', this.handleClickOutside);
+  }
+
+	/**
+	 * Set the wrapper ref
+	 */
+	setWrapperRef(node) {
+		this.wrapperRef = node;
+	}
+
+	/**
+	 * Alert if clicked on outside of element
+	 */
+	handleClickOutside(event) {
+	  if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
+      this.setState({
+        open: false
+      });
+	  }
+	}
+
+  render() {
+    let me = this;
+    const onResultSelect = (e, selected) => {
+      this.props.onResultSelect(e, selected);
+      e.preventDefault();
+      me.setState({
+        open: true
+      });
+    };
+
+    const onSearchChange = (e, { value }) => {
+      this.props.onInputChange(value);
+    };
+
+    const stayOpen = this.state.open;
+    
+    return (
+      <div ref={this.setWrapperRef}>
+        <ClSearch
+          id="cl-search"
+          results={this.props.results}
+          loading={this.props.isLoading}
+          onSearchChange={onSearchChange}
+          onResultSelect={onResultSelect}
+          category={this.props.isCategories}
+          value={this.props.inputText}
+          open={stayOpen ? stayOpen : undefined}
+          input={{fluid: true}}
+          fluid={true}
+        />
+      </div>
+    );
+  }
+}
+
+SearchBarPresentationComponent.propTypes = {
+  results: PropTypes.oneOfType([
+    PropTypes.arrayOf(
+      PropTypes.shape({
+        title: PropTypes.string,
+        id: PropTypes.string,
+      })
+    ),
+    PropTypes.object,
+  ]),
+  isCategories: PropTypes.bool.isRequired,
+  isLoading: PropTypes.bool.isRequired,
+  inputText: PropTypes.string.isRequired,
+  onInputChange: PropTypes.func.isRequired,
+  onResultSelect: PropTypes.func.isRequired,
+};
+
+let SearchBarPresentation = mouseTrap(SearchBarPresentationComponent);
+
 /**
  * State initial:
  * {
@@ -151,7 +251,6 @@ class SearchBar extends React.Component {
       setState,
       key: ['bundles', inputText],
       context: { inputText },
-      onReady: () => console.log(self.state)
     });
 
     clFetch({
@@ -159,7 +258,6 @@ class SearchBar extends React.Component {
       setState,
       key: ['worksheets', inputText],
       context: { inputText },
-      onReady: () => console.log(self.state)
     });
 
     clFetch({
@@ -167,7 +265,6 @@ class SearchBar extends React.Component {
       setState,
       key: ['users', inputText],
       context: { inputText },
-      onReady: () => console.log(self.state)
     });
   }
 
@@ -215,51 +312,57 @@ class SearchBar extends React.Component {
     let results = {};
     if (hasResultsLoaded(this.state)) {
       let worksheetsResults = worksheets[currentQuery].results;
-      results['worksheets'] = {
-        name: 'Worksheets',
-        results: worksheetsResults.data.map((item) => {
-          let description = item.attributes.title ?
-            `Title: ${item.attributes.title}` :
-            '';
+      if (worksheetsResults.data.length > 0) {
+        results['worksheets'] = {
+          name: 'Worksheets',
+          results: worksheetsResults.data.map((item) => {
+            let description = item.attributes.title ?
+              `Title: ${item.attributes.title}` :
+              '';
 
-          return {
-            id: item.attributes.uuid,
-            title: item.attributes.name,
-            description,
-            key: item.attributes.uuid,
-            type: 'worksheet',
-          };
-        })
-      };
+            return {
+              id: item.attributes.uuid,
+              title: item.attributes.name,
+              description,
+              key: item.attributes.uuid,
+              type: 'worksheet',
+            };
+          })
+        };
+      }
 
       let bundleResults = bundles[currentQuery].results;
-      results['bundles'] = {
-        name: 'Bundles',
-        results: bundleResults.data.map((item) => {
-          let description = item.attributes.command ?
-            `command: ${item.attributes.command}` :
-            '';
-          return {
-            id: item.attributes.uuid,
-            title: item.attributes.metadata.name,
-            description,
-            key: item.attributes.uuid,
-            type: 'bundle',
-          }
-        })
+      if (bundleResults.data.length > 0) {
+        results['bundles'] = {
+          name: 'Bundles',
+          results: bundleResults.data.map((item) => {
+            let description = item.attributes.command ?
+              `command: ${item.attributes.command}` :
+              '';
+            return {
+              id: item.attributes.uuid,
+              title: item.attributes.metadata.name,
+              description,
+              key: item.attributes.uuid,
+              type: 'bundle',
+            }
+          })
+        }
       }
 
       let userResults = users[currentQuery].results;
-      results['users'] = {
-        name: 'Users',
-        results: userResults.data.map((item) => {
-          return {
-            it: item.id,
-            title: item.attributes.user_name,
-            key: item.id,
-            type: 'user',
-          };
-        })
+      if (userResults.data.length > 0) {
+        results['users'] = {
+          name: 'Users',
+          results: userResults.data.map((item) => {
+            return {
+              id: item.id,
+              title: item.attributes.user_name,
+              key: item.id,
+              type: 'user',
+            };
+          })
+        }
       }
     }
 
@@ -285,7 +388,6 @@ class SearchBar extends React.Component {
         },
       ]
     };
-    console.log(results);
     
     return (
       <SearchBarPresentation
@@ -299,105 +401,6 @@ class SearchBar extends React.Component {
     );
   }
 }
-
-// TODO merge search_bar and search_bar_presentation
-const ClSearch = styled(Search)`
-  z-index:1000;
-`;
-
-// TODO do we need to click out of this element? Why all the custom code for it?
-class SearchBarPresentationComponent extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {};
-
-    this.setWrapperRef = this.setWrapperRef.bind(this);           
-    this.handleClickOutside = this.handleClickOutside.bind(this);
-  }
-
-  componentDidMount() {
-    document.addEventListener('mousedown', this.handleClickOutside);
-    this.props.bindShortcut('/', (e) => {
-      document.getElementById("cl-search").focus();
-      e.preventDefault();
-    });
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('mousedown', this.handleClickOutside);
-  }
-
-	/**
-	 * Set the wrapper ref
-	 */
-	setWrapperRef(node) {
-		this.wrapperRef = node;
-	}
-
-	/**
-	 * Alert if clicked on outside of element
-	 */
-	handleClickOutside(event) {
-	  if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
-      this.setState({
-        open: false
-      });
-	  }
-	}
-
-  render() {
-    let me = this;
-    const onResultSelect = (e, selected) => {
-      this.props.onResultSelect(e, selected);
-      e.preventDefault();
-      me.setState({
-        open: true
-      });
-    };
-
-    const onSearchChange = (e, { value }) => {
-      this.props.onInputChange(value);
-    };
-
-    const stayOpen = this.state.open;
-    
-    return (
-      <div ref={this.setWrapperRef}>
-        <ClSearch
-          id="cl-search"
-          results={this.props.results}
-          loading={this.props.isLoading}
-          onSearchChange={onSearchChange}
-          onResultSelect={onResultSelect}
-          category={this.props.isCategories}
-          value={this.props.inputText}
-          open={stayOpen ? stayOpen : undefined}
-          input={{fluid: true}}
-          fluid={true}
-        />
-      </div>
-    );
-  }
-}
-
-SearchBarPresentationComponent.propTypes = {
-  results: PropTypes.oneOfType([
-    PropTypes.arrayOf(
-      PropTypes.shape({
-        title: PropTypes.string,
-        id: PropTypes.string,
-      })
-    ),
-    PropTypes.object,
-  ]),
-  isCategories: PropTypes.bool.isRequired,
-  isLoading: PropTypes.bool.isRequired,
-  inputText: PropTypes.string.isRequired,
-  onInputChange: PropTypes.func.isRequired,
-  onResultSelect: PropTypes.func.isRequired,
-};
-
-let SearchBarPresentation = mouseTrap(SearchBarPresentationComponent);
 
 export {
   SearchBarPresentation,

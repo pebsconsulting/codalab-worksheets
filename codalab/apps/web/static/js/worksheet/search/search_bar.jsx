@@ -145,7 +145,6 @@ const mapDispatchToProps = (dispatch, ownProps) => {
         `/bundles/${selected.result.id}`;
       } else if (selected.result.type == 'filter') {
         dispatch(fetchSearch(`${selected.value} ${selected.result.key}`));
-        let x;
       } else if (selected.result.type == 'user') {
         window.location.href = `/account/user_profile/${selected.result.id}`;
       }

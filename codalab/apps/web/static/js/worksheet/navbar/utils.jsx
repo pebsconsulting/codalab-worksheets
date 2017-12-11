@@ -1,9 +1,9 @@
 const userIsLoggedIn = (state) => {
-  return state.loggedInUser.user ? true : false;
+  return state.loggedInUser.results ? true : false;
 };
 
 const getLoggedInUser = (state) => {
-  return state.loggedInUser.user;
+  return state.loggedInUser.results;
 };
 
 export {

@@ -1,6 +1,9 @@
 import fetch from 'isomorphic-fetch';
 import update from 'immutability-helper';
 
+const get = (obj) => {
+};
+
 const requiredParam = () => {
   throw new Error('missing parameter');
 }
@@ -113,14 +116,21 @@ const clFetch = ({
     ));
   });
 
+  // TODO fetch is behaving weird with /rest/user
+  // when the user isn't logged in. Consider using
+  // jQuery instead?
   fetch(url, {
     credentials: 'same-origin',
   }).then(
     (response) => {
-      if (response.status >= 400) {
+      let urlNow = url;
+      if (response.status >= 400 || response.redirected) {
         throw new Error('Bad response from server');
       }
       return response.json();
+    },
+    (error) => {
+      console.log("error: ", error);
     }
   ).then(
     (json) => {
@@ -152,7 +162,19 @@ const clFetch = ({
       );
     }
   ).catch(
-    (error) => console.error(error)
+    (error) => {
+      console.error(error);
+      setState((prevState, props) => {
+        return update(prevState, createMergeObj(key, {
+            $set: {}
+          }
+        ))
+      },
+        () => {
+          onReady();
+        }
+      );
+    }
   );
 };
 
