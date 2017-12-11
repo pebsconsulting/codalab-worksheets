@@ -10,12 +10,10 @@ import converter from 'number-to-words';
 import { PARAMS } from './constants.jsx';
 
 
-// TODO merge search_bar and search_bar_presentation
 const ClSearch = styled(Search)`
   z-index:1000;
 `;
 
-// TODO do we need to click out of this element? Why all the custom code for it?
 class SearchBarPresentationComponent extends React.Component {
   componentDidMount() {
     this.props.bindShortcut('/', (e) => {
@@ -200,17 +198,27 @@ class SearchBar extends React.Component {
       }
     }));
 
-    if (inputText.length <= PARAMS['MIN_INPUT_LENGTH']) {
+    if (inputText.length < PARAMS['MIN_INPUT_LENGTH']) {
       return;
     }
 
-    // TODO add docs
+    /**
+     * Converts raw user input into the appropriate format for
+     * the query parameters for bundles and worksheets search
+     * APIs.
+     *
+     * Ex:
+     * input: `max .mine .limit=10`
+     * returns: `keywords=max&keywords=.mine&keywords=.limit%3D10&`
+     */
     function convertInputToKeywordQueryString(input) {
       let keywordsQuery;
       // remove leading / trailing whitespace, split
       // by any whitespace
       keywordsQuery = input.trim().split(/[ ]+/);
-      keywordsQuery.push(".limit=5");
+      if (input.indexOf(".limit") !== -1) {
+        keywordsQuery.push(".limit=5");
+      }
       let keywordsQueryString = keywordsQuery.reduce((accumulated, cur) => {
         return accumulated + `keywords=${encodeURIComponent(cur)}` + '&';
       }, '');
@@ -342,11 +350,11 @@ class SearchBar extends React.Component {
       }
     }
 
-		if (currentQuery.length <= PARAMS['MIN_INPUT_LENGTH']) {
+		if (currentQuery.length < PARAMS['MIN_INPUT_LENGTH']) {
 			results['message'] = {
 				name: '',
 				results: [{
-					title: `Type at least ${converter.toWords(PARAMS['MIN_INPUT_LENGTH'] + 1)} letters to search`,
+					title: `Type at least ${converter.toWords(PARAMS['MIN_INPUT_LENGTH'])} letters to search`,
 					key: 'message',
 				}]
 			}

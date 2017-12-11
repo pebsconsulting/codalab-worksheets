@@ -1,4 +1,4 @@
-// import 'babel-polyfill';
+import 'babel-polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider, connect } from 'react-redux';
@@ -11,36 +11,9 @@ import { BrowserRouter as Router, Route } from 'react-router-dom';
 import "semantic-ui-less/semantic.less";
 import "./styles/styles.less";
 
-/**
- * TODO refactor the global state so 
- * that all worksheets, bundles, etc. are
- * stored in one place. Any features that
- * require that data should simply reference
- * by UUID. Will require thought into how
- * reducers should be organized.
- *
- * State shape:
- * {
- *   search: {
- *     queries: {
- *       "query1": {
- *         isFetching: false,
- *         results: ["worksheet name", "uuid", "owner username"]
- *       },
- *       "query2": {
- *         isFetching: true,
- *       }
- *     },
- *     currentQuery: "query2"
- *   }
- * }
- *
- */
-
 ReactDOM.render(
     <Router>
       <Route path="/" component={App} />
     </Router>,
-    // TODO rename
-    document.getElementById('cl-search-bar'));
+    document.getElementById('cl-main'));
 
