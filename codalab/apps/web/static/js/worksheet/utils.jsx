@@ -1,8 +1,6 @@
 import fetch from 'isomorphic-fetch';
 import update from 'immutability-helper';
-
-const get = (obj) => {
-};
+import $ from 'jquery';
 
 const requiredParam = () => {
   throw new Error('missing parameter');
@@ -82,29 +80,10 @@ const clFetch = ({
     return originalObj;
   };
 
-    /*
-  if (Array.isArray(key)) {
-    return; // TODO noop for now
-  }
-  */
   if (typeof key === 'string') {
     key = [key];
   }
 
-  /*
-  let mergeObj = createMergeObj(
-    key,
-    {
-      $set: {
-        isFetching: true,
-        context: context,
-      }
-    });
-  let currStateSaved = currentState();
-  let updateResult = update(
-      currStateSaved,
-      mergeObj);
-    */
   setState((prevState /*, props*/) => {
     return update(prevState, createMergeObj(
       key, {
@@ -119,6 +98,39 @@ const clFetch = ({
   // TODO fetch is behaving weird with /rest/user
   // when the user isn't logged in. Consider using
   // jQuery instead?
+ 
+	$.ajax({
+		url,
+		type: 'GET',
+		contentType: 'application/json'
+	}).then((data) => {
+    setState((prevState, props) => {
+      return update(prevState, createMergeObj(key, {
+          $merge: {
+            isFetching: false,
+            results: data
+          }
+        }
+      ))
+    },
+      () => {
+        onReady();
+      }
+    );
+  }).fail((err) => {
+    setState((prevState, props) => {
+      return update(prevState, createMergeObj(key, {
+          $set: {}
+        }
+      ))
+    },
+      () => {
+        onReady();
+      }
+    );
+  });
+
+  /*
   fetch(url, {
     credentials: 'same-origin',
   }).then(
@@ -127,6 +139,12 @@ const clFetch = ({
       if (response.status >= 400 || response.redirected) {
         throw new Error('Bad response from server');
       }
+      let retVal;
+      try {
+        return response.json();
+      } catch (e) {
+      }
+
       return response.json();
     },
     (error) => {
@@ -134,19 +152,6 @@ const clFetch = ({
     }
   ).then(
     (json) => {
-      /*
-      let dataMergeObj = createMergeObj(
-        key,
-        {
-          $merge: {
-            isFetching: false,
-            results: json,
-          }
-        }
-      );
-      let currStateSavedAgain = currentState();
-      debugger;
-      */
       setState((prevState, props) => {
         return update(prevState, createMergeObj(key, {
             $merge: {
@@ -163,7 +168,6 @@ const clFetch = ({
     }
   ).catch(
     (error) => {
-      console.error(error);
       setState((prevState, props) => {
         return update(prevState, createMergeObj(key, {
             $set: {}
@@ -176,6 +180,7 @@ const clFetch = ({
       );
     }
   );
+  */
 };
 
 export {

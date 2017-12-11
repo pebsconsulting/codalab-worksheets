@@ -14,16 +14,17 @@ module.exports = {
     alias: {
       '../../theme.config$': path.join(__dirname, 
           'static/less/codalab-semantic-theme/theme.config')  
-    }
+    },
   },
   module: {
     rules: [
       {
-        test: /.jsx?$/,
+        test: /\.jsx?$|\.js?$/,
         loader: 'babel-loader',
         exclude: /node_modules/,
         query: {
           presets: ['env', 'react'],
+          plugins: ['transform-runtime'],
         }
       },
       {

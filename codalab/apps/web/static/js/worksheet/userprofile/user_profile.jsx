@@ -5,7 +5,7 @@ import {
   Container,
   Header
 } from 'semantic-ui-react';
-import prettyBytes from 'pretty-bytes';
+// import prettyBytes from 'pretty-bytes';
 import { clFetch } from '../utils.jsx';
 
 /**
@@ -96,7 +96,7 @@ class UserProfile extends React.Component {
         <UserProfilePresentation 
           worksheets={this.state.worksheets.results}
           user={this.state.user.results}
-          userProfileIsOfLoggedInUser={this.props.match.params.userId ? true : false}
+          userProfileIsOfLoggedInUser={this.props.match.params.userId ? false : true}
         />
       );
     } else {

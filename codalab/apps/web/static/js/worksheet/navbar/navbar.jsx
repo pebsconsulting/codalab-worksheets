@@ -22,7 +22,7 @@ const NavBar = (props) => {
           <div className="cl-navbar-leftcontainer">
             <div className="cl-navbar-left-clicon">
               <a href="/" tabIndex="1" target="_self">
-                <img src="/static/img/codalab-logo.png" style={{height:'100%'}} alt="Home" />
+                <img src="/static/img/codalab-logo.png" className="cl-navbar-left-clicon" alt="Home" />
               </a>
             </div>
             <div className="cl-navbar-left-search">
