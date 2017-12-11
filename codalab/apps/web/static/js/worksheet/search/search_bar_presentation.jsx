@@ -5,6 +5,9 @@ import { Search, Label } from 'semantic-ui-react';
 import mouseTrap from 'react-mousetrap';
 import update from 'immutability-helper';
 import { clFetch } from '../utils.jsx';
+import _ from 'lodash';
+import converter from 'number-to-words';
+import { PARAMS } from './constants.jsx';
 
 
 // TODO merge search_bar and search_bar_presentation
@@ -14,43 +17,12 @@ const ClSearch = styled(Search)`
 
 // TODO do we need to click out of this element? Why all the custom code for it?
 class SearchBarPresentationComponent extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {};
-
-    this.setWrapperRef = this.setWrapperRef.bind(this);           
-    this.handleClickOutside = this.handleClickOutside.bind(this);
-  }
-
   componentDidMount() {
-    document.addEventListener('mousedown', this.handleClickOutside);
     this.props.bindShortcut('/', (e) => {
       document.getElementById("cl-search").focus();
       e.preventDefault();
     });
   }
-
-  componentWillUnmount() {
-    document.removeEventListener('mousedown', this.handleClickOutside);
-  }
-
-	/**
-	 * Set the wrapper ref
-	 */
-	setWrapperRef(node) {
-		this.wrapperRef = node;
-	}
-
-	/**
-	 * Alert if clicked on outside of element
-	 */
-	handleClickOutside(event) {
-	  if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
-      this.setState({
-        open: false
-      });
-	  }
-	}
 
   render() {
     let me = this;
@@ -66,8 +38,6 @@ class SearchBarPresentationComponent extends React.Component {
       this.props.onInputChange(value);
     };
 
-    const stayOpen = this.state.open;
-    
     return (
       <div ref={this.setWrapperRef}>
         <ClSearch
@@ -78,7 +48,6 @@ class SearchBarPresentationComponent extends React.Component {
           onResultSelect={onResultSelect}
           category={this.props.isCategories}
           value={this.props.inputText}
-          open={stayOpen ? stayOpen : undefined}
           input={{fluid: true}}
           fluid={true}
         />
@@ -204,6 +173,9 @@ let SearchBarPresentation = mouseTrap(SearchBarPresentationComponent);
  * }
  *
  */
+let bundlesClFetch = _.debounce(clFetch, 250);
+let worksheetsClFetch = _.debounce(clFetch, 250);
+let usersClFetch = _.debounce(clFetch, 250);
 class SearchBar extends React.Component {
   constructor(props) {
     super(props);
@@ -228,6 +200,10 @@ class SearchBar extends React.Component {
       }
     }));
 
+    if (inputText.length <= PARAMS['MIN_INPUT_LENGTH']) {
+      return;
+    }
+
     // TODO add docs
     function convertInputToKeywordQueryString(input) {
       let keywordsQuery;
@@ -246,21 +222,21 @@ class SearchBar extends React.Component {
     const setState = (updater, callback) =>
       self.setState(updater, callback);
 
-    clFetch({
+    bundlesClFetch({
       url: `/rest/bundles?${keywordQueryString}`,
       setState,
       key: ['bundles', inputText],
       context: { inputText },
     });
 
-    clFetch({
+    worksheetsClFetch({
       url: `/rest/worksheets?${keywordQueryString}`,
       setState,
       key: ['worksheets', inputText],
       context: { inputText },
     });
 
-    clFetch({
+    usersClFetch({
       url: `/rest/users?${keywordQueryString}`,
       setState,
       key: ['users', inputText],
@@ -298,7 +274,7 @@ class SearchBar extends React.Component {
 
     const hasLoaded = (state) => {
       let {currentQuery, bundles, worksheets, users} = state;
-      if (currentQuery === '') return true;
+      if (currentQuery.length < 3) return true;
       return hasResultsLoaded(state);
     }
 
@@ -365,6 +341,16 @@ class SearchBar extends React.Component {
         }
       }
     }
+
+		if (currentQuery.length <= PARAMS['MIN_INPUT_LENGTH']) {
+			results['message'] = {
+				name: '',
+				results: [{
+					title: `Type at least ${converter.toWords(PARAMS['MIN_INPUT_LENGTH'] + 1)} letters to search`,
+					key: 'message',
+				}]
+			}
+		}
 
     results['filters'] = {
       name: 'Filter results',

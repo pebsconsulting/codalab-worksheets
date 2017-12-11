@@ -39,6 +39,7 @@
     "babel-polyfill": "^6.26.0",
     "immutability-helper": "^2.4.0",
     "isomorphic-fetch": "^2.2.1",
+    "lodash": "^4.17.4",
     "number-to-words": "^1.2.3",
     "pretty-bytes": "^4.0.2",
     "prop-types": "^15.6.0",
