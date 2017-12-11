@@ -7,8 +7,6 @@ import { createStore, applyMiddleware } from 'redux';
 import thunkMiddleware from 'redux-thunk'
 import { createLogger } from 'redux-logger'
 import { combineReducers } from 'redux';
-import { search } from './search/reducers.jsx';
-import { loggedInUser } from './navbar/reducers.jsx';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import "semantic-ui-less/semantic.less";
 import "./styles/styles.less";
@@ -39,24 +37,10 @@ import "./styles/styles.less";
  *
  */
 
-const clApp = combineReducers({
-  search,
-  loggedInUser,
-});
-
-let store = createStore(
-  clApp,
-  applyMiddleware(
-    thunkMiddleware,
-    createLogger()
-  )
-);
-
 ReactDOM.render(
-    <Provider store={store}>
-      <Router>
-        <Route path="/" component={App} />
-      </Router>
-    </Provider>,
+    <Router>
+      <Route path="/" component={App} />
+    </Router>,
+    // TODO rename
     document.getElementById('cl-search-bar'));
 

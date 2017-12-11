@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { NavBar, NavBarContainer } from '../navbar/nav_bar.jsx';
+import { NavBar, NavBarContainer } from '../navbar/navbar.jsx';
 import { UserProfile } from '../userprofile/user_profile.jsx';
 import { Route } from 'react-router-dom';
 import { clFetch } from '../utils.jsx';

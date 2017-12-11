@@ -356,7 +356,7 @@ class SearchBar extends React.Component {
           name: 'Users',
           results: userResults.data.map((item) => {
             return {
-              id: item.id,
+              id: item.attributes.user_name,
               title: item.attributes.user_name,
               key: item.id,
               type: 'user',

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { SearchBar } from '../search/search_bar_presentation.jsx';
 import { Dropdown } from 'semantic-ui-react';
 import "semantic-ui-less/semantic.less";
-import { fetchLoggedInUser } from './actions.jsx';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { userIsLoggedIn } from './utils.jsx';
@@ -56,6 +55,9 @@ const NavBar = (props) => {
                 <Dropdown.Menu>
                   <Dropdown.Item>
                     <a href="/account/profile">My Account</a>
+                  </Dropdown.Item>
+                  <Dropdown.Item>
+                    <a href="/account/user_profile">My Profile</a>
                   </Dropdown.Item>
                   <Dropdown.Item>
                     <a href={`/rest/account/logout?redirect_uri=${encodeURIComponent(window.location.pathname)}`}>Logout</a> 
