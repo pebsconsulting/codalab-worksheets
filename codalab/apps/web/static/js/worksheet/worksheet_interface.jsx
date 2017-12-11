@@ -222,7 +222,6 @@ var Worksheet = React.createClass({
                 $('#glossaryModal').modal('hide');
             }
             ContextMenuMixin.closeContextMenu();
-            self.setState({escCount: self.state.escCount + 1});
         });
 
         Mousetrap.bind(['shift+r'], function(e) {
