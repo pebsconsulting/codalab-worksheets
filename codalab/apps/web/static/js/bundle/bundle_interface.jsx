@@ -116,6 +116,8 @@ let Bundle = React.createClass({
       // 404 Not Found errors are normal if contents aren't available yet, so ignore them
       if (xhr.status != 404) {
         this.setState({bundleInfo: null, fileContents: null, stdout: null, stderr: null, errorMessages: this.state.errorMessages.concat([xhr.responseText])});
+      } else {
+        this.setState({fileContents: null});
       }
     });
   },
