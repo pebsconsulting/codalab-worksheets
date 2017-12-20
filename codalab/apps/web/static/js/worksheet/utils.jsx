@@ -95,10 +95,6 @@ const clFetch = ({
     ));
   });
 
-  // TODO fetch is behaving weird with /rest/user
-  // when the user isn't logged in. Consider using
-  // jQuery instead?
- 
 	$.ajax({
 		url,
 		type: 'GET',
