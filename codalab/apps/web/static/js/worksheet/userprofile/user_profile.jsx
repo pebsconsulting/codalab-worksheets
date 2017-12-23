@@ -1,10 +1,8 @@
 import { connect } from 'react-redux';
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Container,
-  Header
-} from 'semantic-ui-react';
+import Container from 'semantic-ui-react/dist/es/elements/Container';
+import Header from 'semantic-ui-react/dist/es/elements/Header';
 // import prettyBytes from 'pretty-bytes';
 import { clFetch } from '../utils.jsx';
 

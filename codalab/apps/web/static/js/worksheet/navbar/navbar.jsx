@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { SearchBar } from '../search/search_bar_presentation.jsx';
-import { Dropdown } from 'semantic-ui-react';
-import "semantic-ui-less/semantic.less";
+import Dropdown from 'semantic-ui-react/dist/es/modules/Dropdown';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { userIsLoggedIn } from './utils.jsx';

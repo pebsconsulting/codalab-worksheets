@@ -2,6 +2,8 @@ var path = require('path');
 var webpack = require('webpack');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var path = require('path');
+var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+
 
 module.exports = {
   devtool: 'source-map',
@@ -47,5 +49,16 @@ module.exports = {
     new ExtractTextPlugin({
       filename: '[name].css',
     }),
+    new BundleAnalyzerPlugin({
+      analyzerHost: '0.0.0.0',
+      analyzerPort: 8088,
+    }),
+    /*
+    new webpack.DefinePlugin({
+      "process.env": { 
+        NODE_ENV: JSON.stringify("production") 
+      }
+    }),
+    */
   ]
 };

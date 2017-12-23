@@ -1,11 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Search, Label } from 'semantic-ui-react';
+import Search from 'semantic-ui-react/dist/es/modules/Search';
+import Label from 'semantic-ui-react/dist/es/elements/Label';
 import mouseTrap from 'react-mousetrap';
 import update from 'immutability-helper';
 import { clFetch } from '../utils.jsx';
-import _ from 'lodash';
+import debounce from 'lodash/debounce';
 import converter from 'number-to-words';
 import { PARAMS } from './constants.jsx';
 
@@ -171,9 +172,9 @@ let SearchBarPresentation = mouseTrap(SearchBarPresentationComponent);
  * }
  *
  */
-let bundlesClFetch = _.debounce(clFetch, 250);
-let worksheetsClFetch = _.debounce(clFetch, 250);
-let usersClFetch = _.debounce(clFetch, 250);
+let bundlesClFetch = debounce(clFetch, 250);
+let worksheetsClFetch = debounce(clFetch, 250);
+let usersClFetch = debounce(clFetch, 250);
 class SearchBar extends React.Component {
   constructor(props) {
     super(props);

@@ -1,6 +1,6 @@
 import fetch from 'isomorphic-fetch';
 import update from 'immutability-helper';
-import $ from 'jquery';
+import $ from 'jquery/dist/jquery.min.js';
 
 const requiredParam = () => {
   throw new Error('missing parameter');
