@@ -49,11 +49,11 @@ module.exports = {
     new ExtractTextPlugin({
       filename: '[name].css',
     }),
+    /*
     new BundleAnalyzerPlugin({
       analyzerHost: '0.0.0.0',
       analyzerPort: 8088,
     }),
-    /*
     new webpack.DefinePlugin({
       "process.env": { 
         NODE_ENV: JSON.stringify("production") 
