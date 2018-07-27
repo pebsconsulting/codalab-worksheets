@@ -47,15 +47,15 @@ var TableItem = React.createClass({
         var tableClassName = (this.props.focused ? 'table focused' : 'table');
         var item = this.props.item;
         var canEdit = this.props.canEdit;
-        var bundleInfo = item.bundle_info;
-        var headerItems = item.interpreted[0];
+        var bundleInfos = item.bundles_spec.bundle_infos;
+        var headerItems = item.header;
         var columnClasses = headerItems.map(function(item, index) {
             return 'table-column-' + encodeURIComponent(item).replace("%", "_").replace(/[^-_A-Za-z0-9]/g, "_");
         });
         var headerHtml = headerItems.map(function(item, index) {
             return <th key={index} className={columnClasses[index]}>{item}</th>;
         });
-        var rowItems = item.interpreted[1];  // Array of {header: value, ...} objects
+        var rowItems = item.rows;  // Array of {header: value, ...} objects
         var columnWithHyperlinks = [];
         Object.keys(rowItems[0]).forEach(function(x) {
             if (rowItems[0][x] && rowItems[0][x]['path'])
@@ -64,7 +64,7 @@ var TableItem = React.createClass({
         var bodyRowsHtml = rowItems.map(function(rowItem, rowIndex) {
             var rowRef = 'row' + rowIndex;
             var rowFocused = self.props.focused && (rowIndex == self.props.subFocusIndex);
-            var url = '/bundles/' + bundleInfo[rowIndex].uuid;
+            var url = '/bundles/' + bundleInfos[rowIndex].uuid;
             return <TableRow
                      key={rowIndex}
                      ref={rowRef}
@@ -73,8 +73,8 @@ var TableItem = React.createClass({
                      focused={rowFocused}
                      focusIndex={self.props.focusIndex}
                      url={url}
-                     bundleInfo={bundleInfo[rowIndex]}
-                     uuid={bundleInfo[rowIndex].uuid}
+                     bundleInfo={bundleInfos[rowIndex]}
+                     uuid={bundleInfos[rowIndex].uuid}
                      headerItems={headerItems}
                      columnClasses={columnClasses}
                      canEdit={canEdit}

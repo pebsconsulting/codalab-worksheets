@@ -53,31 +53,27 @@ let WorksheetSidePanel = React.createClass({
 
     // What kind of thing is it?
     isFocusWorksheet: function(focus) {
-      return focus.mode === undefined || focus.mode == 'worksheet' || focus.mode == 'wsearch';
+      return focus.mode === undefined || focus.mode == 'subworksheets_block';
     },
     isFocusMarkup: function(focus) {
       // If search and didn't return bundles, then count as markup
-      return focus.mode == 'markup' || (focus.mode == 'search' && (!focus.interpreted.items[0] || focus.interpreted.items[0].bundle_info === undefined));
+      return focus.mode == 'markup_block';
     },
     isFocusBundle: function(focus) {
       return !this.isFocusWorksheet(focus) && !this.isFocusMarkup(focus);
     },
     getBundleInfo: function(focus) {
-      if (focus.mode == 'table')  // Drill down into row of table
-          return this.props.subFocusIndex != -1 ? focus.bundle_info[this.props.subFocusIndex] : null;
-      else if (focus.mode == 'search')
-          return this.props.subFocusIndex != -1 ? focus.interpreted.items[0].bundle_info[this.props.subFocusIndex] : null;
+      if (focus.mode == 'table_block')  // Drill down into row of table
+          return this.props.subFocusIndex != -1 ? focus.bundles_spec.bundle_infos[this.props.subFocusIndex] : null;
       else
-          return focus.bundle_info;
+          return focus.bundles_spec.bundle_infos[0];
     },
     getWorksheetInfo: function(focus) {
-      if (focus.mode == 'worksheet')
-        return focus.subworksheet_info;
-      else if (focus.mode == 'wsearch') {
-        if (this.props.subFocusIndex == -1)
+      if (focus.mode === 'subworksheets_block') {
+        if (this.props.subFocusIndex === -1)
           return null;
-        var item = focus.interpreted.items[this.props.subFocusIndex];
-        return item ? item.subworksheet_info : null;
+        var item = focus.subworksheet_infos[this.props.subFocusIndex];
+        return item;
       }
       else
         return focus;
@@ -231,11 +227,9 @@ var WorksheetDetailSidePanel = React.createClass({
       var rows = [];
       if (worksheet.items) {
         worksheet.items.forEach(function(item) {
-          if (item.bundle_info) {
+          if (item.bundles_spec) {
             // Show bundle
-            var bundle_infos = item.bundle_info;
-            if (!(bundle_infos instanceof Array))
-              bundle_infos = [bundle_infos];
+            var bundle_infos = item.bundles_spec.bundle_infos;
 
             bundle_infos.forEach(function(b) {
               var url = "/bundles/" + b.uuid;
@@ -245,15 +239,16 @@ var WorksheetDetailSidePanel = React.createClass({
                 <td><a href={url} target="_blank">{b.metadata.name}({short_uuid})</a></td>
               </tr>);
             });
-          } else if (item.mode == 'worksheet') {
+          } else if (item.mode == 'subworksheets_block') {
             // Show worksheet
-            var info = item.subworksheet_info;
-            var title = info.title || info.name;
-            var url = '/worksheets/' + info.uuid;
-            rows.push(<tr>
-              <td>worksheet</td>
-              <td><a href={url} target="_blank">{title}</a></td>
-            </tr>);
+            item.subworksheet_infos.forEach(function(info) {
+              var title = info.title || info.name;
+              var url = '/worksheets/' + info.uuid;
+              rows.push(<tr>
+                <td>worksheet</td>
+                <td><a href={url} target="_blank">{title}</a></td>
+              </tr>);
+            })
           }
         });
       }

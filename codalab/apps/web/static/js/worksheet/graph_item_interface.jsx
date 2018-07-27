@@ -11,12 +11,12 @@ var GraphItem = React.createClass({
     },
 
     _xi: function() {
-      var props = this.props.item.properties;
-      return props.x ? parseInt(props.x) : 0;
+      var xlabel = this.props.item.xlabel;
+      return xlabel ? parseInt(xlabel) : 0;
     },
     _yi: function() {
-      var props = this.props.item.properties;
-      return props.y ? parseInt(props.y) : 1;
+      var ylabel = this.props.item.ylabel;
+      return ylabel ? parseInt(ylabel) : 1;
     },
 
     // Return data for C3
@@ -34,8 +34,8 @@ var GraphItem = React.createClass({
       var ytox = {};  // Maps the names of the y columns to x columns
       var columns = [];
       var totalNumPoints = 0;
-      for (var i = 0; i < item.interpreted.length; i++) {  // For each trajectory
-        var info = item.interpreted[i];
+      for (var i = 0; i < item.trajectories.length; i++) {  // For each trajectory
+        var info = item.trajectories[i];
         var points = info.points;
         if (!points) continue;  // No points...
         var display_name = i + ': ' + info.display_name;
@@ -54,7 +54,7 @@ var GraphItem = React.createClass({
         columns.push(ycol);
         totalNumPoints += points.length;
       }
-      // console.log('GraphItem._getData: %s points', totalNumPoints);
+
       return {
         xs: ytox,
         columns: columns,
@@ -66,12 +66,10 @@ var GraphItem = React.createClass({
     },
 
     componentDidMount: function() {
-      //console.log('GraphItem: componentDidMount');
-
       // Axis labels
       var item = this.props.item;
-      var xlabel = item.properties.xlabel || this._xi();
-      var ylabel = item.properties.ylabel || this._yi();
+      var xlabel = item.xlabel || this._xi();
+      var ylabel = item.ylabel || this._yi();
 
       var chart = c3.generate({
         bindto: '#' + this._chartId(),
@@ -85,32 +83,31 @@ var GraphItem = React.createClass({
     },
 
     shouldComponentUpdate: function(nextProps, nextState) {
-      return worksheetItemPropsChanged(this.props, nextProps);
+      var propsChanged = worksheetItemPropsChanged(this.props, nextProps);
+      var chartChanged = this.state.chart !== nextState.chart;
+      return propsChanged || chartChanged;
     },
 
     render: function() {
-        //console.log('GraphItem.render', this.state.chart);
-
-        // Rendering the chart is slow, so throttle it.
-        var self = this;
-        function renderChart() {
-          if (self.state.chart) {
-            // TODO: unload only trajectories which are outdated.
-            self.state.chart.load(self._getData());
-          }
+      var self = this;
+      function renderChart() {
+        if (self.state.chart) {
+          // TODO: unload only trajectories which are outdated.
+          self.state.chart.load(self._getData());
         }
-        if (this.throttledRenderChart === undefined)
-            this.throttledRenderChart = _.throttle(renderChart, 2000).bind(this);
-        this.throttledRenderChart();
+      }
+      if (this.throttledRenderChart === undefined)
+          this.throttledRenderChart = _.throttle(renderChart, 2000).bind(this);
+      this.throttledRenderChart();
 
-        var className = 'type-image' + (this.props.focused ? ' focused' : '');
-        var bundleInfo = this.props.item.bundle_info;
-        return (
-            <div className="ws-item" onClick={this.handleClick} onContextMenu={this.props.handleContextMenu.bind(null, bundleInfo.uuid, this.props.focusIndex, 0, bundleInfo.bundle_type === 'run')}>
-                <div className={className}>
-                    <div id={this._chartId()} />
-                </div>
+      var className = 'type-image' + (this.props.focused ? ' focused' : '');
+      var bundleInfo = this.props.item.bundles_spec.bundle_infos[0];
+      return (
+        <div className="ws-item" onClick={this.handleClick} onContextMenu={this.props.handleContextMenu.bind(null, bundleInfo.uuid, this.props.focusIndex, 0, bundleInfo.bundle_type === 'run')}>
+            <div className={className}>
+                <div id={this._chartId()} />
             </div>
-        );
+        </div>
+      );
     }
 });
