@@ -19,7 +19,7 @@ class Base(Settings):
     }
 
     # Keep in sync with codalab-cli
-    CODALAB_VERSION = '0.2.28'
+    CODALAB_VERSION = '0.2.29'
 
     ############################################################
 
