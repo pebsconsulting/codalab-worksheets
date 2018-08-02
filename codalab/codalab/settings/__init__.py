@@ -19,7 +19,7 @@ class Base(Settings):
     }
 
     # Keep in sync with codalab-cli
-    CODALAB_VERSION = '0.2.26'
+    CODALAB_VERSION = '0.2.27'
 
     ############################################################
 
@@ -31,7 +31,11 @@ class Base(Settings):
 
     # Not really used anywhere in this frontend application, but Django
     # requires this to be defined so here it is.
-    SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', ''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)]))
+    SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', ''.join([
+        random.SystemRandom().choice(
+            'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)')
+        for i in range(50)
+    ]))
 
     # Local time zone for this installation. Choices can be found here:
     # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -55,7 +59,8 @@ class Base(Settings):
     USE_TZ = True
 
     # Where to find the config file templates (for nginx, not django)
-    CONFIG_GEN_TEMPLATES_DIR=os.path.join(os.path.dirname(PROJECT_DIR),'templates')
+    CONFIG_GEN_TEMPLATES_DIR = os.path.join(
+        os.path.dirname(PROJECT_DIR), 'templates')
 
     # Absolute filesystem path to the directory that will hold user-uploaded files.
     # Example: "/var/www/example.com/media/"
@@ -78,9 +83,9 @@ class Base(Settings):
 
     # Additional locations of static files
     STATICFILES_DIRS = (
-    # Put strings here, like "/home/html/static" or "C:/www/django/static".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
+        # Put strings here, like "/home/html/static" or "C:/www/django/static".
+        # Always use forward slashes, even on Windows.
+        # Don't forget to use absolute paths, not relative paths.
     )
 
     # List of finder classes that know how to find static files in
@@ -113,8 +118,7 @@ class Base(Settings):
         # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
         # Always use forward slashes, even on Windows.
         # Don't forget to use absolute paths, not relative paths.
-        os.path.join(PROJECT_DIR, 'templates'),
-    )
+        os.path.join(PROJECT_DIR, 'templates'), )
 
     TEMPLATE_CONTEXT_PROCESSORS = Settings.TEMPLATE_CONTEXT_PROCESSORS + (
         "codalab.context_processors.app_version_proc",
@@ -198,22 +202,24 @@ class Base(Settings):
 
     @classmethod
     def pre_setup(cls):
-        if hasattr(cls,'OPTIONAL_APPS'):
+        if hasattr(cls, 'OPTIONAL_APPS'):
             for a in cls.OPTIONAL_APPS:
                 try:
                     __import__(a)
                 except ImportError as e:
                     print e
                 else:
-                    cls.INSTALLED_APPS += (a,)
+                    cls.INSTALLED_APPS += (a, )
         if hasattr(cls, 'EXTRA_MIDDLEWARE_CLASSES'):
             cls.MIDDLEWARE_CLASSES += cls.EXTRA_MIDDLEWARE_CLASSES
 
+
 ############################################################
+
 
 class Dev(Base):
     OPTIONAL_APPS = ()
-    INTERNAL_IPS = ('127.0.0.1',)
+    INTERNAL_IPS = ('127.0.0.1', )
     DEBUG = True
     CACHES = {
         'default': {
@@ -223,14 +229,16 @@ class Dev(Base):
     # EXTRA_MIDDLEWARE_CLASSES = ('debug_toolbar.middleware.DebugToolbarMiddleware',)
     DEBUG_TOOLBAR_CONFIG = {
         'SHOW_TEMPLATE_CONTEXT': True,
-        'ENABLE_STACKTRACES' : True,
+        'ENABLE_STACKTRACES': True,
     }
     # Increase amount of logging output in Dev mode.
     for logger_name in ('codalab', 'apps'):
         Base.LOGGING['loggers'][logger_name]['level'] = 'DEBUG'
 
+
 class Prod(Base):
     pass
+
 
 # Types of deployment
 __all__ = ['Dev', 'Prod']
