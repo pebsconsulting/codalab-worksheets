@@ -1,0 +1,96 @@
+.frontpage-buttons {
+  margin: 15px;
+  padding: 10px;
+  text-align: center;
+}
+
+.frontpage-button {
+  margin: 15px;
+}
+
+.frontpage-button a {
+  background-color: #ffc266;  /* @button-color */
+  padding: 13px 26px;
+  color: #666;  /* @gray-dark */
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.frontpage-button a:hover {
+  background-color: #ffae33;  /* darken(@button-color, 10%) */
+}
+
+.frontpage-bundle-icon {
+  border-radius: 10px;
+  color: #f7f7f7;  /* @white-dark */
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 5px;
+  padding-right: 5px;
+  display: inline-block;
+  text-align: center;
+}
+
+.frontpage-header {
+  color: #739cb9;  /* @brand-primary */
+  font-weight: bold;
+}
+
+.frontpage-stage {
+  padding: 10px;
+  margin-left: 50px;
+}
+
+.frontpage-code {
+  margin: 10px;
+  margin-left: 30px;
+  font-family: monospace;
+  font-size: 14px;
+  color: #33aa33;
+}
+
+.frontpage-graphic {
+  padding-top: 100px;
+}
+
+.bg-blue {
+  background: #739cb9;  /* @blue */
+}
+
+.bg-green {
+  background: #92D053;  /* @green */
+}
+
+.jumbotron {
+  background: url('img/slider_exp_comp.gif') repeat-x center center;
+  background-size: cover;
+  background-color: #739cb9;  /* @brand-primary */
+  text-align: center;
+  padding: 36px 0 24px;
+  margin-bottom: 20px;
+}
+
+img.img-responsive {
+  max-width: 90%;
+  margin: 0 5%;
+}
+
+.jumbotron h4 {
+  margin-top: 12px;
+  font-size: 24px;
+}
+
+/* Background for CodaLab logo */
+.page-header {
+    margin:0 0 20px;
+    border:none;
+    background: url('img/tiled-header-bg.gif') repeat-x top left;
+    min-height: 80px;
+    color:white;
+    h1 {
+        margin-top:14px;
+        margin-bottom:0;
+    }
+}
+
