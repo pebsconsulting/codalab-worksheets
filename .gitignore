@@ -19,7 +19,7 @@ codalab/apps/web/static/dist
 codalab/apps/web/static/bower_components
 codalab/apps/web/package-lock.json
 
-venv/
+venv*/
 
 # Selenium/geckodriver
 geckodriver*
