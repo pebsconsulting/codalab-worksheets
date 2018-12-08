@@ -3,10 +3,14 @@ MAINTAINER CodaLab Worksheets <codalab.worksheets@gmail.com>
 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt-get update
-RUN apt-get install -y build-essential curl git
-RUN apt-get install -y python-dev python-software-properties python-virtualenv
-RUN apt-get install -y software-properties-common
+RUN apt-get update && apt-get install -y \
+  build-essential \
+  curl \
+  git \
+  python-dev \
+  python-software-properties \
+  python-virtualenv \
+  software-properties-common
 
 # Install Node.js
 RUN curl -sL https://deb.nodesource.com/setup_4.x | bash -
