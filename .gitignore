@@ -26,3 +26,5 @@ geckodriver*
 
 # For .dockerignore
 .git/
+
+*/node_modules/*
